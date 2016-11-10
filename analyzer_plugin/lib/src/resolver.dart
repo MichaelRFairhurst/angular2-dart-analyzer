@@ -273,47 +273,49 @@ class HtmlTreeConverter {
   List<AttributeInfo> _convertAttributes(html.Element element) {
     List<AttributeInfo> attributes = <AttributeInfo>[];
     element.attributes.forEach((name, String value) {
-      if (name is String) {
-        String lowerName = name.toLowerCase();
-        int nameOffset = element.attributeSpans[lowerName].start.offset;
-        // name
-        bool bound = false;
-        String propName = name;
-        int propNameOffset = nameOffset;
-        if (propName.startsWith('[') && propName.endsWith(']')) {
-          propNameOffset += 1;
-          propName = propName.substring(1, propName.length - 1);
-          bound = true;
-        } else if (propName.startsWith('bind-')) {
-          int bindLength = 'bind-'.length;
-          propNameOffset += bindLength;
-          propName = propName.substring(bindLength);
-          bound = true;
-        } else if (propName.startsWith('on-')) {
-          int bindLength = 'on-'.length;
-          propNameOffset += bindLength;
-          propName = propName.substring(bindLength);
-          bound = true;
-        } else if (propName.startsWith('(') && propName.endsWith(')')) {
-          propNameOffset += 1;
-          propName = propName.substring(1, propName.length - 1);
-          bound = true;
-        }
-        int propNameLength = propName != null ? propName.length : null;
-        // value
-        int valueOffset;
-        {
-          SourceSpan span = element.attributeValueSpans[lowerName];
-          if (span != null) {
-            valueOffset = span.start.offset;
-          } else {
-            value = null;
-          }
-        }
-        // add
-        attributes.add(new AttributeInfo(name, nameOffset, propName,
-            propNameOffset, propNameLength, bound, value, valueOffset));
-      }
+      try {
+	if (name is String) {
+	  String lowerName = name.toLowerCase();
+	  int nameOffset = element.attributeSpans[lowerName].start.offset;
+	  // name
+	  bool bound = false;
+	  String propName = name;
+	  int propNameOffset = nameOffset;
+	  if (propName.startsWith('[') && propName.endsWith(']')) {
+	    propNameOffset += 1;
+	    propName = propName.substring(1, propName.length - 1);
+	    bound = true;
+	  } else if (propName.startsWith('bind-')) {
+	    int bindLength = 'bind-'.length;
+	    propNameOffset += bindLength;
+	    propName = propName.substring(bindLength);
+	    bound = true;
+	  } else if (propName.startsWith('on-')) {
+	    int bindLength = 'on-'.length;
+	    propNameOffset += bindLength;
+	    propName = propName.substring(bindLength);
+	    bound = true;
+	  } else if (propName.startsWith('(') && propName.endsWith(')')) {
+	    propNameOffset += 1;
+	    propName = propName.substring(1, propName.length - 1);
+	    bound = true;
+	  }
+	  int propNameLength = propName != null ? propName.length : null;
+	  // value
+	  int valueOffset;
+	  {
+	    SourceSpan span = element.attributeValueSpans[lowerName];
+	    if (span != null) {
+	      valueOffset = span.start.offset;
+	    } else {
+	      value = null;
+	    }
+	  }
+	  // add
+	  attributes.add(new AttributeInfo(name, nameOffset, propName,
+	      propNameOffset, propNameLength, bound, value, valueOffset));
+	}
+      } catch(e) {}
     });
     return attributes;
   }
