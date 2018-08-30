@@ -552,8 +552,9 @@ class TemplateCompleter {
             (target.closingSpan.offset + target.closingSpan.length)) {
           // In closing tag, but could be directly after it; ex: '</div>^'.
           suggestHtmlTags(template, collector);
-          if (target.parent != null && target.parent is! DocumentInfo) {
-            suggestTransclusions(target.parent, collector);
+          final parent = target.parent;
+          if (parent is ElementInfo) {
+            suggestTransclusions(parent, collector);
           }
         }
       } else if (!offsetContained(request.offset, target.openingNameSpan.offset,
@@ -592,8 +593,9 @@ class TemplateCompleter {
       } else {
         // Otherwise, suggest HTML tags and transclusions.
         suggestHtmlTags(template, collector);
-        if (target.parent != null || target.parent is! DocumentInfo) {
-          suggestTransclusions(target.parent, collector);
+        final parent = target.parent;
+        if (parent is ElementInfo) {
+          suggestTransclusions(parent, collector);
         }
       }
     } else if (target is AttributeInfo && target.parent is TemplateAttribute) {
@@ -683,7 +685,10 @@ class TemplateCompleter {
       }
     } else if (target is TextInfo) {
       suggestHtmlTags(template, collector);
-      suggestTransclusions(target.parent, collector);
+      final parent = target.parent;
+      if (parent is ElementInfo) {
+        suggestTransclusions(parent, collector);
+      }
     }
   }
 

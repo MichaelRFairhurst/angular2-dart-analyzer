@@ -1,4 +1,5 @@
 import 'dart:math';
+import 'dart:developer';
 
 import 'package:analyzer/dart/ast/ast.dart';
 import 'package:analyzer/dart/ast/token.dart';
@@ -385,7 +386,7 @@ class HtmlTreeConverter {
 
   NodeInfo convert(
     StandaloneTemplateAst node, {
-    @required ElementInfo parent,
+    @required HasDirectives parent,
   }) {
     if (node is ElementAst) {
       final attributes = _convertAttributes(
@@ -462,27 +463,59 @@ class HtmlTreeConverter {
           offset, text, parent, dartParser.findMustaches(text, offset));
     } else if (node is InterpolationAst) {
       final offset = node.sourceSpan.start.offset;
-      final text = '{{${node.value}}}';
-      return new TextInfo(
-          offset, text, parent, dartParser.findMustaches(text, offset));
+      final open = node.beginToken.errorSynthetic ? '' : '{{';
+      final close = node.endToken.errorSynthetic ? '' : '}}';
+      final text = '$open${node.value}$close';
+      final expression = dartParser.parseDartExpression(
+          offset + open.length, node.value,
+          detectTrailing: true);
+      ;
+      return new TextInfo(offset, text, parent, [
+        new Mustache(
+          offset,
+          node.sourceSpan.length,
+          expression,
+          offset + open.length,
+          node.sourceSpan.end.offset - close.length,
+        )
+      ]);
+    } else if (node is CommentAst) {
+      final open = '<!--';
+      final close = node.endToken.errorSynthetic ? '' : '-->';
+      return new CommentInfo(
+          '$open${node.value}$close', node.beginToken.offset);
     } else {
-      assert(
-          node is CommentAst, 'Unknown node type ${node.runtimeType} ($node)');
+      assert(false, 'Unknown node type ${node.runtimeType} ($node)');
     }
     return null;
   }
 
   DocumentInfo convertFromAstList(List<StandaloneTemplateAst> asts) {
-    final root = new DocumentInfo();
+    // Get the final token of the template
+    TemplateAst lastAst = asts.lastWhere((_) => true, orElse: () => null);
+    //if (lastAst is ElementAst && !lastAst.isSynthetic) {
+    //  // handle `<div></div>`, jump to div.closeComplement.endToken.
+    //  lastAst = (lastAst as ElementAst).closeComplement;
+    //}
+    debugger();
+
+    if (lastAst.isSynthetic) {
+      print(lastAst);
+    }
+    final end = lastAst == null ? 0 : lastAst.sourceSpan.end.offset;
+
+    final root = new DocumentInfo(end);
     if (asts.isEmpty) {
-      root.childNodes.add(new TextInfo(0, '', root, []));
+      root.children.add(new TextInfo(0, '', root, []));
     }
     for (final node in asts) {
       final convertedNode = convert(node, parent: root);
       if (convertedNode != null) {
-        root.childNodes.add(convertedNode);
+        root.children.add(convertedNode);
       }
     }
+
+    assert(_AssertHtmlIsWellFormed.verify(root));
     return root;
   }
 
@@ -793,7 +826,7 @@ class HtmlTreeConverter {
       String tagName,
       List<AttributeInfo> attributes,
       CloseElementAst closeComplement,
-      ElementInfo parent) {
+      HasDirectives parent) {
     final isTemplate = tagName == 'template';
     SourceRange openingSpan;
     SourceRange openingNameSpan;
@@ -867,4 +900,133 @@ class IgnorableHtmlInternalException implements Exception {
 
   @override
   String toString() => "IgnorableHtmlInternalException: $msg";
+}
+
+class _AssertHtmlIsWellFormed extends AngularAstVisitor {
+  /// Certain node types, like Document and Element have perfectly contiguous
+  /// child nodes based on offset data. Does not operate recursively.
+  void assertContiguousChildren(AngularAstNode node,
+      {List<AngularAstNode> children}) {
+    children ??= List<AngularAstNode>.from(node.children);
+    final lastOffset = walkSiblings(children, (child, siblingEndOffset) {
+      assert(
+          child.offset == siblingEndOffset,
+          "$child isn't completely contiguous with sibling (${child.offset} vs"
+          ' $siblingEndOffset)');
+    });
+
+    if (lastOffset == null) {
+      return;
+    }
+  }
+
+  /// Before running a visitor type which looks at constraints by node type, run
+  /// a basic check that no child begins or ends at a earlier or later offset
+  /// than their parent. Operates recursively.
+  void assertWellFormedBasic(AngularAstNode node) {
+    assert(node.offset != null);
+    assert(node.length != null);
+
+    final lastOffset = walkSiblings(node.children, (child, siblingEndOffset) {
+      assertWellFormedBasic(child); // Recurse here!
+      //assert(
+      //    child.offset >= siblingEndOffset,
+      //    '$child begins before previous sibling (${child.offset} vs'
+      //    ' $siblingEndOffset)');
+    });
+
+    if (lastOffset == null) {
+      assert(node.children.isEmpty);
+      return;
+    }
+
+    assert(
+        node.offset + node.length >= lastOffset,
+        'node $node is shorter than children (${node.offset + node.length} vs'
+        ' $lastOffset)');
+  }
+
+  @override
+  void visitDocumentInfo(DocumentInfo document) {
+    assert(document.offset == 0);
+    assert(document.children.isNotEmpty);
+    assert(document.children.first.offset == 0);
+    assert(document.children.last.offset + document.children.last.length ==
+        document.length);
+    assertContiguousChildren(document);
+    super.visitDocumentInfo(document);
+  }
+
+  @override
+  void visitElementInfo(ElementInfo element) {
+    assert(element.parent != null);
+    if (element.openingSpanIsClosed &&
+        element.isTemplate &&
+        element.localName != 'ng-content' &&
+        element.localName != 'ng-container') {
+      assert(element.children.isNotEmpty);
+    }
+    assertContiguousChildren(element, children: element.childNodes);
+    super.visitElementInfo(element);
+  }
+
+  @override
+  void visitEmptyStarBinding(EmptyStarBinding emptyBinding) {
+    // TODO: implement visitEmptyStarBinding
+  }
+
+  @override
+  void visitExpressionBoundAttr(ExpressionBoundAttribute attr) {
+    // TODO: implement visitExpressionBoundAttr
+  }
+
+  @override
+  void visitMustache(Mustache mustache) {
+    // TODO: implement visitMustache
+  }
+
+  @override
+  void visitStatementsBoundAttr(StatementsBoundAttribute attr) {
+    // TODO: implement visitStatementsBoundAttr
+  }
+
+  @override
+  void visitTemplateAttr(TemplateAttribute attr) {
+    // TODO: implement visitTemplateAttr
+  }
+
+  @override
+  void visitTextAttr(TextAttribute textAttr) {
+    // TODO: implement visitTextAttr
+  }
+
+  @override
+  void visitTextInfo(TextInfo textInfo) {
+    // TODO: implement visitTextInfo
+  }
+
+  /// Walk a list of AstNodes as siblings, each children to their prior
+  /// sibling's end offset. Returns the end offset of the final node.
+  int walkSiblings(
+      List<AngularAstNode> nodes, void Function(AngularAstNode, int) walker) {
+    if (nodes.isEmpty) {
+      return null;
+    }
+    var lastOffset = nodes.first.offset + nodes.first.length;
+    for (final child in nodes.skip(1)) {
+      walker(child, lastOffset);
+      lastOffset = child.offset + child.length;
+    }
+
+    return lastOffset;
+  }
+
+  /// Pass this into assert() to check a node in tests but not production. This
+  /// code will then run its own asserts, and return true, so the outermost
+  /// assert passes.
+  static bool verify(AngularAstNode ast) {
+    final visitor = new _AssertHtmlIsWellFormed()..assertWellFormedBasic(ast);
+    ast.accept(visitor);
+    return true;
+  }
 }

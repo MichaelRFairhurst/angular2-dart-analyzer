@@ -16,7 +16,7 @@ abstract class AngularAstNode {
 
 abstract class AngularAstVisitor {
   void visitDocumentInfo(DocumentInfo document) {
-    for (AngularAstNode child in document.childNodes) {
+    for (final child in document.children) {
       child.accept(this);
     }
   }
@@ -96,6 +96,31 @@ abstract class BoundAttributeInfo extends AttributeInfo {
   String toString() => '(${super.toString()}, [$children])';
 }
 
+/// A text node in an HTML tree.
+class CommentInfo extends NodeInfo {
+  final String text;
+
+  @override
+  final int offset;
+  CommentInfo(this.text, this.offset);
+
+  @override
+  List<AngularAstNode> get children => [];
+
+  @override
+  bool get isSynthetic => false;
+
+  @override
+  int get length => text.length;
+
+  @override
+  void accept(AngularAstVisitor visitor) {
+    // TODO(mfairhurst) add visitComment if validation ever needed.
+    //
+    // Deliberately empty for now.
+  }
+}
+
 /// Allows us to track ranges for navigating ContentChild(ren), and detect when
 /// multiple ContentChilds are matched which is an error.
 
@@ -127,27 +152,32 @@ class DirectiveBinding {
 }
 
 /// A wrapper for a given HTML document or dart-angular inline HTML template.
-class DocumentInfo extends ElementInfo {
-  factory DocumentInfo() = DocumentInfo._;
-
-  DocumentInfo._()
-      : super(
-          '',
-          const SourceRange(0, 0),
-          const SourceRange(0, 0),
-          const SourceRange(0, 0),
-          const SourceRange(0, 0),
-          [],
-          null,
-          null,
-          isTemplate: false,
-        );
+class DocumentInfo extends NodeInfo implements HasDirectives {
+  @override
+  final children = <AngularAstNode>[];
 
   @override
-  List<AngularAstNode> get children => childNodes;
+  final int length;
+
+  DocumentInfo(this.length);
+
+  @override
+  Map<AbstractDirective, List<AngularElement>> get availableDirectives => {};
+
+  @override
+  List<DirectiveBinding> get boundDirectives => [];
+
+  @override
+  List<InputBinding> get boundStandardInputs => [];
+
+  @override
+  List<OutputBinding> get boundStandardOutputs => [];
 
   @override
   bool get isSynthetic => false;
+
+  @override
+  int get offset => 0;
 
   @override
   void accept(AngularAstVisitor visitor) => visitor.visitDocumentInfo(this);
@@ -165,7 +195,7 @@ class ElementInfo extends NodeInfo implements HasDirectives {
   final bool isTemplate;
   final List<AttributeInfo> attributes;
   final TemplateAttribute templateAttribute;
-  final ElementInfo parent;
+  final HasDirectives parent;
 
   @override
   final boundDirectives = <DirectiveBinding>[];
@@ -450,7 +480,7 @@ class TextAttribute extends AttributeInfo {
 /// A text node in an HTML tree.
 class TextInfo extends NodeInfo {
   final List<Mustache> mustaches;
-  final ElementInfo parent;
+  final AngularAstNode parent;
   final String text;
 
   @override
@@ -471,4 +501,7 @@ class TextInfo extends NodeInfo {
 
   @override
   void accept(AngularAstVisitor visitor) => visitor.visitTextInfo(this);
+
+  @override
+  String toString() => 'TextInfo($text, mustaches: $mustaches)';
 }

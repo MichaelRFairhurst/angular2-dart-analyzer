@@ -603,17 +603,17 @@ class Template {
   /// The [ResolvedRange]s of the template.
   final ranges = <ResolvedRange>[];
 
-  /// The [ElementInfo] that begins the AST of the resolved template
-  ElementInfo _ast;
+  /// The [DocumentInfo] that begins the AST of the resolved template
+  DocumentInfo _ast;
 
   /// The errors that are ignored in this template
   final ignoredErrors = new HashSet<String>();
 
   Template(this.view);
 
-  ElementInfo get ast => _ast;
+  DocumentInfo get ast => _ast;
 
-  set ast(ElementInfo ast) {
+  set ast(DocumentInfo ast) {
     if (_ast != null) {
       throw new StateError("AST is already set, shouldn't be set again");
     }

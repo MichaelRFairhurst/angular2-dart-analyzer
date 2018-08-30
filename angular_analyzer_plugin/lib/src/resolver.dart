@@ -239,7 +239,8 @@ class AngularScopeVisitor extends AngularAstVisitor {
   @override
   void visitDocumentInfo(DocumentInfo document) {
     visitingRoot = false;
-    visitElementInScope(document);
+    document.children.whereType<ElementInfo>().forEach(visitElementInfo);
+    document.children.whereType<TextInfo>().forEach(visitTextInfo);
   }
 
   @override
@@ -670,7 +671,7 @@ class NextTemplateElementsSearch extends AngularAstVisitor {
   @override
   void visitDocumentInfo(DocumentInfo document) {
     visitingRoot = false;
-    for (final child in document.childNodes) {
+    for (final child in document.children) {
       child.accept(this);
     }
   }
@@ -1825,7 +1826,7 @@ class TemplateResolver {
   /// breakdown of what we do and why.
   ///
   /// Requires that we've already resolved the directives down the tree.
-  void _resolveScope(ElementInfo element) {
+  void _resolveScope(AngularAstNode element) {
     if (element == null) {
       return;
     }
