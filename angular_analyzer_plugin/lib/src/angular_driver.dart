@@ -281,6 +281,11 @@ class AngularDriver
       ((Source source) => // ignore: avoid_types_on_closure_parameters
           source.exists() ? source.contents.data : "")(_getSource(path));
 
+  Future<String> getHtmlKey(String htmlPath) async {
+    final key = await _fileTracker.getHtmlSignature(htmlPath);
+    return '${key.toHex()}.ngresolved';
+  }
+
   @override
   List<syntactic.NgContent> getHtmlNgContent(String path) {
     final baseKey = _fileTracker.getContentSignature(path).toHex();
@@ -411,8 +416,8 @@ class AngularDriver
   }
 
   @override
-  ApiSignature getUnitElementHash(String path) =>
-      dartDriver.getUnitKeyByPath(path);
+  Future<String> getUnitElementSignature(String path) =>
+      dartDriver.getUnitElementSignature(path);
 
   @override
   Future<Null> performWork() async {
@@ -514,7 +519,7 @@ class AngularDriver
 
   String _getHtmlKey(String htmlPath) {
     final key = _fileTracker.getHtmlSignature(htmlPath);
-    return '${key.toHex()}.ngresolved';
+    return '$key.ngresolved';
   }
 
   Source _getSource(String path) =>
@@ -557,7 +562,7 @@ class AngularDriver
       return null;
     }
 
-    final baseKey = _fileTracker.getUnitElementSignature(path).toHex();
+    final baseKey = (await _fileTracker.getUnitElementSignature(path)).toHex();
     final key = '$baseKey.ngresolved';
 
     if (lastSignatures[path] == key && onlyIfChangedSignature) {
@@ -684,7 +689,7 @@ class AngularDriver
     String htmlPath, {
     bool ignoreCache: false,
   }) async {
-    final key = _getHtmlKey(htmlPath);
+    final key = await getHtmlKey(htmlPath);
     final bytes = byteStore.get(key);
     final htmlSource = _sourceFactory.forUri('file:$htmlPath');
     if (!ignoreCache && bytes != null) {
