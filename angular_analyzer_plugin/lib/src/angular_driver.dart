@@ -519,7 +519,7 @@ class AngularDriver
 
   String _getHtmlKey(String htmlPath) {
     final key = _fileTracker.getHtmlSignature(htmlPath);
-    return '${key.toHex()}.ngresolved';
+    return '$key.ngresolved';
   }
 
   Source _getSource(String path) =>
