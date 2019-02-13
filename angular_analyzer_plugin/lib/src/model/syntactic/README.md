@@ -101,3 +101,42 @@ implementations: `FromConstExpression` and `FromConstLiteral`.
 FileTracker which would allow us to only reanalyze downstream files. However,
 the downstream files may be all other project files, so the worst case is still
 O(n).
+
+## NgContents (in `ng_content.dart`)
+
+Another subtlety is the way that ng-contents are *partially* syntactic. If a
+component has an inline template, that component's ng-contents cannot change
+until the dart file itself is changed:
+
+```dart
+@Component(
+    template: r'''
+<ng-content></ng-content>
+<ng-content selector="..."></ng-content>
+''',
+    ...
+)
+class ...
+```
+
+These `ng-content`s are purely syntactic and should be represented on the
+`Component` class in the syntactic model.
+
+However, external ng-contents are not syntactic *relative to the component*:
+
+```dart
+@Component(
+    templateUrl: 'template-with-ng-contents.html',
+    ...
+)
+class ...
+```
+
+Here, the component's `ng-content`s can change either when the dart file changes
+to reference a different `templateUrl`, _or_ when the _html_ file changes.
+
+Therefore, `ng-content`s themselves are syntactic, and inline `ng-content`s are
+part of the syntactic component model, but external `ng-content`s are not
+included. This is my the getter is named `inlineNgContents` and not simply
+`ngContents`, and there are comments referencing this document in relevent
+areas.
