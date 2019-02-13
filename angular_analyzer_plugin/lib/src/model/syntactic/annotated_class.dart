@@ -3,6 +3,7 @@ import 'package:angular_analyzer_plugin/src/model/syntactic/content_child.dart';
 import 'package:angular_analyzer_plugin/src/model/syntactic/input.dart';
 import 'package:angular_analyzer_plugin/src/model/syntactic/output.dart';
 import 'package:angular_analyzer_plugin/src/model/syntactic/top_level.dart';
+import 'package:meta/meta.dart';
 
 /// Syntactic representation of a class annotated with angular annotations.
 /// Might be a directive, or a component, or neither. It might simply have
@@ -14,35 +15,26 @@ class AnnotatedClass extends TopLevel {
   @override
   final Source source;
 
-  /// Which fields have been marked `@ContentChild`, and the range of the type
-  /// argument. The element model contains the rest. This should be stored in the
-  /// summary, so that at link time we can report errors discovered in the model
-  /// against the range we saw in the AST.
-  @override
+  /// The `@Input()` declarations on this class.
+  final List<Input> inputs;
+
+  /// The `@Input()` declarations on this class.
+  final List<Output> outputs;
+
+  /// The `@ContentChild()` declarations on this class.
   final List<ContentChild> contentChildFields;
 
-  @override
+  /// The `@ContentChildren()` declarations on this class.
   final List<ContentChild> contentChildrenFields;
 
   AnnotatedClass(this.className, this.source,
-      {List<Input> inputs,
-      List<Output> outputs,
-      this.contentChildFields,
-      this.contentChildrenFields})
-      : super(inputs: inputs, outputs: outputs);
-
-  @override
-  int get hashCode => className.hashCode * 11 + source.hashCode;
-
-  @override
-  bool operator ==(Object other) =>
-      other is AnnotatedClass &&
-      other.className == className &&
-      other.source == source;
+      {@required this.inputs,
+      @required this.outputs,
+      @required this.contentChildFields,
+      @required this.contentChildrenFields});
 
   @override
   String toString() => '$runtimeType($className '
       'inputs=$inputs '
-      'outputs=$outputs '
-      'attributes=$attributes)';
+      'outputs=$outputs)';
 }

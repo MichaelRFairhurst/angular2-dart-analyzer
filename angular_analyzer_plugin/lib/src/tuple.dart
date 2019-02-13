@@ -7,6 +7,13 @@ class Tuple2<A, B> {
   Tuple2(this.item1, this.item2);
 }
 
+class Tuple3<A, B, C> {
+  final A item1;
+  final B item2;
+  final C item3;
+  Tuple3(this.item1, this.item2, this.item3);
+}
+
 class Tuple4<A, B, C, D> {
   final A item1;
   final B item2;

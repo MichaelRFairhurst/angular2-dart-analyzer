@@ -1,17 +1,17 @@
 import 'package:analyzer/src/generated/source.dart' show Source;
 import 'package:analyzer/src/generated/source.dart' show Source, SourceRange;
-import 'package:angular_analyzer_plugin/src/model/syntactic/base_class_directive.dart';
-import 'package:angular_analyzer_plugin/src/model/syntactic/component_with_contents.dart';
+import 'package:angular_analyzer_plugin/src/model/navigable.dart';
 import 'package:angular_analyzer_plugin/src/model/syntactic/content_child.dart';
-import 'package:angular_analyzer_plugin/src/model/syntactic/element.dart';
+import 'package:angular_analyzer_plugin/src/model/syntactic/directive.dart';
 import 'package:angular_analyzer_plugin/src/model/syntactic/input.dart';
 import 'package:angular_analyzer_plugin/src/model/syntactic/ng_content.dart';
 import 'package:angular_analyzer_plugin/src/model/syntactic/output.dart';
 import 'package:angular_analyzer_plugin/src/model/syntactic/reference.dart';
 import 'package:angular_analyzer_plugin/src/selector.dart';
+import 'package:meta/meta.dart';
 
-/// Syntactic model of an Angular component. It is usable as a directive, must
-/// be a class, and has "view" information.
+/// Syntactic model of an Angular component. It is essentiall a directive, with
+/// "view" information.
 ///
 /// ```dart
 /// @Component(
@@ -38,7 +38,10 @@ import 'package:angular_analyzer_plugin/src/selector.dart';
 ///   );
 /// }
 /// ```
-class Component extends BaseClassDirective {
+///
+/// Note that the syntactic model of a component only includes its inline
+/// [NgContent]s. See [ngContent]/README.md for more information.
+class Component extends Directive {
   /// Directives references. May be `directives: LIST_OF_DIRECTIVES`, or
   /// `directives: [DirectiveA, DirectiveB, ...]`.
   final ListOrReference directives;
@@ -51,52 +54,39 @@ class Component extends BaseClassDirective {
   /// `exports: [foo, bar, ...]`.
   final ListOrReference exports;
 
+  /// The inline [NgContents] of this component. For inline, a dart file
+  /// contains the same [NgContent]s until modified, making it purely
+  /// "syntactic." For [templateUrl]s, the [NgContent]s depend on the
+  /// combination of the dart+html file, making it non-syntactic. See README.md.
+  final List<NgContent> inlineNgContents;
+
   final String templateText;
   final int templateOffset;
   final String templateUrl;
   final SourceRange templateUrlRange;
 
   Component(String className, Source source,
-      {AngularElement exportAs,
-      List<Input> inputs,
-      List<Output> outputs,
-      Selector selector,
-      List<ElementNameSelector> elementTags,
-      List<ContentChild> contentChildFields,
-      List<ContentChild> contentChildrenFields,
-      this.directives,
-      this.pipes,
-      this.exports,
-      this.templateText,
-      this.templateOffset: 0,
-      this.templateUrl,
-      this.templateUrlRange})
+      {@required String exportAs,
+      @required SourceRange exportAsRange,
+      @required List<Input> inputs,
+      @required List<Output> outputs,
+      @required Selector selector,
+      @required List<ContentChild> contentChildFields,
+      @required List<ContentChild> contentChildrenFields,
+      @required this.directives,
+      @required this.pipes,
+      @required this.exports,
+      @required this.templateText,
+      @required this.templateOffset,
+      @required this.inlineNgContents,
+      @required this.templateUrl,
+      @required this.templateUrlRange})
       : super(className, source,
             exportAs: exportAs,
+            exportAsRange: exportAsRange,
             inputs: inputs,
             outputs: outputs,
             selector: selector,
-            elementTags: elementTags,
             contentChildFields: contentChildFields,
             contentChildrenFields: contentChildrenFields);
-
-  int get end => templateOffset + templateText.length;
-
-  ComponentWithNgContents withNgContents(List<NgContent> ngContents) =>
-      ComponentWithNgContents(className, source,
-          exportAs: exportAs,
-          inputs: inputs,
-          outputs: outputs,
-          selector: selector,
-          elementTags: elementTags,
-          contentChildFields: contentChildFields,
-          contentChildrenFields: contentChildrenFields,
-          directives: directives,
-          pipes: pipes,
-          exports: exports,
-          templateText: templateText,
-          templateOffset: templateOffset,
-          templateUrl: templateUrl,
-          templateUrlRange: templateUrlRange,
-          ngContents: ngContents);
 }

@@ -15,6 +15,7 @@ import 'package:analyzer/src/generated/engine.dart';
 import 'package:analyzer/src/generated/resolver.dart' show TypeProvider;
 import 'package:analyzer/src/generated/source.dart' show SourceRange, Source;
 import 'package:angular_analyzer_plugin/errors.dart';
+import 'package:angular_analyzer_plugin/src/ignoring_error_listener.dart';
 import 'package:angular_analyzer_plugin/src/model.dart';
 import 'package:angular_analyzer_plugin/src/model/syntactic/ng_content.dart';
 import 'package:angular_analyzer_plugin/src/selector.dart';
@@ -825,11 +826,9 @@ class DirectiveLinker {
                     ngContentSum.selectorStr)
                 .parse();
         return new NgContent.withSelector(
-            ngContentSum.offset,
-            ngContentSum.length,
+            new SourceRange(ngContentSum.offset, ngContentSum.length),
             selector,
-            selector?.offset,
-            ngContentSum.selectorStr.length);
+            new SourceRange(selector?.offset, ngContentSum.selectorStr.length));
       }).toList();
 
   List<OutputElement> deserializeOutputs(
@@ -1085,11 +1084,6 @@ abstract class FileDirectiveProvider {
 
 abstract class FilePipeProvider {
   Future<List<Pipe>> getUnlinkedPipes(String path);
-}
-
-class IgnoringErrorListener implements AnalysisErrorListener {
-  @override
-  void onError(Object o) {}
 }
 
 class InheritedMetadataLinker {

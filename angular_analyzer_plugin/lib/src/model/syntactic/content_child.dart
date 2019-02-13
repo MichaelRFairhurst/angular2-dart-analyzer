@@ -1,4 +1,5 @@
 import 'package:analyzer/src/generated/source.dart' show SourceRange;
+import 'package:meta/meta.dart';
 
 /// Syntactic model of `ContentChild`/`ContentChildren`. This may appear as:
 ///
@@ -16,5 +17,6 @@ class ContentChild {
   final SourceRange nameRange;
   final SourceRange typeRange;
 
-  ContentChild(this.fieldName, {this.nameRange, this.typeRange});
+  ContentChild(this.fieldName,
+      {@required this.nameRange, @required this.typeRange});
 }

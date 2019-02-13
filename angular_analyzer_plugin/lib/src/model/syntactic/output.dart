@@ -1,5 +1,5 @@
-import 'package:analyzer/src/generated/source.dart' show Source, SourceRange;
-import 'package:angular_analyzer_plugin/src/model/syntactic/element.dart';
+import 'package:analyzer/src/generated/source.dart' show SourceRange;
+import 'package:meta/meta.dart';
 
 /// The model for an Angular output.
 ///
@@ -11,9 +11,16 @@ import 'package:angular_analyzer_plugin/src/model/syntactic/element.dart';
 /// By tracking the name, we can resolve the type at link time. We track the
 /// [SourceRange] (as well as [nameOffset] and [nameLength] to help expose
 /// better errors at that time.
-///
-/// Extends [AngularElementImpl] because it is navigable.
-class Output extends AngularElementImpl {
+class Output {
+  /// The name of the output. Usually the field name, but may be overridden by
+  /// the annotation.
+  final String name;
+
+  /// The [SourceRange} of the output [name].
+  final SourceRange nameRange;
+
+  /// The name of the getter backing the input, to be linked/resolved against
+  /// the element model later.
   final String getterName;
 
   /// The [SourceRange] where [getter] is referenced in the input declaration.
@@ -21,10 +28,12 @@ class Output extends AngularElementImpl {
   /// names of a input and the getter are the same.
   final SourceRange getterRange;
 
-  Output(String name, int nameOffset, int nameLength, Source source,
-      this.getterName, this.getterRange)
-      : super(name, nameOffset, nameLength, source);
+  Output(
+      {@required this.name,
+      @required this.nameRange,
+      @required this.getterName,
+      @required this.getterRange});
 
   @override
-  String toString() => 'Output($name, $nameOffset, $nameLength, $getterName)';
+  String toString() => 'Output($name, $getterName)';
 }

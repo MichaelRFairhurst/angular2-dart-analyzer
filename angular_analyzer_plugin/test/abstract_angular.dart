@@ -18,9 +18,11 @@ import 'package:analyzer/src/generated/source_io.dart';
 import 'package:angular_analyzer_plugin/notification_manager.dart';
 import 'package:angular_analyzer_plugin/src/angular_driver.dart';
 import 'package:angular_analyzer_plugin/src/model.dart';
-import 'package:angular_analyzer_plugin/src/model/syntactic/base_directive.dart'
-    as syntactic;
 import 'package:angular_analyzer_plugin/src/model/syntactic/component.dart'
+    as syntactic;
+import 'package:angular_analyzer_plugin/src/model/syntactic/directive.dart'
+    as syntactic;
+import 'package:angular_analyzer_plugin/src/model/syntactic/directive_base.dart'
     as syntactic;
 import 'package:angular_analyzer_plugin/src/options.dart';
 import 'package:angular_analyzer_plugin/src/selector.dart';
@@ -82,12 +84,14 @@ ResolvedRange getResolvedRangeAtString(
 }
 
 syntactic.Component getSyntacticComponentByName(
-        List<syntactic.BaseDirective> directives, String name) =>
+        List<syntactic.DirectiveBase> directives, String name) =>
     getSyntacticDirectiveByName(directives, name) as syntactic.Component;
 
-syntactic.BaseDirective getSyntacticDirectiveByName(
-        List<syntactic.BaseDirective> directives, String name) =>
-    directives.firstWhere((directive) => directive.name == name, orElse: () {
+syntactic.Directive getSyntacticDirectiveByName(
+        List<syntactic.DirectiveBase> directives, String name) =>
+    directives
+        .whereType<syntactic.Directive>()
+        .firstWhere((directive) => directive.className == name, orElse: () {
       fail('DirectiveMetadata with the class "$name" was not found.');
     });
 

@@ -843,7 +843,8 @@ class NgContentRecorder extends AngularScopeVisitor {
     }
 
     if (selectorAttrs.isEmpty) {
-      ngContents.add(new NgContent(element.offset, element.length));
+      ngContents
+          .add(new NgContent(SourceRange(element.offset, element.length)));
       return;
     }
 
@@ -870,11 +871,9 @@ class NgContentRecorder extends AngularScopeVisitor {
                 source, selectorAttr.valueOffset, selectorAttr.value)
             .parse();
         ngContents.add(new NgContent.withSelector(
-            element.offset,
-            element.length,
+            SourceRange(element.offset, element.length),
             selector,
-            selectorAttr.valueOffset,
-            selectorAttr.value.length));
+            SourceRange(selectorAttr.valueOffset, selectorAttr.value.length)));
       }
     } on SelectorParseError catch (e) {
       errorReporter.reportErrorForOffset(

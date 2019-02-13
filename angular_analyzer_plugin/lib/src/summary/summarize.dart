@@ -3,14 +3,14 @@ import 'package:analyzer/src/generated/source.dart' show SourceRange;
 import 'package:analyzer/src/summary/api_signature.dart';
 import 'package:angular_analyzer_plugin/src/angular_driver.dart';
 import 'package:angular_analyzer_plugin/src/model/syntactic/annotated_class.dart';
-import 'package:angular_analyzer_plugin/src/model/syntactic/base_class_directive.dart';
-import 'package:angular_analyzer_plugin/src/model/syntactic/base_directive.dart';
 import 'package:angular_analyzer_plugin/src/model/syntactic/component.dart';
-import 'package:angular_analyzer_plugin/src/model/syntactic/component_with_contents.dart';
+import 'package:angular_analyzer_plugin/src/model/syntactic/directive.dart';
+import 'package:angular_analyzer_plugin/src/model/syntactic/directive_base.dart';
 import 'package:angular_analyzer_plugin/src/model/syntactic/functional_directive.dart';
 import 'package:angular_analyzer_plugin/src/model/syntactic/ng_content.dart';
 import 'package:angular_analyzer_plugin/src/model/syntactic/pipe.dart';
 import 'package:angular_analyzer_plugin/src/model/syntactic/reference.dart';
+import 'package:angular_analyzer_plugin/src/model/syntactic/top_level.dart';
 import 'package:angular_analyzer_plugin/src/summary/format.dart';
 import 'package:angular_analyzer_plugin/src/summary/idl.dart';
 
@@ -23,7 +23,7 @@ SummarizedClassAnnotationsBuilder summarizeAnnotatedClass(
   final contentChildrenFields = <SummarizedContentChildFieldBuilder>[];
   for (final input in clazz.inputs) {
     final name = input.name;
-    final nameOffset = input.nameOffset;
+    final nameOffset = input.nameRange.offset;
     final propName = input.setterName.replaceAll('=', '');
     final propNameOffset = input.setterRange.offset;
     inputs.add(new SummarizedBindableBuilder()
@@ -34,7 +34,7 @@ SummarizedClassAnnotationsBuilder summarizeAnnotatedClass(
   }
   for (final output in clazz.outputs) {
     final name = output.name;
-    final nameOffset = output.nameOffset;
+    final nameOffset = output.nameRange.offset;
     final propName = output.getterName.replaceAll('=', '');
     final propNameOffset = output.getterRange.offset;
     outputs.add(new SummarizedBindableBuilder()
@@ -68,14 +68,13 @@ SummarizedClassAnnotationsBuilder summarizeAnnotatedClass(
 }
 
 UnlinkedDartSummaryBuilder summarizeDartResult(
-    List<BaseDirective> directives,
-    List<Pipe> pipes,
-    List<AnnotatedClass> annotatedClasses,
-    List<AnalysisError> errors) {
-  final dirSums = summarizeDirectives(directives);
-  final pipeSums = summarizePipes(pipes);
-  final classSums = annotatedClasses
-      .where((c) => c is! BaseDirective)
+    List<TopLevel> topLevels, List<AnalysisError> errors) {
+  final dirSums =
+      summarizeDirectives(topLevels.whereType<DirectiveBase>().toList());
+  final pipeSums = summarizePipes(topLevels.whereType<Pipe>().toList());
+  final classSums = topLevels
+      .whereType<AnnotatedClass>()
+      .where((c) => c is! DirectiveBase)
       .map(summarizeAnnotatedClass)
       .toList();
   final summary = new UnlinkedDartSummaryBuilder()
@@ -87,13 +86,11 @@ UnlinkedDartSummaryBuilder summarizeDartResult(
 }
 
 List<SummarizedDirectiveBuilder> summarizeDirectives(
-    List<BaseDirective> directives) {
+    List<DirectiveBase> directives) {
   final dirSums = <SummarizedDirectiveBuilder>[];
   for (final directive in directives) {
     final selector = directive.selector.originalString;
     final selectorOffset = directive.selector.offset;
-    final exportAs = directive?.exportAs?.name;
-    final exportAsOffset = directive?.exportAs?.nameOffset;
     final exports = <SummarizedExportedIdentifierBuilder>[];
     if (directive is Component) {
       for (final export in toReferenceList(directive.exports)) {
@@ -113,7 +110,13 @@ List<SummarizedDirectiveBuilder> summarizeDirectives(
     String templateText;
     int templateTextOffset;
     SourceRange constDirectivesSourceRange;
-    if (directive is ComponentWithNgContents) {
+    String exportAs;
+    int exportAsOffset;
+    if (directive is Directive) {
+      exportAs = directive?.exportAs;
+      exportAsOffset = directive?.exportAsRange?.offset;
+    }
+    if (directive is Component) {
       templateUrl = directive.templateUrl;
       templateUrlOffset = directive.templateUrlRange?.offset;
       templateUrlLength = directive.templateUrlRange?.length;
@@ -142,17 +145,18 @@ List<SummarizedDirectiveBuilder> summarizeDirectives(
             ..prefix = pipe.prefix)
           .toList();
 
-      if (directive.ngContents != null) {
-        ngContents.addAll(summarizeNgContents(directive.ngContents));
+      if (directive.inlineNgContents != null) {
+        ngContents.addAll(summarizeNgContents(directive.inlineNgContents));
       }
     }
 
     dirSums.add(new SummarizedDirectiveBuilder()
-      ..classAnnotations = directive is BaseClassDirective
-          ? summarizeAnnotatedClass(directive)
+      ..classAnnotations = directive is! FunctionalDirective
+          ? summarizeAnnotatedClass(directive as AnnotatedClass)
           : null
       ..isComponent = directive is Component
-      ..functionName = directive is FunctionalDirective ? directive.name : null
+      ..functionName =
+          directive is FunctionalDirective ? directive.functionName : null
       ..selectorStr = selector
       ..selectorOffset = selectorOffset
       ..exportAs = exportAs
@@ -192,8 +196,8 @@ List<SummarizedNgContentBuilder> summarizeNgContents(
         .map((ngContent) => new SummarizedNgContentBuilder()
           ..selectorStr = ngContent.selector?.originalString
           ..selectorOffset = ngContent.selector?.offset
-          ..offset = ngContent.offset
-          ..length = ngContent.length)
+          ..offset = ngContent.sourceRange.offset
+          ..length = ngContent.sourceRange.length)
         .toList();
 
 List<SummarizedPipeBuilder> summarizePipes(List<Pipe> pipes) {
@@ -201,7 +205,7 @@ List<SummarizedPipeBuilder> summarizePipes(List<Pipe> pipes) {
   for (final pipe in pipes) {
     pipeSums.add(new SummarizedPipeBuilder(
         pipeName: pipe.pipeName,
-        pipeNameOffset: pipe.nameOffset,
+        pipeNameOffset: pipe.pipeNameRange.offset,
         decoratedClassName: pipe.className));
   }
   return pipeSums;
