@@ -17,6 +17,8 @@ import 'package:analyzer/src/generated/source.dart';
 import 'package:angular_analyzer_plugin/ast.dart';
 import 'package:angular_analyzer_plugin/errors.dart';
 import 'package:angular_analyzer_plugin/src/model.dart';
+import 'package:angular_analyzer_plugin/src/model/resolved/content_child.dart'
+    as resolved;
 import 'package:angular_analyzer_plugin/src/model/syntactic/ng_content.dart';
 import 'package:angular_analyzer_plugin/src/options.dart';
 import 'package:angular_analyzer_plugin/src/selector.dart';
@@ -788,6 +790,104 @@ class InternalVariable {
   final DartType type;
 
   InternalVariable(this.name, this.element, this.type);
+}
+
+class MatchContentChildQueryVisitor
+    implements resolved.QueriedChildTypeVisitor<bool> {
+  final NodeInfo element;
+  final StandardAngular standardAngular;
+  final StandardHtml standardHtml;
+  final ErrorReporter errorReporter;
+
+  MatchContentChildQueryVisitor(this.element, this.standardAngular,
+      this.standardHtml, this.errorReporter);
+
+  @override
+  bool visitDirectiveQueriedChildType(
+          resolved.DirectiveQueriedChildType query) =>
+      _whenElementInfo((elementInfo) => elementInfo.directives
+          .any((boundDirective) => boundDirective == query.directive));
+
+  @override
+  bool visitElementQueriedChildType(resolved.ElementQueriedChildType query) =>
+      _whenElementInfo((elementInfo) =>
+          elementInfo.localName != 'template' &&
+          !elementInfo.directives.any((boundDirective) =>
+              boundDirective is Component && !boundDirective.isHtml));
+
+  @override
+  bool visitLetBoundQueriedChildType(resolved.LetBoundQueriedChildType query) =>
+      _whenElementInfo((elementInfo) => elementInfo.attributes.any((attribute) {
+            if (attribute is TextAttribute &&
+                attribute.name == '#${query.letBoundName}') {
+              _validateLetBoundMatch(elementInfo, attribute, query);
+              return true;
+            }
+            return false;
+          }));
+
+  @override
+  bool visitTemplateRefQueriedChildType(
+          resolved.TemplateRefQueriedChildType query) =>
+      _whenElementInfo((elementInfo) => elementInfo.localName == 'template');
+
+  /// Validate against a matching [TextAttribute] on a matching [ElementInfo],
+  /// for assignability to [containerType] errors.
+  void _validateLetBoundMatch(ElementInfo element, TextAttribute attr,
+      resolved.LetBoundQueriedChildType query) {
+    // For Html, the possible match types is plural. So use a list in all cases
+    // instead of a single value for most and then have some exceptional code.
+    final matchTypes = <DartType>[];
+
+    if (attr.value != "" && attr.value != null) {
+      final possibleDirectives = new List<Directive>.from(element.directives
+          .where((d) =>
+              d.exportAs.name == attr.value &&
+              d is Directive)); // No [FunctionalDirective]s/not [DirectiveBase]
+      if (possibleDirectives.isEmpty || possibleDirectives.length > 1) {
+        // Don't validate based on an invalid state (that's reported as such).
+        return;
+      }
+      // TODO instantiate this type to bounds
+      matchTypes.add(possibleDirectives.first.classElement.type);
+    } else if (element.localName == 'template') {
+      matchTypes.add(standardAngular.templateRef.type);
+    } else {
+      final possibleComponents = new List<Component>.from(
+          element.directives.where((d) => d is Component && !d.isHtml));
+      if (possibleComponents.length > 1) {
+        // Don't validate based on an invalid state (that's reported as such).
+        return;
+      }
+
+      if (possibleComponents.isEmpty) {
+        // TODO differentiate between SVG (Element) and HTML (HtmlElement)
+        matchTypes
+          ..add(standardAngular.elementRef.type)
+          ..add(standardHtml.elementClass.type)
+          ..add(standardHtml.htmlElementClass.type);
+      } else {
+        // TODO instantiate this type to bounds
+        matchTypes.add(possibleComponents.first.classElement.type);
+      }
+    }
+
+    // Don't do isAssignable. Because we KNOW downcasting makes no sense here.
+    if (!matchTypes.any(query.containerType.isSupertypeOf)) {
+      errorReporter.reportErrorForOffset(
+          AngularWarningCode.MATCHED_LET_BINDING_HAS_WRONG_TYPE,
+          element.offset,
+          element.length,
+          [query.letBoundName, query.containerType, matchTypes]);
+    }
+  }
+
+  bool _whenElementInfo(bool Function(ElementInfo) fn) {
+    if (element is ElementInfo) {
+      return fn(element as ElementInfo);
+    }
+    return false;
+  }
 }
 
 /// Find the nested scopes within an [ElementInfo], to iterate over them.
