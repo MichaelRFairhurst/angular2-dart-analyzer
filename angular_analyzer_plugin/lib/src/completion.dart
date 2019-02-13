@@ -1025,7 +1025,7 @@ class TemplateCompleter {
         final tags = ngContent.selector.suggestTags();
         for (final tag in tags) {
           final location = new Location(view.templateSource.fullName,
-              ngContent.offset, ngContent.length, 0, 0);
+              ngContent.sourceRange.offset, ngContent.sourceRange.length, 0, 0);
           collector.addSuggestion(_createHtmlTagSuggestion(
               tag.toString(),
               RELEVANCE_TRANSCLUSION,

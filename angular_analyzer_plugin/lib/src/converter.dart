@@ -121,7 +121,7 @@ class EmbeddedDartParser {
     // suppress errors for this. But still parse it so we can analyze it and stuff
     if (code.trim().isEmpty) {
       expression = _parseDartExpressionAtToken(token,
-          errorListener: new IgnoringAnalysisErrorListener());
+          errorListener: new IgnoringErrorListener());
     } else {
       expression = _parseDartExpressionAtToken(token);
     }

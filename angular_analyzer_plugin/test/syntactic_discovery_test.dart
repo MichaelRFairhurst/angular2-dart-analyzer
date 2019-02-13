@@ -4,9 +4,9 @@ import 'package:analyzer/error/error.dart';
 import 'package:analyzer/src/error/codes.dart';
 import 'package:analyzer/src/generated/source.dart';
 import 'package:angular_analyzer_plugin/errors.dart';
-import 'package:angular_analyzer_plugin/src/model/syntactic/base_directive.dart';
 import 'package:angular_analyzer_plugin/src/model/syntactic/component.dart';
 import 'package:angular_analyzer_plugin/src/model/syntactic/directive.dart';
+import 'package:angular_analyzer_plugin/src/model/syntactic/directive_base.dart';
 import 'package:angular_analyzer_plugin/src/model/syntactic/functional_directive.dart';
 import 'package:angular_analyzer_plugin/src/model/syntactic/pipe.dart';
 import 'package:angular_analyzer_plugin/src/model/syntactic/reference.dart';
@@ -27,7 +27,7 @@ void main() {
 @reflectiveTest
 class SyntacticDiscoveryTest extends AbstractAngularTest {
   List<TopLevel> topLevels;
-  List<BaseDirective> directives;
+  List<DirectiveBase> directives;
   List<Pipe> pipes;
   List<AnalysisError> errors;
 
@@ -35,9 +35,9 @@ class SyntacticDiscoveryTest extends AbstractAngularTest {
     final dartResult = await dartDriver.getResult(source.fullName);
     fillErrorListener(dartResult.errors);
     final extractor = SyntacticDiscovery(dartResult.unit, source);
-    topLevels = extractor.discoverAngularTopLevels();
-    directives = topLevels.whereType<BaseDirective>().toList();
-    pipes = extractor.discoverPipes();
+    topLevels = extractor.discoverTopLevels();
+    directives = topLevels.whereType<DirectiveBase>().toList();
+    pipes = topLevels.whereType<Pipe>().toList();
     fillErrorListener(extractor.errorListener.errors);
   }
 
@@ -64,24 +64,12 @@ class ComponentB {
         expect(selector, const isInstanceOf<ElementNameSelector>());
         expect(selector.toString(), 'comp-a');
       }
-      {
-        expect(component.elementTags, hasLength(1));
-        final selector = component.elementTags[0];
-        expect(selector, const isInstanceOf<ElementNameSelector>());
-        expect(selector.toString(), 'comp-a');
-      }
     }
     {
       final component = directives[1];
       expect(component, const isInstanceOf<Component>());
       {
         final selector = component.selector;
-        expect(selector, const isInstanceOf<ElementNameSelector>());
-        expect(selector.toString(), 'comp-b');
-      }
-      {
-        expect(component.elementTags, hasLength(1));
-        final selector = component.elementTags[0];
         expect(selector, const isInstanceOf<ElementNameSelector>());
         expect(selector.toString(), 'comp-b');
       }
@@ -111,12 +99,6 @@ class DirectiveB {
         expect(selector, const isInstanceOf<ElementNameSelector>());
         expect(selector.toString(), 'dir-a');
       }
-      {
-        expect(directive.elementTags, hasLength(1));
-        final selector = directive.elementTags[0];
-        expect(selector, const isInstanceOf<ElementNameSelector>());
-        expect(selector.toString(), 'dir-a');
-      }
     }
     {
       final directive = directives[1];
@@ -125,168 +107,6 @@ class DirectiveB {
         final selector = directive.selector;
         expect(selector, const isInstanceOf<ElementNameSelector>());
         expect(selector.toString(), 'dir-b');
-      }
-      {
-        expect(directive.elementTags, hasLength(1));
-        final selector = directive.elementTags[0];
-        expect(selector, const isInstanceOf<ElementNameSelector>());
-        expect(selector.toString(), 'dir-b');
-      }
-    }
-  }
-
-  // ignore: non_constant_identifier_names
-  Future test_Directive_elementTags_AndSelector() async {
-    final source = newSource('/test.dart', r'''
-import 'package:angular2/angular2.dart';
-
-@Directive(selector: 'dir-a.myClass[myAttr]')
-class DirectiveA {
-}
-
-@Directive(selector: 'dir-b[myAttr]')
-class DirectiveB {
-}
-''');
-    await getDirectives(source);
-    expect(directives, hasLength(2));
-    {
-      final directive = directives[0];
-      expect(directive, const isInstanceOf<Directive>());
-      {
-        final selector = directive.selector;
-        expect(selector, const isInstanceOf<AndSelector>());
-        expect((selector as AndSelector).selectors, hasLength(3));
-      }
-      {
-        expect(directive.elementTags, hasLength(1));
-        expect(directive.elementTags[0],
-            const isInstanceOf<ElementNameSelector>());
-        expect(directive.elementTags[0].toString(), 'dir-a');
-      }
-    }
-    {
-      final directive = directives[1];
-      expect(directive, const isInstanceOf<Directive>());
-      {
-        final selector = directive.selector;
-        expect(selector, const isInstanceOf<AndSelector>());
-        expect((selector as AndSelector).selectors, hasLength(2));
-      }
-      {
-        expect(directive.elementTags, hasLength(1));
-        expect(directive.elementTags[0],
-            const isInstanceOf<ElementNameSelector>());
-        expect(directive.elementTags[0].toString(), 'dir-b');
-      }
-    }
-  }
-
-  // ignore: non_constant_identifier_names
-  Future test_Directive_elementTags_CompoundSelector() async {
-    final source = newSource('/test.dart', r'''
-import 'package:angular2/angular2.dart';
-
-@Directive(selector: 'dir-a1.myClass[myAttr], dir-a2.otherClass')
-class DirectiveA {
-}
-
-@Directive(selector: 'dir-b1[myAttr], dir-b2')
-class DirectiveB {
-}
-''');
-    await getDirectives(source);
-    expect(directives, hasLength(2));
-    {
-      final directive = directives[0];
-      expect(directive, const isInstanceOf<Directive>());
-      {
-        final selector = directive.selector;
-        expect(selector, const isInstanceOf<OrSelector>());
-        expect((selector as OrSelector).selectors, hasLength(2));
-      }
-      {
-        expect(directive.elementTags, hasLength(2));
-        expect(directive.elementTags[0],
-            const isInstanceOf<ElementNameSelector>());
-        expect(directive.elementTags[0].toString(), 'dir-a1');
-        expect(directive.elementTags[1],
-            const isInstanceOf<ElementNameSelector>());
-        expect(directive.elementTags[1].toString(), 'dir-a2');
-      }
-    }
-    {
-      final directive = directives[1];
-      expect(directive, const isInstanceOf<Directive>());
-      {
-        final selector = directive.selector;
-        expect(selector, const isInstanceOf<OrSelector>());
-        expect((selector as OrSelector).selectors, hasLength(2));
-      }
-      {
-        expect(directive.elementTags, hasLength(2));
-        expect(directive.elementTags[0],
-            const isInstanceOf<ElementNameSelector>());
-        expect(directive.elementTags[0].toString(), 'dir-b1');
-        expect(directive.elementTags[1],
-            const isInstanceOf<ElementNameSelector>());
-        expect(directive.elementTags[1].toString(), 'dir-b2');
-      }
-    }
-  }
-
-  // ignore: non_constant_identifier_names
-  Future test_Directive_elementTags_OrSelector() async {
-    final source = newSource('/test.dart', r'''
-import 'package:angular2/angular2.dart';
-
-@Directive(selector: 'dir-a1, dir-a2, dir-a3')
-class DirectiveA {
-}
-
-@Directive(selector: 'dir-b1, dir-b2')
-class DirectiveB {
-}
-''');
-    await getDirectives(source);
-    expect(directives, hasLength(2));
-    {
-      final directive = directives[0];
-      expect(directive, const isInstanceOf<Directive>());
-      {
-        final selector = directive.selector;
-        expect(selector, const isInstanceOf<OrSelector>());
-        expect((selector as OrSelector).selectors, hasLength(3));
-      }
-      {
-        expect(directive.elementTags, hasLength(3));
-        expect(directive.elementTags[0],
-            const isInstanceOf<ElementNameSelector>());
-        expect(directive.elementTags[0].toString(), 'dir-a1');
-        expect(directive.elementTags[1],
-            const isInstanceOf<ElementNameSelector>());
-        expect(directive.elementTags[1].toString(), 'dir-a2');
-        expect(directive.elementTags[2],
-            const isInstanceOf<ElementNameSelector>());
-        expect(directive.elementTags[2].toString(), 'dir-a3');
-      }
-    }
-    {
-      final directive = directives[1];
-      expect(directive, const isInstanceOf<Directive>());
-      {
-        final selector = directive.selector;
-        expect(selector, const isInstanceOf<OrSelector>());
-        expect((selector as OrSelector).selectors, hasLength(2));
-      }
-      {
-        expect(directive.elementTags, hasLength(2));
-        expect(directive.elementTags[0],
-            const isInstanceOf<ElementNameSelector>());
-        expect(directive.elementTags[0].toString(), 'dir-b1');
-        expect(directive.elementTags[1],
-            const isInstanceOf<ElementNameSelector>());
-        expect(directive.elementTags[1].toString(), 'dir-b2');
       }
     }
   }
@@ -309,18 +129,13 @@ class ComponentB {
     expect(directives, hasLength(2));
     {
       final component = getSyntacticComponentByName(directives, 'ComponentA');
-      {
-        final exportAs = component.exportAs;
-        expect(exportAs.name, 'export-name');
-        expect(exportAs.nameOffset, code.indexOf('export-name'));
-      }
+      expect(component.exportAs, 'export-name');
+      expect(component.exportAsRange.offset, code.indexOf('export-name'));
     }
     {
       final component = getSyntacticComponentByName(directives, 'ComponentB');
-      {
-        final exportAs = component.exportAs;
-        expect(exportAs, isNull);
-      }
+      final exportAs = component.exportAs;
+      expect(exportAs, isNull);
     }
     // no errors
     errorListener.assertNoErrors();
@@ -358,19 +173,16 @@ class DirectiveB {
     await getDirectives(source);
     expect(directives, hasLength(2));
     {
-      final directive = getSyntacticDirectiveByName(directives, 'DirectiveA');
-      {
-        final exportAs = directive.exportAs;
-        expect(exportAs.name, 'export-name');
-        expect(exportAs.nameOffset, code.indexOf('export-name'));
-      }
+      final directive =
+          getSyntacticDirectiveByName(directives, 'DirectiveA') as Directive;
+      expect(directive.exportAs, 'export-name');
+      expect(directive.exportAsRange.offset, code.indexOf('export-name'));
     }
     {
-      final directive = getSyntacticDirectiveByName(directives, 'DirectiveB');
-      {
-        final exportAs = directive.exportAs;
-        expect(exportAs, isNull);
-      }
+      final directive =
+          getSyntacticDirectiveByName(directives, 'DirectiveB') as Directive;
+      expect(directive.exportAs, isNull);
+      expect(directive.exportAsRange, isNull);
     }
     // no errors
     errorListener.assertNoErrors();
@@ -405,15 +217,11 @@ void directiveA() {
 ''');
     await getDirectives(source);
     expect(directives, hasLength(1));
-    final directive = directives.single;
-    expect(directive, const isInstanceOf<FunctionalDirective>());
-    expect(directive.name, "directiveA");
+    final directive = directives.single as FunctionalDirective;
+    expect(directive.functionName, "directiveA");
     final selector = directive.selector;
     expect(selector, const isInstanceOf<AndSelector>());
     expect((selector as AndSelector).selectors, hasLength(3));
-    expect(directive.elementTags, hasLength(1));
-    expect(directive.elementTags[0], const isInstanceOf<ElementNameSelector>());
-    expect(directive.elementTags[0].toString(), 'dir-a');
   }
 
   // ignore: non_constant_identifier_names
@@ -449,7 +257,7 @@ class ContentChildComp {}
 ''';
     final source = newSource('/test.dart', code);
     await getDirectives(source);
-    final component = directives.first;
+    final component = directives.first as Component;
     final childrenFields = component.contentChildrenFields;
     expect(childrenFields, hasLength(0));
     final childFields = component.contentChildFields;
@@ -479,7 +287,7 @@ class ContentChildComp {}
 ''';
     final source = newSource('/test.dart', code);
     await getDirectives(source);
-    final component = directives.first;
+    final component = directives.first as Component;
 
     final childFields = component.contentChildFields;
     expect(childFields, hasLength(1));
@@ -521,7 +329,7 @@ class ContentChildComp {}
 ''';
     final source = newSource('/test.dart', code);
     await getDirectives(source);
-    final component = directives.first;
+    final component = directives.first as Component;
     final childFields = component.contentChildFields;
     expect(childFields, hasLength(1));
     final child = childFields.first;
@@ -550,7 +358,7 @@ class ContentChildComp {}
 ''';
     final source = newSource('/test.dart', code);
     await getDirectives(source);
-    final component = directives.first;
+    final component = directives.first as Component;
     final childrenFields = component.contentChildrenFields;
     expect(childrenFields, hasLength(1));
     final children = childrenFields.first;
@@ -581,7 +389,7 @@ class ContentChildComp {}
 ''';
     final source = newSource('/test.dart', code);
     await getDirectives(source);
-    final component = directives.first;
+    final component = directives.first as Component;
     final childrenFields = component.contentChildrenFields;
     expect(childrenFields, hasLength(1));
     final children = childrenFields.first;
@@ -760,29 +568,29 @@ class MyComponent {
 ''';
     final source = newSource('/test.dart', code);
     await getDirectives(source);
-    final component = directives.single;
+    final component = directives.single as Component;
     final inputs = component.inputs;
     expect(inputs, hasLength(3));
     {
       final input = inputs[0];
       expect(input.name, 'firstField');
-      expect(input.nameOffset, code.indexOf('firstField'));
-      expect(input.nameLength, 'firstField'.length);
-      expect(input.setterRange.offset, input.nameOffset);
+      expect(input.nameRange.offset, code.indexOf('firstField'));
+      expect(input.nameRange.length, 'firstField'.length);
+      expect(input.setterRange.offset, input.nameRange.offset);
       expect(input.setterRange.length, input.name.length);
     }
     {
       final input = inputs[1];
       expect(input.name, 'secondInput');
-      expect(input.nameOffset, code.indexOf('secondInput'));
+      expect(input.nameRange.offset, code.indexOf('secondInput'));
       expect(input.setterRange.offset, code.indexOf('secondField'));
       expect(input.setterRange.length, 'secondField'.length);
     }
     {
       final input = inputs[2];
       expect(input.name, 'someSetter');
-      expect(input.nameOffset, code.indexOf('someSetter'));
-      expect(input.setterRange.offset, input.nameOffset);
+      expect(input.nameRange.offset, code.indexOf('someSetter'));
+      expect(input.setterRange.offset, input.nameRange.offset);
       expect(input.setterRange.length, input.name.length);
     }
 
@@ -838,29 +646,29 @@ class MyComponent {
 ''';
     final source = newSource('/test.dart', code);
     await getDirectives(source);
-    final component = directives.single;
+    final component = directives.single as Component;
     final compOutputs = component.outputs;
     expect(compOutputs, hasLength(3));
     {
       final output = compOutputs[0];
       expect(output.name, 'outputOne');
-      expect(output.nameOffset, code.indexOf('outputOne'));
-      expect(output.nameLength, 'outputOne'.length);
-      expect(output.getterRange.offset, output.nameOffset);
-      expect(output.getterRange.length, output.nameLength);
+      expect(output.nameRange.offset, code.indexOf('outputOne'));
+      expect(output.nameRange.length, 'outputOne'.length);
+      expect(output.getterRange.offset, output.nameRange.offset);
+      expect(output.getterRange.length, output.nameRange.length);
     }
     {
       final output = compOutputs[1];
       expect(output.name, 'outputTwo');
-      expect(output.nameOffset, code.indexOf('outputTwo'));
+      expect(output.nameRange.offset, code.indexOf('outputTwo'));
       expect(output.getterRange.offset, code.indexOf('secondOutput'));
       expect(output.getterRange.length, 'secondOutput'.length);
     }
     {
       final output = compOutputs[2];
       expect(output.name, 'someGetter');
-      expect(output.nameOffset, code.indexOf('someGetter'));
-      expect(output.getterRange.offset, output.nameOffset);
+      expect(output.nameRange.offset, code.indexOf('someGetter'));
+      expect(output.getterRange.offset, output.nameRange.offset);
       expect(output.getterRange.length, output.name.length);
     }
 

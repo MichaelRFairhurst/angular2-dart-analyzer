@@ -4,9 +4,6 @@
 /// only track Strings and offsets here.
 ///
 /// Track list literals specially, however, with [ListLiteral].
-///
-/// TODO(mfairhurst): consider adding a type parameter referring to the type
-/// that the references should resolve to.
 import 'package:analyzer/src/generated/source.dart' show SourceRange;
 
 /// A const list literal reference of some inner type [T]:

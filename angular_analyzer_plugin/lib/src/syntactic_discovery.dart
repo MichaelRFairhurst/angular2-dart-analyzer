@@ -2,23 +2,29 @@ import 'dart:collection';
 
 import 'package:analyzer/dart/ast/ast.dart' as ast;
 import 'package:analyzer/error/error.dart';
+import 'package:analyzer/error/listener.dart';
 import 'package:analyzer/src/generated/engine.dart';
 import 'package:analyzer/src/generated/source.dart';
 import 'package:angular_analyzer_plugin/errors.dart';
+import 'package:angular_analyzer_plugin/src/converter.dart';
+import 'package:angular_analyzer_plugin/src/ignoring_error_listener.dart';
 import 'package:angular_analyzer_plugin/src/model/syntactic/annotated_class.dart';
 import 'package:angular_analyzer_plugin/src/model/syntactic/component.dart';
 import 'package:angular_analyzer_plugin/src/model/syntactic/content_child.dart';
 import 'package:angular_analyzer_plugin/src/model/syntactic/directive.dart';
-import 'package:angular_analyzer_plugin/src/model/syntactic/element.dart';
 import 'package:angular_analyzer_plugin/src/model/syntactic/functional_directive.dart';
 import 'package:angular_analyzer_plugin/src/model/syntactic/input.dart';
+import 'package:angular_analyzer_plugin/src/model/syntactic/ng_content.dart';
 import 'package:angular_analyzer_plugin/src/model/syntactic/output.dart';
 import 'package:angular_analyzer_plugin/src/model/syntactic/pipe.dart';
 import 'package:angular_analyzer_plugin/src/model/syntactic/reference.dart';
 import 'package:angular_analyzer_plugin/src/model/syntactic/top_level.dart';
+import 'package:angular_analyzer_plugin/src/resolver.dart'
+    show NgContentRecorder;
 import 'package:angular_analyzer_plugin/src/selector.dart';
 import 'package:angular_analyzer_plugin/src/tasks.dart';
 import 'package:angular_analyzer_plugin/src/tuple.dart';
+import 'package:angular_analyzer_plugin/src/view_extraction.dart';
 
 import 'tasks.dart';
 
@@ -34,13 +40,19 @@ class SyntacticDiscovery extends AnnotationProcessorMixin {
     initAnnotationProcessor(_source);
   }
 
-  List<TopLevel> discoverAngularTopLevels() {
+  List<TopLevel> discoverTopLevels() {
     final declarations = <TopLevel>[];
     for (final unitMember in _unit.declarations) {
       if (unitMember is ast.ClassDeclaration) {
         final directive = _getAnnotatedClass(unitMember);
         if (directive != null) {
           declarations.add(directive);
+        }
+        for (final annotationNode in unitMember.metadata) {
+          final pipe = _createPipe(unitMember, annotationNode);
+          if (pipe != null) {
+            declarations.add(pipe);
+          }
         }
       } else if (unitMember is ast.FunctionDeclaration) {
         final directive = _getFunctionalDirective(unitMember);
@@ -51,21 +63,6 @@ class SyntacticDiscovery extends AnnotationProcessorMixin {
     }
 
     return declarations;
-  }
-
-  List<Pipe> discoverPipes() {
-    final pipes = <Pipe>[];
-    for (final unitMember in _unit.declarations) {
-      if (unitMember is ast.ClassDeclaration) {
-        for (final annotationNode in unitMember.metadata) {
-          final pipe = _createPipe(unitMember, annotationNode);
-          if (pipe != null) {
-            pipes.add(pipe);
-          }
-        }
-      }
-    }
-    return pipes;
   }
 
   ListOrReference findReferences(ast.Expression listExpression,
@@ -104,10 +101,12 @@ class SyntacticDiscovery extends AnnotationProcessorMixin {
     return null;
   }
 
-  Tuple2<String, int> getTemplateText(ast.Annotation annotation) {
+  Tuple3<String, int, List<NgContent>> getTemplateText(
+      ast.Annotation annotation) {
     // Try to find inline "template".
     String templateText;
     var templateOffset = 0;
+    List<NgContent> inlineNgContents;
     final expression = getNamedArgument(annotation, 'template');
     if (expression == null) {
       return null;
@@ -122,9 +121,23 @@ class SyntacticDiscovery extends AnnotationProcessorMixin {
       templateText = '';
     } else {
       templateText = constantEvaluation.value as String;
+      inlineNgContents = [];
+      final tplParser = new TemplateParser()
+        ..parse(templateText, _source, offset: templateOffset);
+
+      final ignoringErrorListener = new IgnoringErrorListener();
+      final ignoringErrorReporter =
+          new ErrorReporter(ignoringErrorListener, _source);
+      final parser = new EmbeddedDartParser(
+          _source, ignoringErrorListener, ignoringErrorReporter);
+
+      new HtmlTreeConverter(parser, _source, ignoringErrorListener)
+          .convertFromAstList(tplParser.rawAst)
+          .accept(new NgContentRecorder(
+              inlineNgContents, _source, ignoringErrorReporter));
     }
 
-    return Tuple2(templateText, templateOffset);
+    return Tuple3(templateText, templateOffset, inlineNgContents);
   }
 
   Tuple2<String, SourceRange> getTemplateUri(ast.Annotation annotation) {
@@ -190,8 +203,8 @@ class SyntacticDiscovery extends AnnotationProcessorMixin {
             AngularWarningCode.PIPE_CANNOT_BE_ABSTRACT, node);
       }
 
-      return new Pipe(
-          pipeName, pipeNameOffset, classDeclaration.name.name, _source);
+      return new Pipe(pipeName, SourceRange(pipeNameOffset, pipeName.length),
+          classDeclaration.name.name, _source);
     }
     return null;
   }
@@ -244,9 +257,7 @@ class SyntacticDiscovery extends AnnotationProcessorMixin {
       // selector, that results in cascading errors.
       final selector = _parseSelector(annotationNode) ?? new AndSelector([]);
       final exportAs = _parseExportAs(annotationNode);
-      final elementTags = <ElementNameSelector>[];
       _parseMemberInputsAndOutputs(classDeclaration, inputs, outputs);
-      selector.recordElementNameSelectors(elementTags);
       if (componentNode != null) {
         final templateUriInfo = getTemplateUri(annotationNode);
         final templateTextInfo = getTemplateText(annotationNode);
@@ -267,26 +278,27 @@ class SyntacticDiscovery extends AnnotationProcessorMixin {
         return new Component(_currentClassName, _source,
             templateText: templateTextInfo?.item1,
             templateOffset: templateTextInfo?.item2,
+            inlineNgContents: templateTextInfo?.item3,
             templateUrl: templateUriInfo?.item1,
             templateUrlRange: templateUriInfo?.item2,
             directives: directives,
             pipes: pipes,
             exports: exports,
-            exportAs: exportAs,
+            exportAs: exportAs?.item1,
+            exportAsRange: exportAs?.item2,
             inputs: inputs,
             outputs: outputs,
             selector: selector,
-            elementTags: elementTags,
             contentChildFields: contentChildFields,
             contentChildrenFields: contentChildrenFields);
       }
       if (directiveNode != null) {
         return new Directive(_currentClassName, _source,
-            exportAs: exportAs,
+            exportAs: exportAs?.item1,
+            exportAsRange: exportAs?.item2,
             inputs: inputs,
             outputs: outputs,
             selector: selector,
-            elementTags: elementTags,
             contentChildFields: contentChildFields,
             contentChildrenFields: contentChildrenFields);
       }
@@ -320,16 +332,13 @@ class SyntacticDiscovery extends AnnotationProcessorMixin {
       // Don't fail to create a directive just because of a broken or missing
       // selector, that results in cascading errors.
       final selector = _parseSelector(annotationNode) ?? new AndSelector([]);
-      final elementTags = <ElementNameSelector>[];
       final exportAs = getNamedArgument(annotationNode, 'exportAs');
       if (exportAs != null) {
         errorReporter.reportErrorForNode(
             AngularWarningCode.FUNCTIONAL_DIRECTIVES_CANT_BE_EXPORTED,
             exportAs);
       }
-      selector.recordElementNameSelectors(elementTags);
-      return new FunctionalDirective(
-          functionName, _source, selector, elementTags);
+      return new FunctionalDirective(functionName, _source, selector);
     }
 
     return null;
@@ -401,7 +410,7 @@ class SyntacticDiscovery extends AnnotationProcessorMixin {
     }
   }
 
-  AngularElement _parseExportAs(ast.Annotation node) {
+  Tuple2<String, SourceRange> _parseExportAs(ast.Annotation node) {
     // Find the "exportAs" argument.
     final expression = getNamedArgument(node, 'exportAs');
     if (expression == null) {
@@ -420,8 +429,9 @@ class SyntacticDiscovery extends AnnotationProcessorMixin {
     } else {
       offset = expression.offset;
     }
-    // Create a new element.
-    return new AngularElementImpl(name, offset, name.length, _source);
+
+    return new Tuple2<String, SourceRange>(
+        name, SourceRange(offset, name.length));
   }
 
   /// Create a new input or output for the given class member [node] with
@@ -481,20 +491,16 @@ class SyntacticDiscovery extends AnnotationProcessorMixin {
 
     if (isInput) {
       inputs.add(new Input(
-          annotatedName,
-          annotatedNameOffset,
-          annotatedName.length,
-          _source,
-          name,
-          new SourceRange(nameOffset, name.length)));
+          name: annotatedName,
+          nameRange: new SourceRange(annotatedNameOffset, annotatedName.length),
+          setterName: name,
+          setterRange: new SourceRange(nameOffset, name.length)));
     } else {
       outputs.add(new Output(
-          annotatedName,
-          annotatedNameOffset,
-          annotatedName.length,
-          _source,
-          name,
-          new SourceRange(nameOffset, name.length)));
+          name: annotatedName,
+          nameRange: SourceRange(annotatedNameOffset, annotatedName.length),
+          getterName: name,
+          getterRange: new SourceRange(nameOffset, name.length)));
     }
   }
 

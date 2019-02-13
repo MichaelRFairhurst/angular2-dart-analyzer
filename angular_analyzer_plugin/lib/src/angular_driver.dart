@@ -21,14 +21,13 @@ import 'package:angular_analyzer_plugin/src/converter.dart';
 import 'package:angular_analyzer_plugin/src/directive_linking.dart';
 import 'package:angular_analyzer_plugin/src/file_tracker.dart';
 import 'package:angular_analyzer_plugin/src/from_file_prefixed_error.dart';
+import 'package:angular_analyzer_plugin/src/ignoring_error_listener.dart';
 import 'package:angular_analyzer_plugin/src/model.dart';
 import 'package:angular_analyzer_plugin/src/model/syntactic/annotated_class.dart'
     as syntactic;
-import 'package:angular_analyzer_plugin/src/model/syntactic/base_directive.dart'
+import 'package:angular_analyzer_plugin/src/model/syntactic/directive_base.dart'
     as syntactic;
 import 'package:angular_analyzer_plugin/src/model/syntactic/component.dart'
-    as syntactic;
-import 'package:angular_analyzer_plugin/src/model/syntactic/component_with_contents.dart'
     as syntactic;
 import 'package:angular_analyzer_plugin/src/model/syntactic/ng_content.dart'
     as syntactic;
@@ -239,42 +238,9 @@ class AngularDriver
     final ast = dartResult.unit;
     final source = dartResult.unit.declaredElement.source;
     final extractor = new SyntacticDiscovery(ast, source);
-    final topLevels = extractor.discoverAngularTopLevels();
-
-    final directives = topLevels.whereType<syntactic.BaseDirective>().toList();
-
-    final tplErrorListener = new RecordingErrorListener();
-    final errorReporter = new ErrorReporter(tplErrorListener, source);
-
-    final withNgContents = <syntactic.BaseDirective>[];
-
-    // collect inline ng-content tags
-    for (final directive in directives) {
-      if (directive is syntactic.Component) {
-        final ngContents = <syntactic.NgContent>[];
-        if ((directive.templateText ?? "") != "") {
-          final tplParser = new TemplateParser()
-            ..parse(directive.templateText, source,
-                offset: directive.templateOffset);
-
-          final parser =
-              new EmbeddedDartParser(source, tplErrorListener, errorReporter);
-
-          new HtmlTreeConverter(parser, source, tplErrorListener)
-              .convertFromAstList(tplParser.rawAst)
-              .accept(new NgContentRecorder(ngContents, source, errorReporter));
-        }
-        withNgContents.add(directive.withNgContents(ngContents));
-      } else {
-        withNgContents.add(directive);
-      }
-    }
-
-    // collect Pipes
-    final pipes = extractor.discoverPipes();
+    final topLevels = extractor.discoverTopLevels();
     final errors = new List<AnalysisError>.from(extractor.errorListener.errors);
-    final summary = summarizeDartResult(withNgContents, pipes,
-        topLevels.whereType<syntactic.AnnotatedClass>().toList(), errors);
+    final summary = summarizeDartResult(topLevels, errors);
     final newBytes = summary.toBuffer();
     byteStore.put(key, newBytes);
     return link(summary, source, path);
@@ -972,7 +938,7 @@ class SyntacticDirectivesResult {
       new List<AngularAnnotatedClass>.from(
           topLevels.where((c) => c is syntactic.AnnotatedClass));
 
-  List<syntactic.BaseDirective> get directives =>
-      new List<syntactic.BaseDirective>.from(
-          topLevels.where((c) => c is syntactic.BaseDirective));
+  List<syntactic.DirectiveBase> get directives =>
+      new List<syntactic.DirectiveBase>.from(
+          topLevels.where((c) => c is syntactic.DirectiveBase));
 }
