@@ -11,7 +11,6 @@ environment:
 dependencies:
   analyzer: '0.34.2'
   plugin: '^0.2.0'
-  #  tuple: '^1.0.1' Does not yet support Dart 2
   analyzer_plugin: '0.0.1-alpha.6'
   angular_ast: '^0.5.0'
   meta: ^1.0.2
