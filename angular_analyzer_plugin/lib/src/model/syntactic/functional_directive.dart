@@ -26,15 +26,6 @@ class FunctionalDirective implements DirectiveBase {
   FunctionalDirective(this.functionName, this.source, this.selector);
 
   @override
-  int get hashCode => functionName.hashCode * 11 + source.hashCode;
-
-  @override
-  bool operator ==(Object other) =>
-      other is FunctionalDirective &&
-      other.functionName == functionName &&
-      other.source == source;
-
-  @override
   String toString() =>
       'FunctionalDirective($functionName ' 'selector=$selector ';
 }

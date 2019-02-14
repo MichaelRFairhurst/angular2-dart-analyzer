@@ -101,7 +101,7 @@ class SyntacticDiscovery extends AnnotationProcessorMixin {
     return null;
   }
 
-  Tuple3<String, int, List<NgContent>> getTemplateText(
+  Tuple3<String, SourceRange, List<NgContent>> getTemplateText(
       ast.Annotation annotation) {
     // Try to find inline "template".
     String templateText;
@@ -137,7 +137,8 @@ class SyntacticDiscovery extends AnnotationProcessorMixin {
               inlineNgContents, _source, ignoringErrorReporter));
     }
 
-    return Tuple3(templateText, templateOffset, inlineNgContents);
+    return Tuple3(templateText,
+        new SourceRange(templateOffset, templateText.length), inlineNgContents);
   }
 
   Tuple2<String, SourceRange> getTemplateUri(ast.Annotation annotation) {
@@ -277,7 +278,7 @@ class SyntacticDiscovery extends AnnotationProcessorMixin {
 
         return new Component(_currentClassName, _source,
             templateText: templateTextInfo?.item1,
-            templateOffset: templateTextInfo?.item2,
+            templateTextRange: templateTextInfo?.item2,
             inlineNgContents: templateTextInfo?.item3,
             templateUrl: templateUriInfo?.item1,
             templateUrlRange: templateUriInfo?.item2,
