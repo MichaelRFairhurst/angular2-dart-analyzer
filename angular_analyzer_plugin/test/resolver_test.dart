@@ -12,7 +12,7 @@ import 'package:angular_ast/angular_ast.dart';
 import 'package:test/test.dart';
 import 'package:test_reflective_loader/test_reflective_loader.dart';
 
-import 'abstract_angular.dart';
+import 'angular_driver_base.dart';
 import 'element_assert.dart';
 
 void main() {
@@ -52,7 +52,7 @@ class ElementSearch extends AngularAstVisitor {
 }
 
 @reflectiveTest
-class TemplateResolverTest extends AbstractAngularTest {
+class TemplateResolverTest extends AngularDriverTestBase {
   String dartCode;
   String htmlCode;
   Source dartSource;

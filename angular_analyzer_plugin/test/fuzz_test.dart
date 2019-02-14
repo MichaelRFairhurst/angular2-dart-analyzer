@@ -5,7 +5,7 @@ import 'package:analyzer/dart/ast/token.dart';
 import 'package:angular_analyzer_plugin/src/model.dart';
 import 'package:test/test.dart';
 
-import 'abstract_angular.dart';
+import 'angular_driver_base.dart';
 
 //main() {
 //  defineReflectiveSuite(() {
@@ -20,7 +20,7 @@ void main() {
 //@reflectiveTest
 typedef String FuzzModification(String input);
 
-class FuzzTest extends AbstractAngularTest {
+class FuzzTest extends AngularDriverTestBase {
   // collected with
   // `find ../deps -name '*.dart' -exec cat {} \; | shuf -n 500 | sort`
   // and cleaned up by hand

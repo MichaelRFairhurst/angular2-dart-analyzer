@@ -16,7 +16,7 @@ import 'package:angular_analyzer_plugin/src/syntactic_discovery.dart';
 import 'package:test/test.dart';
 import 'package:test_reflective_loader/test_reflective_loader.dart';
 
-import 'abstract_angular.dart';
+import 'angular_base.dart';
 
 void main() {
   defineReflectiveSuite(() {
@@ -24,8 +24,18 @@ void main() {
   });
 }
 
+Component getComponentByName(List<DirectiveBase> directives, String name) =>
+    getDirectiveByName(directives, name) as Component;
+
+Directive getDirectiveByName(List<DirectiveBase> directives, String name) =>
+    directives
+        .whereType<Directive>()
+        .firstWhere((directive) => directive.className == name, orElse: () {
+      fail('DirectiveMetadata with the class "$name" was not found.');
+    });
+
 @reflectiveTest
-class SyntacticDiscoveryTest extends AbstractAngularTest {
+class SyntacticDiscoveryTest extends AngularTestBase {
   List<TopLevel> topLevels;
   List<DirectiveBase> directives;
   List<Pipe> pipes;
@@ -369,38 +379,6 @@ class ContentChildComp {}
     expect(children.typeRange.offset,
         equals(code.indexOf("List<ContentChildComp>")));
     expect(children.typeRange.length, equals("List<ContentChildComp>".length));
-    // validate
-    errorListener.assertNoErrors();
-  }
-
-  // ignore: non_constant_identifier_names
-  Future test_hasContentChildrenDirective_QueryList() async {
-    final code = r'''
-import 'package:angular2/angular2.dart';
-
-@Component(selector: 'my-component', template: '')
-class ComponentA {
-  @ContentChildren(ContentChildComp)
-  QueryList<ContentChildComp> contentChildren;
-}
-
-@Component(selector: 'foo', template: '')
-class ContentChildComp {}
-''';
-    final source = newSource('/test.dart', code);
-    await getDirectives(source);
-    final component = directives.first as Component;
-    final childrenFields = component.contentChildrenFields;
-    expect(childrenFields, hasLength(1));
-    final children = childrenFields.first;
-    expect(children.fieldName, equals("contentChildren"));
-    expect(
-        children.nameRange.offset, equals(code.indexOf("ContentChildComp)")));
-    expect(children.nameRange.length, equals("ContentChildComp".length));
-    expect(children.typeRange.offset,
-        equals(code.indexOf("QueryList<ContentChildComp>")));
-    expect(children.typeRange.length,
-        equals("QueryList<ContentChildComp>".length));
     // validate
     errorListener.assertNoErrors();
   }

@@ -17,7 +17,7 @@ import 'package:angular_analyzer_plugin/src/completion_request.dart';
 import 'package:angular_analyzer_plugin/src/model.dart';
 import 'package:test/test.dart';
 
-import 'abstract_angular.dart';
+import 'angular_driver_base.dart';
 
 int suggestionComparator(CompletionSuggestion s1, CompletionSuggestion s2) {
   final c1 = s1.completion.toLowerCase();
@@ -79,7 +79,7 @@ abstract class AbstractCompletionContributorTest
   }
 }
 
-abstract class BaseCompletionContributorTest extends AbstractAngularTest {
+abstract class BaseCompletionContributorTest extends AngularDriverTestBase {
   String testFile;
   Source testSource;
   int completionOffset;

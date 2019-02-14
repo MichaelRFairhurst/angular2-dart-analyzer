@@ -13,7 +13,7 @@ import 'package:mockito/mockito.dart';
 import 'package:test/test.dart';
 import 'package:test_reflective_loader/test_reflective_loader.dart';
 
-import 'abstract_angular.dart';
+import 'angular_driver_base.dart';
 
 // 'typed' is deprecated and shouldn't be used.
 // ignore_for_file: deprecated_member_use
@@ -25,7 +25,7 @@ void main() {
 }
 
 @reflectiveTest
-class AngularNavigationTest extends AbstractAngularTest {
+class AngularNavigationTest extends AngularDriverTestBase {
   String code;
 
   List<_RecordedNavigationRegion> regions = <_RecordedNavigationRegion>[];
