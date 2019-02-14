@@ -17,7 +17,7 @@ import 'package:angular_ast/angular_ast.dart';
 import 'package:test/test.dart';
 import 'package:test_reflective_loader/test_reflective_loader.dart';
 
-import 'abstract_angular.dart';
+import 'angular_driver_base.dart';
 
 // ignore_for_file: deprecated_member_use
 
@@ -27,7 +27,6 @@ void main() {
     defineReflectiveTests(BuildStandardHtmlComponentsTest);
     defineReflectiveTests(BuildStandardHtmlTest);
     defineReflectiveTests(BuildStandardAngularTest);
-    defineReflectiveTests(GatherAnnotationsOnFutureAngularTest);
     defineReflectiveTests(BuildUnitViewsTest);
     defineReflectiveTests(ResolveDartTemplatesTest);
     defineReflectiveTests(LinkDirectivesTest);
@@ -37,7 +36,7 @@ void main() {
 }
 
 @reflectiveTest
-class AngularParseHtmlTest extends AbstractAngularTest {
+class AngularParseHtmlTest extends AngularDriverTestBase {
   // ignore: non_constant_identifier_names
   void test_perform() {
     final code = r'''
@@ -108,7 +107,7 @@ class AngularParseHtmlTest extends AbstractAngularTest {
 }
 
 @reflectiveTest
-class BuildStandardAngularTest extends AbstractAngularTest {
+class BuildStandardAngularTest extends AngularDriverTestBase {
   // ignore: non_constant_identifier_names
   Future test_perform() async {
     final ng = await angularDriver.getStandardAngular();
@@ -116,7 +115,6 @@ class BuildStandardAngularTest extends AbstractAngularTest {
     expect(ng, isNotNull);
     expect(ng.templateRef, isNotNull);
     expect(ng.elementRef, isNotNull);
-    expect(ng.queryList, isNotNull);
     expect(ng.pipeTransform, isNotNull);
     expect(ng.component, isNotNull);
   }
@@ -166,7 +164,7 @@ class BuildStandardAngularTest extends AbstractAngularTest {
 }
 
 @reflectiveTest
-class BuildStandardHtmlComponentsTest extends AbstractAngularTest {
+class BuildStandardHtmlComponentsTest extends AngularDriverTestBase {
   // ignore: non_constant_identifier_names
   // ignore: non_constant_identifier_names
   Future test_buildStandardHtmlAttributes() async {
@@ -362,7 +360,7 @@ class BuildStandardHtmlComponentsTest extends AbstractAngularTest {
 }
 
 @reflectiveTest
-class BuildStandardHtmlTest extends AbstractAngularTest {
+class BuildStandardHtmlTest extends AngularDriverTestBase {
   @override
   void setUp() {
     // Don't perform setup before tests. Tests will run `super.setUp()`.
@@ -704,7 +702,7 @@ analyzer:
 }
 
 @reflectiveTest
-class BuildUnitViewsTest extends AbstractAngularTest {
+class BuildUnitViewsTest extends AngularDriverTestBase {
   List<AbstractDirective> directives;
   List<Pipe> pipes;
   List<View> views;
@@ -1625,8 +1623,6 @@ class ComponentA {
   List<ElementRef> contentChildElemRef;
   @ContentChildren('fooDynamic')
   List contentChildDynamic;
-  @ContentChildren('fooQueryList')
-  QueryList<ContentChildComp> contentChildQueryList;
 }
 
 @Component(selector: 'foo', template: '')
@@ -1636,7 +1632,7 @@ class ContentChildComp {}
     await getViews(source);
     final component = directives.first;
     final childrens = component.contentChildren;
-    expect(childrens, hasLength(7));
+    expect(childrens, hasLength(6));
 
     final childrenDirective = childrens
         .singleWhere((c) => c.field.fieldName == "contentChildDirective")
@@ -1680,14 +1676,6 @@ class ContentChildComp {}
     expect(childrenDynamic, const isInstanceOf<LetBoundQueriedChildType>());
     expect(childrenDynamic.letBoundName, equals("fooDynamic"));
     expect(childrenDynamic.containerType.toString(), equals("dynamic"));
-
-    final childrenQueryList = childrens
-        .singleWhere((c) => c.field.fieldName == "contentChildQueryList")
-        .query as LetBoundQueriedChildType;
-    expect(childrenQueryList, const isInstanceOf<LetBoundQueriedChildType>());
-    expect(childrenQueryList.letBoundName, equals("fooQueryList"));
-    expect(
-        childrenQueryList.containerType.toString(), equals("ContentChildComp"));
 
     // validate
     errorListener.assertNoErrors();
@@ -2359,10 +2347,10 @@ class MyComponent {}
   }
 }
 
-@reflectiveTest
-class GatherAnnotationsOnFutureAngularTest extends AbstractAngularTest
-    with GatherAnnotationsTestMixin {
-  GatherAnnotationsOnFutureAngularTest() : super.future();
+abstract class GatherAnnotationsTestMixin implements AngularDriverTestBase {
+  List<AbstractDirective> directives;
+  List<Pipe> pipes;
+  List<AnalysisError> errors;
 
   // ignore: non_constant_identifier_names
   Future test_hasContentChildrenDirective_worksInFuture() async {
@@ -2394,12 +2382,6 @@ class ContentChildComp {}
     // validate
     errorListener.assertNoErrors();
   }
-}
-
-abstract class GatherAnnotationsTestMixin implements AbstractAngularTest {
-  List<AbstractDirective> directives;
-  List<Pipe> pipes;
-  List<AnalysisError> errors;
 
   Future getDirectives(final Source source) async {
     final dartResult = await dartDriver.getResult(source.fullName);
@@ -2413,7 +2395,7 @@ abstract class GatherAnnotationsTestMixin implements AbstractAngularTest {
 }
 
 @reflectiveTest
-class LinkDirectivesTest extends AbstractAngularTest {
+class LinkDirectivesTest extends AngularDriverTestBase {
   List<AbstractDirective> directives;
   List<Template> templates;
   List<Pipe> pipes;
@@ -2991,38 +2973,6 @@ class ContentChildComp {}
     expect(children.typeRange.offset,
         equals(code.indexOf("List<ContentChildComp>")));
     expect(children.typeRange.length, equals("List<ContentChildComp>".length));
-    // validate
-    errorListener.assertNoErrors();
-  }
-
-  // ignore: non_constant_identifier_names
-  Future test_hasContentChildrenDirective_QueryList() async {
-    final code = r'''
-import 'package:angular2/angular2.dart';
-
-@Component(selector: 'my-component', template: '')
-class ComponentA {
-  @ContentChildren(ContentChildComp)
-  QueryList<ContentChildComp> contentChildren;
-}
-
-@Component(selector: 'foo', template: '')
-class ContentChildComp {}
-''';
-    final source = newSource('/test.dart', code);
-    await getDirectives(source);
-    final component = directives.first;
-    final childrenFields = component.contentChildrenFields;
-    expect(childrenFields, hasLength(1));
-    final children = childrenFields.first;
-    expect(children.fieldName, equals("contentChildren"));
-    expect(
-        children.nameRange.offset, equals(code.indexOf("ContentChildComp)")));
-    expect(children.nameRange.length, equals("ContentChildComp".length));
-    expect(children.typeRange.offset,
-        equals(code.indexOf("QueryList<ContentChildComp>")));
-    expect(children.typeRange.length,
-        equals("QueryList<ContentChildComp>".length));
     // validate
     errorListener.assertNoErrors();
   }
@@ -4261,7 +4211,7 @@ class ComponentA {
 }
 
 @reflectiveTest
-class ResolveDartTemplatesTest extends AbstractAngularTest {
+class ResolveDartTemplatesTest extends AngularDriverTestBase {
   List<AbstractDirective> directives;
   List<Template> templates;
   List<AnalysisError> errors;
@@ -5062,7 +5012,7 @@ class TextPanel {
 }
 
 @reflectiveTest
-class ResolveHtmlTemplatesTest extends AbstractAngularTest {
+class ResolveHtmlTemplatesTest extends AngularDriverTestBase {
   List<Template> templates;
   Future getDirectives(Source htmlSource, List<Source> dartSources) async {
     for (final dartSource in dartSources) {
@@ -5135,7 +5085,7 @@ class TextPanelB {
 }
 
 @reflectiveTest
-class ResolveHtmlTemplateTest extends AbstractAngularTest {
+class ResolveHtmlTemplateTest extends AngularDriverTestBase {
   List<View> views;
   Future getDirectives(Source htmlSource, Source dartSource) async {
     final result = await angularDriver.requestDartResult(dartSource.fullName);
