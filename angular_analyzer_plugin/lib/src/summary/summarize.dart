@@ -121,7 +121,7 @@ List<SummarizedDirectiveBuilder> summarizeDirectives(
       templateUrlOffset = directive.templateUrlRange?.offset;
       templateUrlLength = directive.templateUrlRange?.length;
       templateText = directive.templateText;
-      templateTextOffset = directive.templateOffset;
+      templateTextOffset = directive.templateTextRange?.offset;
 
       final subdirectives = directive.directives;
       dirUseSums = subdirectives is ListLiteral

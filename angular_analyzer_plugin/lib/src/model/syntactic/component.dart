@@ -10,8 +10,8 @@ import 'package:angular_analyzer_plugin/src/model/syntactic/reference.dart';
 import 'package:angular_analyzer_plugin/src/selector.dart';
 import 'package:meta/meta.dart';
 
-/// Syntactic model of an Angular component. It is essentiall a directive, with
-/// "view" information.
+/// Syntactic model of an Angular component, which is a directive with a
+/// template (and additional information to render that template).
 ///
 /// ```dart
 /// @Component(
@@ -54,14 +54,13 @@ class Component extends Directive {
   /// `exports: [foo, bar, ...]`.
   final ListOrReference exports;
 
-  /// The inline [NgContents] of this component. For inline, a dart file
-  /// contains the same [NgContent]s until modified, making it purely
-  /// "syntactic." For [templateUrl]s, the [NgContent]s depend on the
-  /// combination of the dart+html file, making it non-syntactic. See README.md.
+  /// The inline [NgContent]s of this component. This is null when
+  /// [templateText] is null/when `templateUrl` is specified. This is because
+  /// external [NgContent]s are not purely syntactic. See README.md.
   final List<NgContent> inlineNgContents;
 
   final String templateText;
-  final int templateOffset;
+  final SourceRange templateTextRange;
   final String templateUrl;
   final SourceRange templateUrlRange;
 
@@ -77,7 +76,7 @@ class Component extends Directive {
       @required this.pipes,
       @required this.exports,
       @required this.templateText,
-      @required this.templateOffset,
+      @required this.templateTextRange,
       @required this.inlineNgContents,
       @required this.templateUrl,
       @required this.templateUrlRange})
