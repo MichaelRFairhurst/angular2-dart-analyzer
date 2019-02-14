@@ -1,10 +1,8 @@
 /// Base shared functionality for tests that rely on dart analysis
-import 'package:analyzer/context/context_root.dart';
 import 'package:analyzer/error/error.dart';
 import 'package:analyzer/error/listener.dart';
 import 'package:analyzer/file_system/file_system.dart';
 import 'package:analyzer/file_system/memory_file_system.dart';
-import 'package:analyzer/source/package_map_resolver.dart';
 import 'package:analyzer/src/dart/analysis/byte_store.dart';
 import 'package:analyzer/src/dart/analysis/driver.dart'
     show AnalysisDriver, AnalysisDriverScheduler;
@@ -15,6 +13,7 @@ import 'package:analyzer/src/generated/engine.dart';
 import 'package:analyzer/src/generated/sdk.dart';
 import 'package:analyzer/src/generated/source.dart';
 import 'package:analyzer/src/generated/source_io.dart';
+import 'package:analyzer/src/source/package_map_resolver.dart';
 import 'package:mockito/mockito.dart';
 import 'package:test/test.dart';
 
@@ -80,9 +79,6 @@ class AnalyzerTestBase {
       packageResolver,
       new ResourceUriResolver(resourceProvider)
     ]);
-    final testPath = resourceProvider.convertPath('/test');
-    final contextRoot = new ContextRoot(testPath, [],
-        pathContext: resourceProvider.pathContext);
 
     dartDriver = new AnalysisDriver(
         new AnalysisDriverScheduler(logger)..start(),
@@ -90,7 +86,7 @@ class AnalyzerTestBase {
         resourceProvider,
         byteStore,
         new FileContentOverlay(),
-        contextRoot,
+        null,
         sourceFactory,
         new AnalysisOptionsImpl());
     errorListener = new GatheringErrorListener();

@@ -138,12 +138,12 @@ class ComponentB {
     await getDirectives(source);
     expect(directives, hasLength(2));
     {
-      final component = getSyntacticComponentByName(directives, 'ComponentA');
+      final component = getComponentByName(directives, 'ComponentA');
       expect(component.exportAs, 'export-name');
       expect(component.exportAsRange.offset, code.indexOf('export-name'));
     }
     {
-      final component = getSyntacticComponentByName(directives, 'ComponentB');
+      final component = getComponentByName(directives, 'ComponentB');
       final exportAs = component.exportAs;
       expect(exportAs, isNull);
     }
@@ -184,13 +184,13 @@ class DirectiveB {
     expect(directives, hasLength(2));
     {
       final directive =
-          getSyntacticDirectiveByName(directives, 'DirectiveA') as Directive;
+          getDirectiveByName(directives, 'DirectiveA') as Directive;
       expect(directive.exportAs, 'export-name');
       expect(directive.exportAsRange.offset, code.indexOf('export-name'));
     }
     {
       final directive =
-          getSyntacticDirectiveByName(directives, 'DirectiveB') as Directive;
+          getDirectiveByName(directives, 'DirectiveB') as Directive;
       expect(directive.exportAs, isNull);
       expect(directive.exportAsRange, isNull);
     }
