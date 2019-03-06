@@ -5843,7 +5843,7 @@ class MyTag {
 
   void _addDartSource(final code) {
     dartCode = '''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 $code
 ''';
     dartSource = newSource('/test_panel.dart', dartCode);

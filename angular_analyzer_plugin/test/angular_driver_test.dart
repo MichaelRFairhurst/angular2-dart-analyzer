@@ -729,7 +729,7 @@ class BuildUnitViewsTest extends AngularDriverTestBase {
   // ignore: non_constant_identifier_names
   Future test_constantExpressionTemplateComplexIsOnlyError() async {
     final source = newSource('/test.dart', r'''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 
 const String tooComplex = 'bcd';
 
@@ -745,7 +745,7 @@ class ComponentA {
   // ignore: non_constant_identifier_names
   Future test_constantExpressionTemplateOk() async {
     final source = newSource('/test.dart', r'''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 
 @Component(selector: 'aaa', template: 'abc' + 'bcd')
 class ComponentA {
@@ -758,7 +758,7 @@ class ComponentA {
   // ignore: non_constant_identifier_names
   Future test_directives() async {
     final code = r'''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 
 @Directive(selector: '[aaa]')
 class DirectiveA {}
@@ -794,7 +794,7 @@ class MyComponent {}
   // ignore: non_constant_identifier_names
   Future test_directives_hasError_notListVariable() async {
     final code = r'''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 
 const NOT_DIRECTIVE_LIST = 42;
 
@@ -811,7 +811,7 @@ class MyComponent {}
   // ignore: non_constant_identifier_names
   Future test_directives_not_list_syntax() async {
     final code = r'''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 
 @Directive(selector: '[aaa]')
 class DirectiveA {}
@@ -840,7 +840,7 @@ class MyComponent {}
   // ignore: non_constant_identifier_names
   Future test_directives_not_list_syntax_errorWithinVariable() async {
     final code = r'''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 
 @Component(selector: 'my-component', template: 'My template',
     directives: VARIABLE)
@@ -862,7 +862,7 @@ const VARIABLE = const [Object];
   // ignore: non_constant_identifier_names
   Future test_directivesList_invalidDirectiveEntries() async {
     final code = r'''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 
 @Directive(selector: '[aaa]')
 class DirectiveA {}
@@ -901,7 +901,7 @@ class MyComponent {}
   // ignore: non_constant_identifier_names
   Future test_hasContentChildChildrenSetter() async {
     final code = r'''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 
 @Component(selector: 'my-component', template: '')
 class ComponentA {
@@ -939,7 +939,7 @@ class ContentChildComp {}
   // ignore: non_constant_identifier_names
   Future test_hasContentChildComponent() async {
     final code = r'''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 
 @Component(selector: 'my-component', template: '')
 class ComponentA {
@@ -966,7 +966,7 @@ class ContentChildComp {}
   // ignore: non_constant_identifier_names
   Future test_hasContentChildDirective_dynamicOk() async {
     final code = r'''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 
 @Component(selector: 'my-component', template: '')
 class ComponentA {
@@ -993,7 +993,7 @@ class ContentChildComp {}
   // ignore: non_constant_identifier_names
   Future test_hasContentChildDirective_htmlNotAllowed() async {
     final code = r'''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 import 'dart:html';
 
 @Component(selector: 'my-component', template: '')
@@ -1016,7 +1016,7 @@ class ComponentA {
   // ignore: non_constant_identifier_names
   Future test_hasContentChildDirective_notAssignable() async {
     final code = r'''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 
 @Component(selector: 'my-component', template: '')
 class ComponentA {
@@ -1044,7 +1044,7 @@ class ContentChildComp {}
   // ignore: non_constant_identifier_names
   Future test_hasContentChildDirective_notRecognizedType() async {
     final code = r'''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 
 @Component(selector: 'my-component', template: '')
 class ComponentA {
@@ -1066,7 +1066,7 @@ class ComponentA {
   // ignore: non_constant_identifier_names
   Future test_hasContentChildDirective_notTypeOrString() async {
     final code = r'''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 
 @Component(selector: 'my-component', template: '')
 class ComponentA {
@@ -1088,7 +1088,7 @@ class ComponentA {
   // ignore: non_constant_identifier_names
   Future test_hasContentChildDirective_subTypeNotAssignable() async {
     final code = r'''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 
 @Component(selector: 'my-component', template: '')
 class ComponentA {
@@ -1118,7 +1118,7 @@ class ContentChildCompSub extends ContentChildComp {}
   // ignore: non_constant_identifier_names
   Future test_hasContentChildElementRef() async {
     final code = r'''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 
 @Component(selector: 'my-component', template: '')
 class ComponentA {
@@ -1143,7 +1143,7 @@ class ContentChildComp {}
   // ignore: non_constant_identifier_names
   Future test_hasContentChildElementRef_notAssignable() async {
     final code = r'''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 
 @Component(selector: 'my-component', template: '')
 class ComponentA {
@@ -1166,7 +1166,7 @@ class ContentChildComp {}
   Future test_hasContentChildLetBound() async {
     final code = r'''
 import 'dart:html';
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 
 @Component(selector: 'my-component', template: '')
 class ComponentA {
@@ -1242,7 +1242,7 @@ class ContentChildComp {}
   // ignore: non_constant_identifier_names
   Future test_hasContentChildrenDirective() async {
     final code = r'''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 
 @Component(selector: 'my-component', template: '')
 class ComponentA {
@@ -1270,7 +1270,7 @@ class ContentChildComp {}
   // ignore: non_constant_identifier_names
   Future test_hasContentChildrenDirective_dynamicIterableOk() async {
     final code = r'''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 
 @Component(selector: 'my-component', template: '')
 class ComponentA {
@@ -1298,7 +1298,7 @@ class ContentChildComp {}
   // ignore: non_constant_identifier_names
   Future test_hasContentChildrenDirective_dynamicListOk() async {
     final code = r'''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 
 @Component(selector: 'my-component', template: '')
 class ComponentA {
@@ -1326,7 +1326,7 @@ class ContentChildComp {}
   // ignore: non_constant_identifier_names
   Future test_hasContentChildrenDirective_dynamicOk() async {
     final code = r'''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 
 @Component(selector: 'my-component', template: '')
 class ComponentA {
@@ -1354,7 +1354,7 @@ class ContentChildComp {}
   // ignore: non_constant_identifier_names
   Future test_hasContentChildrenDirective_iterableNotAssignable() async {
     final code = r'''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 
 @Component(selector: 'my-component', template: '')
 class ComponentA {
@@ -1376,7 +1376,7 @@ class ContentChildComp {}
   // ignore: non_constant_identifier_names
   Future test_hasContentChildrenDirective_iterableOk() async {
     final code = r'''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 
 @Component(selector: 'my-component', template: '')
 class ComponentA {
@@ -1404,7 +1404,7 @@ class ContentChildComp {}
   // ignore: non_constant_identifier_names
   Future test_hasContentChildrenDirective_notAssignable() async {
     final code = r'''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 
 @Component(selector: 'my-component', template: '')
 class ComponentA {
@@ -1426,7 +1426,7 @@ class ContentChildComp {}
   // ignore: non_constant_identifier_names
   Future test_hasContentChildrenDirective_notList() async {
     final code = r'''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 
 @Component(selector: 'my-component', template: '')
 class ComponentA {
@@ -1457,7 +1457,7 @@ class ContentChildComp {}
   // ignore: non_constant_identifier_names
   Future test_hasContentChildrenDirective_subtypingListNotOk() async {
     final code = r'''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 
 @Component(selector: 'my-component', template: '')
 class ComponentA {
@@ -1491,7 +1491,7 @@ abstract class CannotSubtypeList extends List {}
   // ignore: non_constant_identifier_names
   Future test_hasContentChildrenDirective_withReadSet() async {
     final code = r'''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 
 @Component(selector: 'my-component', template: '')
 class ComponentA {
@@ -1520,7 +1520,7 @@ class ContentChildComp {}
   // ignore: non_constant_identifier_names
   Future test_hasContentChildrenElementRef() async {
     final code = r'''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 
 @Component(selector: 'my-component', template: '')
 class ComponentA {
@@ -1543,7 +1543,7 @@ class ComponentA {
   // ignore: non_constant_identifier_names
   Future test_hasContentChildrenElementRef_notAssignable() async {
     final code = r'''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 
 @Component(selector: 'my-component', template: '')
 class ComponentA {
@@ -1566,7 +1566,7 @@ class ContentChildComp {}
   Future test_hasContentChildrenLetBound() async {
     final code = r'''
 import 'dart:html';
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 
 @Component(selector: 'my-component', template: '')
 class ComponentA {
@@ -1644,7 +1644,7 @@ class ContentChildComp {}
   Future test_hasContentChildrenLetBound_elementReadDoesntMatchType() async {
     final code = r'''
 import 'dart:html';
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 
 @Component(selector: 'my-component', template: '')
 class ComponentA {
@@ -1670,7 +1670,7 @@ class ComponentA {
   Future test_hasContentChildrenLetBound_elementWithoutReadError() async {
     final code = r'''
 import 'dart:html';
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 
 @Component(selector: 'my-component', template: '')
 class ComponentA {
@@ -1705,7 +1705,7 @@ class ComponentA {
   Future test_hasContentChildrenLetBound_readSubtypeOfAttribute() async {
     final code = r'''
 import 'dart:html';
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 
 @Component(selector: 'my-component', template: '')
 class ComponentA {
@@ -1750,7 +1750,7 @@ class ComponentA {
   // ignore: non_constant_identifier_names
   Future test_hasContentChildrenTemplateRef() async {
     final code = r'''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 
 @Component(selector: 'my-component', template: '')
 class ComponentA {
@@ -1773,7 +1773,7 @@ class ComponentA {
   // ignore: non_constant_identifier_names
   Future test_hasContentChildrenTemplateRef_notAssignable() async {
     final code = r'''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 
 @Component(selector: 'my-component', template: '')
 class ComponentA {
@@ -1795,7 +1795,7 @@ class ContentChildComp {}
   // ignore: non_constant_identifier_names
   Future test_hasContentChildTemplateRef() async {
     final code = r'''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 
 @Component(selector: 'my-component', template: '')
 class ComponentA {
@@ -1821,7 +1821,7 @@ class ContentChildComp {}
   // ignore: non_constant_identifier_names
   Future test_hasContentChildTemplateRef_notAssignable() async {
     final code = r'''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 
 @Component(selector: 'my-component', template: '')
 class ComponentA {
@@ -1843,7 +1843,7 @@ class ContentChildComp {}
   // ignore: non_constant_identifier_names
   Future test_hasError_missingHtmlFile() async {
     final code = r'''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 
 @Component(selector: 'my-component', templateUrl: 'missing-template.html')
 class MyComponent {}
@@ -1859,7 +1859,7 @@ class MyComponent {}
   // ignore: non_constant_identifier_names
   Future test_hasError_NeitherTemplateNorTemplateUrlDefined() async {
     final source = newSource('/test.dart', r'''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 
 @Component(selector: 'aaa')
 class ComponentA {
@@ -1873,7 +1873,7 @@ class ComponentA {
   // ignore: non_constant_identifier_names
   Future test_hasError_StringValueExpected() async {
     final source = newSource('/test.dart', r'''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 
 @Component(selector: 'aaa', template: 55)
 class ComponentA {
@@ -1889,7 +1889,7 @@ class ComponentA {
   // ignore: non_constant_identifier_names
   Future test_hasError_TemplateAndTemplateUrlDefined() async {
     final source = newSource('/test.dart', r'''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 
 @Component(selector: 'aaa', template: 'AAA', templateUrl: 'a.html')
 class ComponentA {
@@ -1904,7 +1904,7 @@ class ComponentA {
   // ignore: non_constant_identifier_names
   Future test_hasError_TypeLiteralExpected() async {
     final source = newSource('/test.dart', r'''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 
 @Component(selector: 'aaa', template: 'AAA', directives: const [42])
 class ComponentA {
@@ -1918,7 +1918,7 @@ class ComponentA {
   // ignore: non_constant_identifier_names
   Future test_pipe_hasError_TypeLiteralExpected() async {
     final source = newSource('/test.dart', r'''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 
 @Component(selector: 'aaa', template: 'AAA', pipes: const [42])
 class ComponentA {
@@ -1932,7 +1932,7 @@ class ComponentA {
   // ignore: non_constant_identifier_names
   Future test_pipes() async {
     final code = r'''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 
 @Pipe('pipeA')
 class PipeA extends PipeTransform {
@@ -1965,7 +1965,7 @@ class MyComponent {}
   // ignore: non_constant_identifier_names
   Future test_pipes_hasError_notListVariable() async {
     final code = r'''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 
 const NOT_PIPES_LIST = 42;
 
@@ -1982,7 +1982,7 @@ class MyComponent {}
   // ignore: non_constant_identifier_names
   Future test_pipes_list_recursive() async {
     final code = r'''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 
 @Pipe('pipeA')
 class PipeA extends PipeTransform {
@@ -2030,7 +2030,7 @@ class MyComponent {}
   // ignore: non_constant_identifier_names
   Future test_pipes_selective() async {
     final code = r'''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 
 @Pipe('pipeA')
 class PipeA extends PipeTransform {
@@ -2068,7 +2068,7 @@ class MyComponent {}
   // ignore: non_constant_identifier_names
   Future test_prefixedDirectives() async {
     final otherCode = r'''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 
 @Directive(selector: '[aaa]')
 class DirectiveA {}
@@ -2083,7 +2083,7 @@ const DIR_AB = const [DirectiveA, DirectiveB];
 ''';
 
     final code = r'''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 import 'other.dart' as other;
 
 @Component(selector: 'my-component', template: 'My template',
@@ -2110,7 +2110,7 @@ class MyComponent {}
   // ignore: non_constant_identifier_names
   Future test_recursiveDirectivesList() async {
     final code = r'''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 
 @Directive(selector: '[aaa]')
 class DirectiveA {}
@@ -2143,7 +2143,7 @@ class MyComponent {}
   // ignore: non_constant_identifier_names
   Future test_template_relativeToLibForParts() async {
     final libCode = r'''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 part 'parts/part.dart';
     ''';
     final partCode = r'''
@@ -2174,7 +2174,7 @@ class MyComponent {}
   // ignore: non_constant_identifier_names
   Future test_templateExternal() async {
     final code = r'''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 
 @Component(selector: 'my-component', templateUrl: 'my-template.html')
 class MyComponent {}
@@ -2200,7 +2200,7 @@ class MyComponent {}
   // ignore: non_constant_identifier_names
   Future test_templateInline() async {
     final code = r'''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 
 @Directive(selector: 'my-directive')
 class MyDirective {}
@@ -2235,7 +2235,7 @@ class MyComponent {}
   // ignore: non_constant_identifier_names
   Future test_useFunctionalDirective() async {
     final code = r'''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 
 @Directive(selector: 'my-directive')
 void myDirective() {}
@@ -2259,7 +2259,7 @@ class MyComponent {}
   // ignore: non_constant_identifier_names
   Future test_useFunctionNotFunctionalDirective() async {
     final code = r'''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 
 @Component(selector: 'my-component', template: 'My template',
     directives: const [notDirective])
@@ -2277,7 +2277,7 @@ void notDirective() {}
   // ignore: non_constant_identifier_names
   Future test_validFunctionalDirectivesList() async {
     final code = r'''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 
 @Directive(selector: '[aaa]')
 void directiveA() {}
@@ -2324,7 +2324,7 @@ abstract class GatherAnnotationsTestMixin implements AngularDriverTestBase {
 
   Future test_hasContentChildrenDirective_worksInFuture() async {
     final code = r'''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 
 @Component(selector: 'my-component', template: '')
 class ComponentA {
@@ -2378,7 +2378,7 @@ class LinkDirectivesTest extends AngularDriverTestBase {
   // ignore: non_constant_identifier_names
   Future test_Component() async {
     final source = newSource('/test.dart', r'''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 
 @Component(selector: 'comp-a', template:'')
 class ComponentA {
@@ -2425,7 +2425,7 @@ class ComponentB {
   // ignore: non_constant_identifier_names
   Future test_Directive() async {
     final source = newSource('/test.dart', r'''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 
 @Directive(selector: 'dir-a')
 class DirectiveA {
@@ -2472,7 +2472,7 @@ class DirectiveB {
   // ignore: non_constant_identifier_names
   Future test_Directive_elementTags_AndSelector() async {
     final source = newSource('/test.dart', r'''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 
 @Directive(selector: 'dir-a.myClass[myAttr]')
 class DirectiveA {
@@ -2519,7 +2519,7 @@ class DirectiveB {
   // ignore: non_constant_identifier_names
   Future test_Directive_elementTags_CompoundSelector() async {
     final source = newSource('/test.dart', r'''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 
 @Directive(selector: 'dir-a1.myClass[myAttr], dir-a2.otherClass')
 class DirectiveA {
@@ -2572,7 +2572,7 @@ class DirectiveB {
   // ignore: non_constant_identifier_names
   Future test_Directive_elementTags_OrSelector() async {
     final source = newSource('/test.dart', r'''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 
 @Directive(selector: 'dir-a1, dir-a2, dir-a3')
 class DirectiveA {
@@ -2628,7 +2628,7 @@ class DirectiveB {
   // ignore: non_constant_identifier_names
   Future test_exportAs_Component() async {
     final code = r'''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 
 @Component(selector: 'aaa', exportAs: 'export-name', template:'')
 class ComponentA {
@@ -2663,7 +2663,7 @@ class ComponentB {
   // ignore: non_constant_identifier_names
   Future test_exportAs_constantStringExpressionOk() async {
     final source = newSource('/test.dart', r'''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 
 @Component(selector: 'aaa', exportAs: 'a' + 'b', template:'')
 class ComponentA {
@@ -2678,7 +2678,7 @@ class ComponentA {
   // ignore: non_constant_identifier_names
   Future test_exportAs_Directive() async {
     final code = r'''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 
 @Directive(selector: '[aaa]', exportAs: 'export-name')
 class DirectiveA {
@@ -2713,7 +2713,7 @@ class DirectiveB {
   // ignore: non_constant_identifier_names
   Future test_exportAs_hasError_notStringValue() async {
     final source = newSource('/test.dart', r'''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 
 @Component(selector: 'aaa', exportAs: 42, template:'')
 class ComponentA {
@@ -2731,7 +2731,7 @@ class ComponentA {
   // ignore: non_constant_identifier_names
   Future test_finalPropertyInputError() async {
     final code = r'''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 
 @Component(selector: 'my-component', template: '<p></p>')
 class MyComponent {
@@ -2750,7 +2750,7 @@ class MyComponent {
   // ignore: non_constant_identifier_names
   Future test_finalPropertyInputErrorNonDirective() async {
     final code = r'''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 
 class MyNonDirective {
   @Input() final int immutable = 1;
@@ -2768,7 +2768,7 @@ class MyNonDirective {
   // ignore: non_constant_identifier_names
   Future test_FunctionalDirective() async {
     final source = newSource('/test.dart', r'''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 
 @Directive(selector: 'dir-a.myClass[myAttr]')
 void directiveA() {
@@ -2790,7 +2790,7 @@ void directiveA() {
   // ignore: non_constant_identifier_names
   Future test_FunctionalDirective_notAllowedValues() async {
     final source = newSource('/test.dart', r'''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 
 @Directive(selector: 'dir-a.myClass[myAttr]',
   exportAs: 'foo')
@@ -2805,7 +2805,7 @@ void directiveA() {
   // ignore: non_constant_identifier_names
   Future test_hasContentChildChildrenNoRangeNotRecorded() async {
     final code = r'''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 
 @Component(selector: 'my-component', template: '')
 class ComponentA {
@@ -2835,7 +2835,7 @@ class ContentChildComp {}
   // ignore: non_constant_identifier_names
   Future test_hasContentChildChildrenSetter() async {
     final code = r'''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 
 @Component(selector: 'my-component', template: '')
 class ComponentA {
@@ -2879,7 +2879,7 @@ class ContentChildComp {}
   // ignore: non_constant_identifier_names
   Future test_hasContentChildDirective() async {
     final code = r'''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 
 @Component(selector: 'my-component', template: '')
 class ComponentA {
@@ -2908,7 +2908,7 @@ class ContentChildComp {}
   // ignore: non_constant_identifier_names
   Future test_hasContentChildrenDirective() async {
     final code = r'''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 
 @Component(selector: 'my-component', template: '')
 class ComponentA {
@@ -2939,7 +2939,7 @@ class ContentChildComp {}
   // ignore: non_constant_identifier_names
   Future test_hasError_ArgumentSelectorMissing() async {
     final source = newSource('/test.dart', r'''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 
 @Component(template:'')
 class ComponentA {
@@ -2954,7 +2954,7 @@ class ComponentA {
   // ignore: non_constant_identifier_names
   Future test_hasError_CannotParseSelector() async {
     final code = r'''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 @Component(selector: 'a+bad selector', template: '')
 class ComponentA {
 }
@@ -2969,7 +2969,7 @@ class ComponentA {
   // ignore: non_constant_identifier_names
   Future test_hasError_DirectiveTypeLiteralExpected() async {
     final source = newSource('/test.dart', r'''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 
 @Component(selector: 'aaa', template: 'AAA', directives: const [int])
 class ComponentA {
@@ -2983,7 +2983,7 @@ class ComponentA {
   // ignore: non_constant_identifier_names
   Future test_hasError_selector_notStringValue() async {
     final source = newSource('/test.dart', r'''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 
 @Component(selector: 55, template: '')
 class ComponentA {
@@ -3000,7 +3000,7 @@ class ComponentA {
   // ignore: non_constant_identifier_names
   Future test_hasExports() async {
     final code = r'''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 
 const foo = null;
 void bar() {}
@@ -3047,7 +3047,7 @@ class ComponentA {
   // ignore: non_constant_identifier_names
   Future test_hasNonIdentifierExport() async {
     final code = r'''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 
 @Component(selector: 'my-component', template: '', exports: const [1])
 class ComponentA {
@@ -3063,7 +3063,7 @@ class ComponentA {
   // ignore: non_constant_identifier_names
   Future test_hasRepeatedExports() async {
     final code = r'''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 
 const foo = null;
 
@@ -3080,7 +3080,7 @@ class ComponentA {
   // ignore: non_constant_identifier_names
   Future test_inheritMetadata() async {
     final code = r'''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 
 @Component(selector: 'foo', template: '')
 class BaseComponent {
@@ -3146,7 +3146,7 @@ class MyComponent extends BaseComponent {
   // ignore: non_constant_identifier_names
   Future test_inheritMetadata_notReimplemented_stillSurfacesAPI() async {
     final code = r'''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 import 'dart:async';
 
 abstract class BaseComponent {
@@ -3188,7 +3188,7 @@ class ImproperlyDefinedComponent extends BaseComponent {
   // ignore: non_constant_identifier_names
   Future test_inheritMetadata_overriddenWithVariance() async {
     final code = r'''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 import 'dart:async';
 
 abstract class BaseComponent {
@@ -3232,7 +3232,7 @@ class VarianceComponent extends BaseComponent {
   // ignore: non_constant_identifier_names
   Future test_inheritMetadataChildDirective() async {
     final childCode = r'''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 
 @Component(selector: 'foo', template: '')
 class BaseComponent {
@@ -3260,7 +3260,7 @@ class ChildComponent extends BaseComponent {
     newSource('/child.dart', childCode);
 
     final code = r'''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 import 'child.dart';
 
 @Component(selector: 'my-component', template: '<p></p>',
@@ -3313,7 +3313,7 @@ class MyComponent {
   // ignore: non_constant_identifier_names
   Future test_inheritMetadataInheritanceDeep() async {
     final code = r'''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 
 class BaseBaseComponent {
   @Input()
@@ -3344,7 +3344,7 @@ class FinalComponent
   // ignore: non_constant_identifier_names
   Future test_inheritMetadataMixinsInterfaces() async {
     final code = r'''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 
 class MixinComponent1 {
   @Input()
@@ -3390,7 +3390,7 @@ class FinalComponent
   // ignore: non_constant_identifier_names
   Future test_inputOnGetterIsError() async {
     final code = r'''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 
 @Component(selector: 'my-component', template: '')
 class MyComponent {
@@ -3409,7 +3409,7 @@ class MyComponent {
   // ignore: non_constant_identifier_names
   Future test_inputs() async {
     final code = r'''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 
 @Component(
     selector: 'my-component',
@@ -3480,7 +3480,7 @@ class B {}
   // ignore: non_constant_identifier_names
   Future test_outputOnSetterIsError() async {
     final code = r'''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 
 @Component(selector: 'my-component', template: '')
 class MyComponent {
@@ -3499,7 +3499,7 @@ class MyComponent {
   // ignore: non_constant_identifier_names
   Future test_outputs() async {
     final code = r'''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 
 @Component(
     selector: 'my-component',
@@ -3563,7 +3563,7 @@ class MyComponent {
   // ignore: non_constant_identifier_names
   Future test_outputs_extendStreamIsOk() async {
     final code = r'''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 import 'dart:async';
 
 abstract class MyStream<T> implements Stream<T> { }
@@ -3590,7 +3590,7 @@ class MyComponent {
   // ignore: non_constant_identifier_names
   Future test_outputs_extendStreamNotStreamHasDynamicEventType() async {
     final code = r'''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 
 @Component(
     selector: 'my-component',
@@ -3616,7 +3616,7 @@ class MyComponent {
   // ignore: non_constant_identifier_names
   Future test_outputs_extendStreamSpecializedIsOk() async {
     final code = r'''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 import 'dart:async';
 
 class MyStream extends Stream<int> { }
@@ -3644,7 +3644,7 @@ class MyComponent {
   // ignore: non_constant_identifier_names
   Future test_outputs_extendStreamUntypedIsOk() async {
     final code = r'''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 import 'dart:async';
 
 class MyStream extends Stream { }
@@ -3672,7 +3672,7 @@ class MyComponent {
   // ignore: non_constant_identifier_names
   Future test_outputs_notEventEmitterTypeError() async {
     final code = r'''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 
 @Component(
     selector: 'my-component',
@@ -3691,7 +3691,7 @@ class MyComponent {
   // ignore: non_constant_identifier_names
   Future test_outputs_streamIsOk() async {
     final code = r'''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 import 'dart:async';
 
 @Component(
@@ -3717,7 +3717,7 @@ class MyComponent {
   // ignore: non_constant_identifier_names
   Future test_parameterizedInheritedInputsOutputs() async {
     final code = r'''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 
 class Generic<T> {
   @Input()
@@ -3757,7 +3757,7 @@ class MyComponent extends Generic {
   // ignore: non_constant_identifier_names
   Future test_parameterizedInheritedInputsOutputsSpecified() async {
     final code = r'''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 
 class Generic<T> {
   @Input()
@@ -3797,7 +3797,7 @@ class MyComponent extends Generic<String> {
   // ignore: non_constant_identifier_names
   Future test_parameterizedInputsOutputs() async {
     final code = r'''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 
 @Component(
     selector: 'my-component',
@@ -3879,7 +3879,7 @@ class MyComponent<T, A extends String, B extends A> {
   // ignore: non_constant_identifier_names
   Future test_Pipe() async {
     final source = newSource('/test.dart', r'''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 
 @Pipe('pipeA')
 class PipeA extends PipeTransform {
@@ -3924,7 +3924,7 @@ class PipeB extends PipeTransform {
 
   Future test_Pipe_allowedOptionalArgs() async {
     final source = newSource('/test.dart', r'''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 
 @Pipe('pipeA')
 class PipeA extends PipeTransform{
@@ -3942,7 +3942,7 @@ class PipeA extends PipeTransform{
   // ignore: non_constant_identifier_names
   Future test_Pipe_dynamic() async {
     final source = newSource('/test.dart', r'''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 
 @Pipe('pipeA')
 class PipeA extends PipeTransform{
@@ -3960,7 +3960,7 @@ class PipeA extends PipeTransform{
   // ignore: non_constant_identifier_names
   Future test_Pipe_error_bad_extends() async {
     final source = newSource('/test.dart', r'''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 
 class Trouble {}
 
@@ -3988,7 +3988,7 @@ class PipeA extends Trouble{
   // ignore: non_constant_identifier_names
   Future test_Pipe_error_named_args() async {
     final source = newSource('/test.dart', r'''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 
 @Pipe('pipeA')
 class PipeA extends PipeTransform{
@@ -4007,7 +4007,7 @@ class PipeA extends PipeTransform{
   // ignore: non_constant_identifier_names
   Future test_Pipe_error_no_pipeTransform() async {
     final source = newSource('/test.dart', r'''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 
 @Pipe('pipeA')
 class PipeA {
@@ -4033,7 +4033,7 @@ class PipeA {
   // ignore: non_constant_identifier_names
   Future test_Pipe_error_no_transform() async {
     final source = newSource('/test.dart', r'''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 
 class Trouble {}
 
@@ -4059,7 +4059,7 @@ class PipeA extends PipeTransform{}
   // ignore: non_constant_identifier_names
   Future test_Pipe_is_abstract() async {
     final source = newSource('/test.dart', r'''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 
 class Trouble {}
 
@@ -4087,7 +4087,7 @@ abstract class PipeA extends PipeTransform{
   // ignore: non_constant_identifier_names
   Future test_pipeInheritance() async {
     final source = newSource('/test.dart', r'''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 
 class BasePipe extends PipeTransform {
   int transform(int blah) => blah;
@@ -4118,7 +4118,7 @@ class MyPipe extends BasePipe {
   Future test_prefixedExport() async {
     newSource('/prefixed.dart', 'const foo = null;');
     final code = r'''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 import '/prefixed.dart' as prefixed;
 
 const foo = null;
@@ -4157,7 +4157,7 @@ class ComponentA {
   // ignore: non_constant_identifier_names
   Future test_selector_constantExpressionOk() async {
     final source = newSource('/test.dart', r'''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 
 @Component(selector: 'a' + '[b]', template: '')
 class ComponentA {
@@ -4191,7 +4191,7 @@ class ResolveDartTemplatesTest extends AngularDriverTestBase {
   // ignore: non_constant_identifier_names
   Future test_attributeNotString() async {
     final code = r'''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 
 @Component(selector: 'my-component', template: '')
 class MyComponent {
@@ -4217,7 +4217,7 @@ class MyComponent {
   // ignore: non_constant_identifier_names
   Future test_attributes() async {
     final code = r'''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 
 @Component(selector: 'my-component', template: '')
 class MyComponent {
@@ -4242,7 +4242,7 @@ class MyComponent {
   // ignore: non_constant_identifier_names
   Future test_cannotExportComponentClassItself() async {
     final code = r'''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 
 @Component(selector: 'my-component', template: '',
     exports: const [ComponentA])
@@ -4260,7 +4260,7 @@ class ComponentA {
 
   Future test_componentReference() async {
     final code = r'''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 
 @Component(selector: 'my-aaa', template: '<div>AAA</div>')
 class ComponentA {
@@ -4325,7 +4325,7 @@ class ComponentC {
   // ignore: non_constant_identifier_names
   Future test_constantExpressionTemplateVarDoesntCrash() async {
     final source = newSource('/test.dart', r'''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 
 const String tplText = "we don't analyze this";
 
@@ -4342,7 +4342,7 @@ class ComponentA {
   // ignore: non_constant_identifier_names
   Future test_hasError_expression_ArgumentTypeNotAssignable() async {
     final code = r'''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 
 @Component(selector: 'text-panel',
     template: r"<div> {{text.length + text}} </div>")
@@ -4359,7 +4359,7 @@ class TextPanel {
   // ignore: non_constant_identifier_names
   Future test_hasError_expression_UndefinedIdentifier() async {
     final code = r'''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 
 @Component(selector: 'text-panel', template: r"<div>some text</div>")
 class TextPanel {
@@ -4386,7 +4386,7 @@ class UserPanel {
       // ignore: non_constant_identifier_names
       test_hasError_expression_UndefinedIdentifier_OutsideFirstHtmlTag() async {
     final code = r'''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 
 @Component(selector: 'my-component', template: '<h1></h1>{{noSuchName}}')
 class MyComponent {
@@ -4402,7 +4402,7 @@ class MyComponent {
   // ignore: non_constant_identifier_names
   Future test_hasError_UnresolvedTag() async {
     final code = r'''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 
 @Component(selector: 'my-aaa',
     template: "<unresolved-tag attr='value'></unresolved-tag>")
@@ -4418,7 +4418,7 @@ class ComponentA {
   // ignore: non_constant_identifier_names
   Future test_hasExports() async {
     final code = r'''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 
 const String foo = 'foo';
 int bar() { return 2; }
@@ -4465,7 +4465,7 @@ class ComponentA {
   // ignore: non_constant_identifier_names
   Future test_hasWrongTypeOfPrefixedIdentifierExport() async {
     final code = r'''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 
 @Component(selector: 'my-component', template: '',
     exports: const [ComponentA.foo])
@@ -4485,7 +4485,7 @@ class ComponentA {
   // ignore: non_constant_identifier_names
   Future test_htmlParsing_hasError() async {
     final code = r'''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 
 @Component(selector: 'text-panel',
     template: r"<div> <h2> Expected closing H2 </h3> </div>")
@@ -4505,7 +4505,7 @@ class TextPanel {
   Future test_input_OK_event() async {
     final code = r'''
 import 'dart:html';
-    import 'package:angular2/angular2.dart';
+    import 'package:angular/angular.dart';
 
 @Component(selector: 'UserPanel', template: r"""
 <div>
@@ -4554,7 +4554,7 @@ class TodoList {
   // ignore: non_constant_identifier_names
   Future test_input_OK_reference_expression() async {
     final code = r'''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 
 @Component(selector: 'text-panel', template: r"<div>some text</div>")
 class TextPanel {
@@ -4613,7 +4613,7 @@ class User {
   // ignore: non_constant_identifier_names
   Future test_input_OK_reference_text() async {
     final code = r'''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 
 @Component(
     selector: 'comp-a',
@@ -4662,7 +4662,7 @@ class ComponentB {
   // ignore: non_constant_identifier_names
   Future test_misspelledPrefixSuppressesWrongPrefixTypeError() async {
     final code = r'''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 
 @Component(selector: 'my-component', template: '',
     exports: const [garbage.garbage])
@@ -4683,7 +4683,7 @@ class ComponentA {
   // ignore: non_constant_identifier_names
   Future test_noRootElement() async {
     final code = r'''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 
 @Component(selector: 'text-panel',
     template: r'Often used without an element in tests.')
@@ -4700,7 +4700,7 @@ class TextPanel {
   // ignore: non_constant_identifier_names
   Future test_noTemplateContents() async {
     final code = r'''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 
 @Component(selector: 'text-panel',
     template: '')
@@ -4718,7 +4718,7 @@ class TextPanel {
   Future test_prefixedExport() async {
     newSource('/prefixed.dart', 'const double foo = 2.0;');
     final code = r'''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 import '/prefixed.dart' as prefixed;
 
 const int foo = 2;
@@ -4757,7 +4757,7 @@ class ComponentA {
   // ignore: non_constant_identifier_names
   Future test_resolveGetChildDirectivesNgContentSelectors() async {
     final code = r'''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 import 'child_file.dart';
 
 @Component(selector: 'my-component', template: 'My template',
@@ -4765,7 +4765,7 @@ import 'child_file.dart';
 class MyComponent {}
 ''';
     final childCode = r'''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 @Component(selector: 'child-component',
     template: 'My template <ng-content></ng-content>',
     directives: const [])
@@ -4794,7 +4794,7 @@ class ChildComponent {}
   // ignore: non_constant_identifier_names
   Future test_suppressError_NotCaseSensitive() async {
     final code = r'''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 
 @Component(selector: 'my-aaa',
     template: """
@@ -4811,7 +4811,7 @@ class ComponentA {
   // ignore: non_constant_identifier_names
   Future test_suppressError_UnresolvedTag() async {
     final code = r'''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 
 @Component(selector: 'my-aaa',
     template: """
@@ -4828,7 +4828,7 @@ class ComponentA {
   // ignore: non_constant_identifier_names
   Future test_suppressError_UnresolvedTagAndInput() async {
     final code = r'''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 
 @Component(selector: 'my-aaa',
     template: """
@@ -4846,7 +4846,7 @@ class ComponentA {
   // ignore: non_constant_identifier_names
   Future test_textExpression_hasError_DoubleOpenedMustache() async {
     final code = r'''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 
 @Component(selector: 'text-panel', template: r"<div> {{text {{ error}} </div>")
 class TextPanel {
@@ -4864,7 +4864,7 @@ class TextPanel {
   // ignore: non_constant_identifier_names
   Future test_textExpression_hasError_MultipleUnclosedMustaches() async {
     final code = r'''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 
 @Component(selector: 'text-panel', template: r"<div> {{open {{error {{text}} close}} close}} </div>")
 class TextPanel {
@@ -4885,7 +4885,7 @@ class TextPanel {
   // ignore: non_constant_identifier_names
   Future test_textExpression_hasError_UnopenedMustache() async {
     final code = r'''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 
 @Component(selector: 'text-panel', template: r"<div> text}} </div>")
 class TextPanel {
@@ -4901,7 +4901,7 @@ class TextPanel {
   // ignore: non_constant_identifier_names
   Future test_textExpression_hasError_UnterminatedMustache() async {
     final code = r'''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 
 @Component(selector: 'text-panel', template: r"{{text")
 class TextPanel {
@@ -4918,7 +4918,7 @@ class TextPanel {
   // ignore: non_constant_identifier_names
   Future test_textExpression_OK() async {
     final code = r'''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 
 @Component(selector: 'text-panel',
     template: r"<div> <h2> {{text}}  </h2> and {{text.length}} </div>")
@@ -4989,7 +4989,7 @@ class ResolveHtmlTemplatesTest extends AngularDriverTestBase {
   // ignore: non_constant_identifier_names
   Future test_multipleViewsWithTemplate() async {
     final dartCodeOne = r'''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 
 @Component(selector: 'text-panelA', templateUrl: 'text_panel.html')
 class TextPanelA {
@@ -4998,7 +4998,7 @@ class TextPanelA {
 ''';
 
     final dartCodeTwo = r'''
-import '/angular2/angular2.dart';
+import '/angular/angular.dart';
 
 @Component(selector: 'text-panelB', templateUrl: 'text_panel.html')
 class TextPanelB {
@@ -5060,7 +5060,7 @@ class ResolveHtmlTemplateTest extends AngularDriverTestBase {
   // ignore: non_constant_identifier_names
   Future test_contentChildAnnotatedConstructor() async {
     final code = r'''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 
 @Component(selector: 'a', templateUrl: 'test.html')
 class A {
@@ -5080,7 +5080,7 @@ class A {
   // ignore: non_constant_identifier_names
   Future test_errorFromWeirdInclude_includesFromPath() async {
     final code = r'''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 
 @Component(selector: 'my-aaa', templateUrl: "test.html")
 class WeirdComponent {
@@ -5102,7 +5102,7 @@ class WeirdComponent {
   // ignore: non_constant_identifier_names
   Future test_hasView_withTemplate_relativeToLibForParts() async {
     final libCode = r'''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 part 'parts/part.dart';
     ''';
     final partCode = r'''
@@ -5144,7 +5144,7 @@ class MyComponent {
   // ignore: non_constant_identifier_names
   Future test_hasViewWithTemplate() async {
     final dartCode = r'''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 
 @Component(selector: 'text-panel', templateUrl: 'text_panel.html')
 class TextPanel {
@@ -5237,16 +5237,16 @@ class NotNecessaryToResolvePipe {}
   // ignore: non_constant_identifier_names
   Future test_resolveGetChildDirectivesNgContentSelectors() async {
     final code = r'''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 import 'child_file.dart';
 
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 @Component(selector: 'my-component', templateUrl: 'test.html',
     directives: const [ChildComponent])
 class MyComponent {}
 ''';
     final childCode = r'''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 @Component(selector: 'child-component',
     template: 'My template <ng-content></ng-content>',
     directives: const [])
@@ -5268,7 +5268,7 @@ class ChildComponent {}
   // ignore: non_constant_identifier_names
   Future test_suppressError_UnresolvedTagHtmlTemplate() async {
     final dartSource = newSource('/test.dart', r'''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 
 @Component(selector: 'my-aaa', templateUrl: 'test.html')
 class ComponentA {

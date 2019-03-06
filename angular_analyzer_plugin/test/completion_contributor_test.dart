@@ -23,7 +23,7 @@ class DartCompletionContributorTest extends AbstractCompletionContributorTest {
   // ignore: non_constant_identifier_names
   Future test_completeInlineHtmlSelectorTag_at_beginning() async {
     addTestSource('''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 @Component(template: '<^<div></div>', selector: 'my-parent', directives: const[MyChildComponent1, MyChildComponent2])
 class MyParentComponent{}
 @Component(template: '', selector: 'my-child1, my-child2')
@@ -43,7 +43,7 @@ class MyChildComponent2{}
   // ignore: non_constant_identifier_names
   Future test_completeInlineHtmlSelectorTag_at_beginning_with_partial() async {
     addTestSource('''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 @Component(template: '<my^<div></div>', selector: 'my-parent', directives: const[MyChildComponent1, MyChildComponent2])
 class MyParentComponent{}
 @Component(template: '', selector: 'my-child1, my-child2')
@@ -63,7 +63,7 @@ class MyChildComponent2{}
   // ignore: non_constant_identifier_names
   Future test_completeInlineHtmlSelectorTag_at_end() async {
     addTestSource('''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 @Component(template: '<div><div></div></div><^', selector: 'my-parent', directives: const[MyChildComponent1,MyChildComponent2])
 class MyParentComponent{}
 @Component(template: '', selector: 'my-child1, my-child2')
@@ -83,7 +83,7 @@ class MyChildComponent2{}
   // ignore: non_constant_identifier_names
   Future test_completeInlineHtmlSelectorTag_at_end_after_close() async {
     addTestSource('''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 @Component(template: '<div><div></div></div>^', selector: 'my-parent', directives: const[MyChildComponent1,MyChildComponent2])
 class MyParentComponent{}
 @Component(template: '', selector: 'my-child1, my-child2')
@@ -103,7 +103,7 @@ class MyChildComponent2{}
   // ignore: non_constant_identifier_names
   Future test_completeInlineHtmlSelectorTag_at_end_with_partial() async {
     addTestSource('''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 @Component(template: '<div><div></div></div><m^', selector: 'my-parent', directives: const[MyChildComponent1,MyChildComponent2])
 class MyParentComponent{}
 @Component(template: '', selector: 'my-child1, my-child2')
@@ -123,7 +123,7 @@ class MyChildComponent2{}
   // ignore: non_constant_identifier_names
   Future test_completeInlineHtmlSelectorTag_at_middle() async {
     addTestSource('''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 @Component(template: '<div><div><^</div></div>', selector: 'my-parent', directives: const[MyChildComponent1,MyChildComponent2])
 class MyParentComponent{}
 @Component(template: '', selector: 'my-child1, my-child2')
@@ -143,7 +143,7 @@ class MyChildComponent2{}
   // ignore: non_constant_identifier_names
   Future test_completeInlineHtmlSelectorTag_at_middle_of_text() async {
     addTestSource('''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 @Component(template: '<div><div> some text<^</div></div>', selector: 'my-parent', directives: const[MyChildComponent1,MyChildComponent2])
 class MyParentComponent{}
 @Component(template: '', selector: 'my-child1, my-child2')
@@ -163,7 +163,7 @@ class MyChildComponent2{}
   // ignore: non_constant_identifier_names
   Future test_completeInlineHtmlSelectorTag_at_middle_with_partial() async {
     addTestSource('''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 @Component(template: '<div><div><my^</div></div>', selector: 'my-parent', directives: const[MyChildComponent1, MyChildComponent2])
 class MyParentComponent{}
 @Component(template: '', selector: 'my-child1, my-child2')
@@ -183,7 +183,7 @@ class MyChildComponent2{}
   // ignore: non_constant_identifier_names
   Future test_completeInlineHtmlSelectorTag_in_middle_of_unclosed_tag() async {
     addTestSource('''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 @Component(template: '<div>some text<^', selector: 'my-parent', directives: const[MyChildComponent1,MyChildComponent2])
 class MyParentComponent{}
 @Component(template: '', selector: 'my-child1, my-child2')
@@ -203,7 +203,7 @@ class MyChildComponent2{}
   // ignore: non_constant_identifier_names
   Future test_completeInlineHtmlSelectorTag_on_empty_document() async {
     addTestSource('''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 @Component(template: '^', selector: 'my-parent', directives: const[MyChildComponent1,MyChildComponent2])
 class MyParentComponent{}
 @Component(template: '', selector: 'my-child1, my-child2')
@@ -223,7 +223,7 @@ class MyChildComponent2{}
   // ignore: non_constant_identifier_names
   Future test_completeInput_as_plainAttribute() async {
     addTestSource('''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 @Component(template: '<child-tag ^<div></div>', selector: 'my-tag',
 directives: const [MyChildComponent])
 class MyComponent {}
@@ -251,7 +251,7 @@ class MyChildComponent {
   // ignore: non_constant_identifier_names
   Future test_completeInputNotStarted_at_incompleteTag_with_newTag() async {
     addTestSource('''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 @Component(template: '<child-tag ^<div></div>', selector: 'my-tag',
 directives: const [MyChildComponent])
 class MyComponent {}
@@ -270,7 +270,7 @@ class MyChildComponent {
   // ignore: non_constant_identifier_names
   Future test_completeInputStarted_at_incompleteTag_with_EOF() async {
     addTestSource('''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 @Component(template: '<child-tag [^', selector: 'my-tag',
 directives: const [MyChildComponent])
 class MyComponent {}
@@ -290,7 +290,7 @@ class MyChildComponent {
   // ignore: non_constant_identifier_names
   Future test_completeInputStarted_at_incompleteTag_with_newTag() async {
     addTestSource('''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 @Component(template: '<child-tag [^<div></div>', selector: 'my-tag',
 directives: const [MyChildComponent])
 class MyComponent {}
@@ -310,7 +310,7 @@ class MyChildComponent {
   // ignore: non_constant_identifier_names
   Future test_completeMemberInAttrBinding() async {
     addTestSource('''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 @Component(template: '<h1 [attr.on-click]="^"></h1>', selector: 'a')
 class MyComp {
   String text;
@@ -326,7 +326,7 @@ class MyComp {
   // ignore: non_constant_identifier_names
   Future test_completeMemberInClassBinding() async {
     addTestSource('''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 @Component(template: '<h1 [class.my-class]="^"></h1>', selector: 'a')
 class MyComp {
   String text;
@@ -342,7 +342,7 @@ class MyComp {
   // ignore: non_constant_identifier_names
   Future test_completeMemberInInputBinding() async {
     addTestSource('''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 @Component(template: '<h1 [hidden]="^"></h1>', selector: 'a')
 class MyComp {
   String text;
@@ -358,7 +358,7 @@ class MyComp {
   // ignore: non_constant_identifier_names
   Future test_completeMemberInInputOutput_at_incompleteTag_with_EOF() async {
     addTestSource('''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 @Component(template: '<child-tag ^', selector: 'my-tag',
 directives: const [MyChildComponent])
 class MyComponent {}
@@ -378,7 +378,7 @@ class MyChildComponent {
   // ignore: non_constant_identifier_names
   Future test_completeMemberInInputOutput_at_incompleteTag_with_newTag() async {
     addTestSource('''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 @Component(template: '<child-tag ^<div></div>', selector: 'my-tag',
 directives: const [MyChildComponent])
 class MyComponent {}
@@ -398,7 +398,7 @@ class MyChildComponent {
   // ignore: non_constant_identifier_names
   Future test_completeMemberInMustache() async {
     addTestSource('''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 @Component(template: '{{^}}', selector: 'a')
 class MyComp {
   String text;
@@ -414,7 +414,7 @@ class MyComp {
   // ignore: non_constant_identifier_names
   Future test_completeMemberInStyleBinding() async {
     addTestSource('''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 @Component(template: '<h1 [style.background-color]="^"></h1>', selector: 'a')
 class MyComp {
   String text;
@@ -430,7 +430,7 @@ class MyComp {
   // ignore: non_constant_identifier_names
   Future test_completeMemberMustacheAttrBinding() async {
     addTestSource('''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 @Component(template: '<h1 title="{{^}}"></h1>', selector: 'a')
 class MyComp {
   String text;
@@ -446,7 +446,7 @@ class MyComp {
   // ignore: non_constant_identifier_names
   Future test_completeMultipleMembers() async {
     addTestSource('''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 @Component(template: '{{d^}}', selector: 'a')
 class MyComp {
   String text;
@@ -464,7 +464,7 @@ class MyComp {
   // ignore: non_constant_identifier_names
   Future test_completeOutputStarted_at_incompleteTag_with_EOF() async {
     addTestSource('''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 @Component(template: '<child-tag (^', selector: 'my-tag',
 directives: const [MyChildComponent])
 class MyComponent {}
@@ -484,7 +484,7 @@ class MyChildComponent {
   // ignore: non_constant_identifier_names
   Future test_completeOutputStarted_at_incompleteTag_with_newTag() async {
     addTestSource('''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 @Component(template: '<child-tag (^<div></div>', selector: 'my-tag',
 directives: const [MyChildComponent])
 class MyComponent {}
@@ -504,7 +504,7 @@ class MyChildComponent {
   // ignore: non_constant_identifier_names
   Future test_completeOutsideTemplateOK() async {
     addTestSource('''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 class MyComp {
   String text = ^;
 }
@@ -516,7 +516,7 @@ class MyComp {
   // ignore: non_constant_identifier_names
   Future test_completeStandardInput_as_plainAttribute() async {
     addTestSource('''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 @Component(template: '<child-tag ^<div></div>', selector: 'my-tag',
 directives: const [MyChildComponent])
 class MyComponent {}
@@ -550,7 +550,7 @@ class HtmlCompletionContributorTest extends AbstractCompletionContributorTest {
   // ignore: non_constant_identifier_names
   Future test_availDirective_attribute_banana_noInput() async {
     final dartSource = newSource('/completionTest.dart', '''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 @Component(templateUrl: 'completionTest.html', selector: 'a',
     directives: const [MyTagComponent, MyDirective])
 class MyComp {
@@ -581,7 +581,7 @@ class MyDirective {
   // ignore: non_constant_identifier_names
   Future test_availDirective_attribute_begin() async {
     final dartSource = newSource('/completionTest.dart', '''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 @Component(templateUrl: 'completionTest.html', selector: 'a',
     directives: const [MyTagComponent, MyDirective])
 class MyComp {
@@ -604,7 +604,7 @@ class MyDirective {}
   // ignore: non_constant_identifier_names
   Future test_availDirective_attribute_complete() async {
     final dartSource = newSource('/completionTest.dart', '''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 @Component(templateUrl: 'completionTest.html', selector: 'a',
     directives: const [MyTagComponent, MyDirective, MyDirectiveTwo])
 class MyComp {
@@ -629,7 +629,7 @@ class MyDirectiveTwo {}
   // ignore: non_constant_identifier_names
   Future test_availDirective_attribute_middle() async {
     final dartSource = newSource('/completionTest.dart', '''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 @Component(templateUrl: 'completionTest.html', selector: 'a',
     directives: const [MyTagComponent, MyDirective])
 class MyComp {
@@ -652,7 +652,7 @@ class MyDirective {}
   // ignore: non_constant_identifier_names
   Future test_availDirective_attribute_multipleAttribute_and() async {
     final dartSource = newSource('/completionTest.dart', '''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 @Component(templateUrl: 'completionTest.html', selector: 'a',
     directives: const [MyTagComponent, MyDirective])
 class MyComp {
@@ -677,7 +677,7 @@ class MyDirective {}
   // ignore: non_constant_identifier_names
   Future test_availDirective_attribute_multipleAttribute_attrValue1() async {
     final dartSource = newSource('/completionTest.dart', '''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 @Component(templateUrl: 'completionTest.html', selector: 'a',
     directives: const [MyTagComponent, MyDirective])
 class MyComp {
@@ -701,7 +701,7 @@ class MyDirective {}
   // ignore: non_constant_identifier_names
   Future test_availDirective_attribute_multipleAttribute_attrValue2() async {
     final dartSource = newSource('/completionTest.dart', '''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 @Component(templateUrl: 'completionTest.html', selector: 'a',
     directives: const [MyTagComponent, MyDirective])
 class MyComp {
@@ -725,7 +725,7 @@ class MyDirective {}
   // ignore: non_constant_identifier_names
   Future test_availDirective_attribute_multipleAttribute_matchBanana() async {
     final dartSource = newSource('/completionTest.dart', '''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 @Component(templateUrl: 'completionTest.html', selector: 'a',
     directives: const [MyTagComponent, MyDirective])
 class MyComp {
@@ -757,7 +757,7 @@ class MyDirective {
   // ignore: non_constant_identifier_names
   Future test_availDirective_attribute_multipleAttribute_matchInput() async {
     final dartSource = newSource('/completionTest.dart', '''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 @Component(templateUrl: 'completionTest.html', selector: 'a',
     directives: const [MyTagComponent, MyDirective])
 class MyComp {
@@ -786,7 +786,7 @@ class MyDirective {
   // ignore: non_constant_identifier_names
   Future test_availDirective_attribute_multipleAttribute_or() async {
     final dartSource = newSource('/completionTest.dart', '''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 @Component(templateUrl: 'completionTest.html', selector: 'a',
     directives: const [MyTagComponent, MyDirective])
 class MyComp {
@@ -811,7 +811,7 @@ class MyDirective {}
   // ignore: non_constant_identifier_names
   Future test_availDirective_attribute_multipleAttribute_or_matchOne() async {
     final dartSource = newSource('/completionTest.dart', '''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 @Component(templateUrl: 'completionTest.html', selector: 'a',
     directives: const [MyTagComponent, MyDirective])
 class MyComp {
@@ -835,7 +835,7 @@ class MyDirective {}
   // ignore: non_constant_identifier_names
   Future test_availDirective_attribute_sharedBanana() async {
     final dartSource = newSource('/completionTest.dart', '''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 @Component(templateUrl: 'completionTest.html', selector: 'a',
     directives: const [MyTagComponent, MyDirective])
 class MyComp {
@@ -866,7 +866,7 @@ class MyDirective {
   // ignore: non_constant_identifier_names
   Future test_availDirective_attribute_sharedInput() async {
     final dartSource = newSource('/completionTest.dart', '''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 @Component(templateUrl: 'completionTest.html', selector: 'a',
     directives: const [MyTagComponent, MyDirective])
 class MyComp {
@@ -893,7 +893,7 @@ class MyDirective {
   // ignore: non_constant_identifier_names
   Future test_availDirective_attribute_unsharedInput() async {
     final dartSource = newSource('/completionTest.dart', '''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 @Component(templateUrl: 'completionTest.html', selector: 'a',
     directives: const [MyTagComponent, MyDirective])
 class MyComp {
@@ -920,7 +920,7 @@ class MyDirective {
   // ignore: non_constant_identifier_names
   Future test_availFunctionalDirective_attribute_begin() async {
     final dartSource = newSource('/completionTest.dart', '''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 @Component(templateUrl: 'completionTest.html', selector: 'a',
     directives: const [MyTagComponent, myDirective])
 class MyComp {
@@ -947,7 +947,7 @@ const int foo = 1;
 const int bar = 1;
 ''');
     final dartSource = newSource('/completionTest.dart', '''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 import 'prefixed.dart' as prefixed;
 const int baz = 2;
 @Component(templateUrl: 'completionTest.html', selector: 'a', exports: const [
@@ -974,7 +974,7 @@ class MyComp {
   // ignore: non_constant_identifier_names
   Future test_completeBananaNotStarted() async {
     final dartSource = newSource('/completionTest.dart', '''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 @Component(templateUrl: 'completionTest.html', selector: 'a',
     directives: const [OtherComp])
 class MyComp {
@@ -1000,7 +1000,7 @@ class OtherComp {
   // ignore: non_constant_identifier_names
   Future test_completeBananaNotSuggested_after_inputUsed() async {
     final dartSource = newSource('/completionTest.dart', '''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 @Component(templateUrl: 'completionTest.html', selector: 'a',
     directives: const [OtherComp])
 class MyComp {
@@ -1026,7 +1026,7 @@ class OtherComp {
   // ignore: non_constant_identifier_names
   Future test_completeBananaNotSuggested_after_outputUsed() async {
     final dartSource = newSource('/completionTest.dart', '''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 @Component(templateUrl: 'completionTest.html', selector: 'a',
     directives: const [OtherComp])
 class MyComp {
@@ -1052,7 +1052,7 @@ class OtherComp {
   // ignore: non_constant_identifier_names
   Future test_completeBananaNotSuggestedTwice() async {
     final dartSource = newSource('/completionTest.dart', '''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 @Component(templateUrl: 'completionTest.html', selector: 'a',
     directives: const [OtherComp])
 class MyComp {
@@ -1078,7 +1078,7 @@ class OtherComp {
   // ignore: non_constant_identifier_names
   Future test_completeBananaReplacing() async {
     final dartSource = newSource('/completionTest.dart', '''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 @Component(templateUrl: 'completionTest.html', selector: 'a',
     directives: const [OtherComp])
 class MyComp {
@@ -1110,7 +1110,7 @@ class OtherComp {
   // ignore: non_constant_identifier_names
   Future test_completeBananaStarted1() async {
     final dartSource = newSource('/completionTest.dart', '''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 @Component(templateUrl: 'completionTest.html', selector: 'a',
     directives: const [OtherComp])
 class MyComp {
@@ -1136,7 +1136,7 @@ class OtherComp {
   // ignore: non_constant_identifier_names
   Future test_completeBananaStarted1_at_incompleteTag_with_EOF() async {
     final dartSource = newSource('/completionTest.dart', '''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 @Component(templateUrl: 'completionTest.html', selector: 'a',
     directives: const [OtherComp])
 class MyComp {
@@ -1162,7 +1162,7 @@ class OtherComp {
   // ignore: non_constant_identifier_names
   Future test_completeBananaStarted2() async {
     final dartSource = newSource('/completionTest.dart', '''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 @Component(templateUrl: 'completionTest.html', selector: 'a',
     directives: const [OtherComp])
 class MyComp {
@@ -1188,7 +1188,7 @@ class OtherComp {
   // ignore: non_constant_identifier_names
   Future test_completeBananaStarted2_at_incompleteTag_with_EOF() async {
     final dartSource = newSource('/completionTest.dart', '''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 @Component(templateUrl: 'completionTest.html', selector: 'a',
     directives: const [OtherComp])
 class MyComp {
@@ -1214,7 +1214,7 @@ class OtherComp {
   // ignore: non_constant_identifier_names
   Future test_completeBananaStarted_at_incompleteTag_bananaStart() async {
     final dartSource = newSource('/completionTest.dart', '''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 @Component(templateUrl: 'completionTest.html', selector: 'a',
     directives: const [OtherComp])
 class MyComp {
@@ -1240,7 +1240,7 @@ class OtherComp {
   // ignore: non_constant_identifier_names
   Future test_completeBananaStarted_at_incompleteTag_bracketStart() async {
     final dartSource = newSource('/completionTest.dart', '''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 @Component(templateUrl: 'completionTest.html', selector: 'a',
     directives: const [OtherComp])
 class MyComp {
@@ -1266,7 +1266,7 @@ class OtherComp {
   // ignore: non_constant_identifier_names
   Future test_completeBananaSuggestsItself() async {
     final dartSource = newSource('/completionTest.dart', '''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 @Component(templateUrl: 'completionTest.html', selector: 'a',
     directives: const [OtherComp])
 class MyComp {
@@ -1292,7 +1292,7 @@ class OtherComp {
   // ignore: non_constant_identifier_names
   Future test_completeBeforeComment() async {
     final dartSource = newSource('/completionTest.dart', '''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 class MyClass{}
 @Component(templateUrl: 'completionTest.html', selector: 'a')
 class MyComp {}
@@ -1309,7 +1309,7 @@ class MyComp {}
   // ignore: non_constant_identifier_names
   Future test_completeCurrentClass() async {
     final dartSource = newSource('/completionTest.dart', '''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 @Component(templateUrl: 'completionTest.html', selector: 'a')
 class MyComp {
 }
@@ -1327,7 +1327,7 @@ class MyComp {
   // ignore: non_constant_identifier_names
   Future test_completeDotMemberAlreadyStartedInMustache() async {
     final dartSource = newSource('/completionTest.dart', '''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 @Component(templateUrl: 'completionTest.html', selector: 'a')
 class MyComp {
   String text;
@@ -1346,7 +1346,7 @@ class MyComp {
   // ignore: non_constant_identifier_names
   Future test_completeDotMemberInMustache() async {
     final dartSource = newSource('/completionTest.dart', '''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 @Component(templateUrl: 'completionTest.html', selector: 'a')
 class MyComp {
   String text;
@@ -1365,7 +1365,7 @@ class MyComp {
   // ignore: non_constant_identifier_names
   Future test_completeDotMemberInNgFor() async {
     final dartSource = newSource('/completionTest.dart', '''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 @Component(templateUrl: 'completionTest.html', selector: 'a', directives: const [NgFor])
 class MyComp {
   String text;
@@ -1384,7 +1384,7 @@ class MyComp {
   // ignore: non_constant_identifier_names
   Future test_completeDotMemberInNgIf() async {
     final dartSource = newSource('/completionTest.dart', '''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 @Component(templateUrl: 'completionTest.html', selector: 'a', directives: const [NgIf])
 class MyComp {
   String text;
@@ -1403,7 +1403,7 @@ class MyComp {
   // ignore: non_constant_identifier_names
   Future test_completeEmptyExpressionDoesntIncludeVoid() async {
     final dartSource = newSource('/completionTest.dart', '''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 @Component(templateUrl: 'completionTest.html', selector: 'a')
 class MyComp {
   void dontCompleteMe() {}
@@ -1434,7 +1434,7 @@ const int bar = 1;
 const int baz = 1;
 ''');
     final dartSource = newSource('/completionTest.dart', '''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 import 'prefix_one.dart' as prefix_one;
 import 'prefix_two.dart' as prefix_two;
 import 'prefix_three.dart' as prefix_three;
@@ -1467,7 +1467,7 @@ class OtherClass {}
 enum OtherEnum {}
 ''');
     final dartSource = newSource('/completionTest.dart', '''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 import 'prefixed.dart' as prefixed;
 const int myAccessor = 1;
 int myFunction(){}
@@ -1512,7 +1512,7 @@ const int foo = 1;
 class OtherClass {};
 ''');
     final dartSource = newSource('/completionTest.dart', '''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 import 'prefixed.dart' as prefixed;
 class MyClass{}
 @Component(templateUrl: 'completionTest.html', selector: 'a', exports: const [
@@ -1542,7 +1542,7 @@ class MyComp {
   // ignore: non_constant_identifier_names
   Future test_completeHashVar() async {
     final dartSource = newSource('/completionTest.dart', '''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 @Component(templateUrl: 'completionTest.html', selector: 'a')
 class MyComp {
 }
@@ -1560,7 +1560,7 @@ class MyComp {
   // ignore: non_constant_identifier_names
   Future test_completeHtmlSelectorTag__in_middle_of_unclosed_tag() async {
     final dartSource = newSource('/completionTest.dart', '''
-      import 'package:angular2/angular2.dart';
+      import 'package:angular/angular.dart';
       @Component(templateUrl: 'completionTest.html', selector: 'a',
         directives: const [MyChildComponent1, MyChildComponent2])
         class MyComp{}
@@ -1583,7 +1583,7 @@ class MyComp {
   // ignore: non_constant_identifier_names
   Future test_completeHtmlSelectorTag_at_beginning() async {
     final dartSource = newSource('/completionTest.dart', '''
-      import 'package:angular2/angular2.dart';
+      import 'package:angular/angular.dart';
       @Component(templateUrl: 'completionTest.html', selector: 'a',
         directives: const [MyChildComponent1, MyChildComponent2])
         class MyComp{}
@@ -1606,7 +1606,7 @@ class MyComp {
   // ignore: non_constant_identifier_names
   Future test_completeHtmlSelectorTag_at_beginning_with_partial() async {
     final dartSource = newSource('/completionTest.dart', '''
-      import 'package:angular2/angular2.dart';
+      import 'package:angular/angular.dart';
       @Component(templateUrl: 'completionTest.html', selector: 'a',
         directives: const [MyChildComponent1, MyChildComponent2])
         class MyComp{}
@@ -1629,7 +1629,7 @@ class MyComp {
   // ignore: non_constant_identifier_names
   Future test_completeHtmlSelectorTag_at_end() async {
     final dartSource = newSource('/completionTest.dart', '''
-      import 'package:angular2/angular2.dart';
+      import 'package:angular/angular.dart';
       @Component(templateUrl: 'completionTest.html', selector: 'a',
         directives: const [MyChildComponent1, MyChildComponent2])
         class MyComp{}
@@ -1652,7 +1652,7 @@ class MyComp {
   // ignore: non_constant_identifier_names
   Future test_completeHtmlSelectorTag_at_end_after_close() async {
     final dartSource = newSource('/completionTest.dart', '''
-      import 'package:angular2/angular2.dart';
+      import 'package:angular/angular.dart';
       @Component(templateUrl: 'completionTest.html', selector: 'a',
         directives: const [MyChildComponent1, MyChildComponent2])
         class MyComp{}
@@ -1675,7 +1675,7 @@ class MyComp {
   // ignore: non_constant_identifier_names
   Future test_completeHtmlSelectorTag_at_end_with_partial() async {
     final dartSource = newSource('/completionTest.dart', '''
-      import 'package:angular2/angular2.dart';
+      import 'package:angular/angular.dart';
       @Component(templateUrl: 'completionTest.html', selector: 'a',
         directives: const [MyChildComponent1, MyChildComponent2])
         class MyComp{}
@@ -1699,7 +1699,7 @@ class MyComp {
   // ignore: non_constant_identifier_names
   Future test_completeHtmlSelectorTag_at_middle() async {
     final dartSource = newSource('/completionTest.dart', '''
-      import 'package:angular2/angular2.dart';
+      import 'package:angular/angular.dart';
       @Component(templateUrl: 'completionTest.html', selector: 'a',
         directives: const [MyChildComponent1, MyChildComponent2])
         class MyComp{}
@@ -1722,7 +1722,7 @@ class MyComp {
   // ignore: non_constant_identifier_names
   Future test_completeHtmlSelectorTag_at_middle_of_text() async {
     final dartSource = newSource('/completionTest.dart', '''
-      import 'package:angular2/angular2.dart';
+      import 'package:angular/angular.dart';
       @Component(templateUrl: 'completionTest.html', selector: 'a',
         directives: const [MyChildComponent1, MyChildComponent2])
         class MyComp{}
@@ -1745,7 +1745,7 @@ class MyComp {
   // ignore: non_constant_identifier_names
   Future test_completeHtmlSelectorTag_at_middle_with_partial() async {
     final dartSource = newSource('/completionTest.dart', '''
-      import 'package:angular2/angular2.dart';
+      import 'package:angular/angular.dart';
       @Component(templateUrl: 'completionTest.html', selector: 'a',
         directives: const [MyChildComponent1, MyChildComponent2])
         class MyComp{}
@@ -1768,7 +1768,7 @@ class MyComp {
   // ignore: non_constant_identifier_names
   Future test_completeHtmlSelectorTag_on_empty_document() async {
     final dartSource = newSource('/completionTest.dart', '''
-      import 'package:angular2/angular2.dart';
+      import 'package:angular/angular.dart';
       @Component(templateUrl: 'completionTest.html', selector: 'a',
         directives: const [MyChildComponent1, MyChildComponent2])
         class MyComp{}
@@ -1791,7 +1791,7 @@ class MyComp {
   // ignore: non_constant_identifier_names
   Future test_completeInMiddleOfExpressionDoesntIncludeVoid() async {
     final dartSource = newSource('/completionTest.dart', '''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 @Component(templateUrl: 'completionTest.html', selector: 'a')
 class MyComp {
   bool takesArg(dynamic arg) {};
@@ -1811,7 +1811,7 @@ class MyComp {
   // ignore: non_constant_identifier_names
   Future test_completeInputAsPlainAttribute() async {
     final dartSource = newSource('/completionTest.dart', '''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 @Component(templateUrl: 'completionTest.html', selector: 'a',
     directives: const [OtherComp])
 class MyComp {
@@ -1844,7 +1844,7 @@ class OtherComp {
   // ignore: non_constant_identifier_names
   Future test_completeInputAsPlainAttributeStarted() async {
     final dartSource = newSource('/completionTest.dart', '''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 @Component(templateUrl: 'completionTest.html', selector: 'a',
     directives: const [OtherComp])
 class MyComp {
@@ -1877,7 +1877,7 @@ class OtherComp {
   // ignore: non_constant_identifier_names
   Future test_completeInputInStar() async {
     final dartSource = newSource('/completionTest.dart', '''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 @Component(templateUrl: 'completionTest.html', selector: 'a', directives: const [NgFor])
 class MyComp {
   List<String> items;
@@ -1900,7 +1900,7 @@ class MyComp {
   // ignore: non_constant_identifier_names
   Future test_completeInputInStarReplacing() async {
     final dartSource = newSource('/completionTest.dart', '''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 @Component(templateUrl: 'completionTest.html', selector: 'a', directives: const [NgFor])
 class MyComp {
   List<String> items;
@@ -1923,7 +1923,7 @@ class MyComp {
   // ignore: non_constant_identifier_names
   Future test_completeInputInStarReplacingBeforeValue() async {
     final dartSource = newSource('/completionTest.dart', '''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 @Component(templateUrl: 'completionTest.html', selector: 'a', directives: const [NgFor])
 class MyComp {
   List<String> items;
@@ -1946,7 +1946,7 @@ class MyComp {
   // ignore: non_constant_identifier_names
   Future test_completeInputInStarValueAlready() async {
     final dartSource = newSource('/completionTest.dart', '''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 @Component(templateUrl: 'completionTest.html', selector: 'a', directives: const [NgFor])
 class MyComp {
   List<String> items;
@@ -1969,7 +1969,7 @@ class MyComp {
   // ignore: non_constant_identifier_names
   Future test_completeInputNotStarted() async {
     final dartSource = newSource('/completionTest.dart', '''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 @Component(templateUrl: 'completionTest.html', selector: 'a',
     directives: const [OtherComp])
 class MyComp {
@@ -1993,7 +1993,7 @@ class OtherComp {
   // ignore: non_constant_identifier_names
   Future test_completeInputNotStarted_plain_standardHtmlInput() async {
     final dartSource = newSource('/completionTest.dart', '''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 @Component(templateUrl: 'completionTest.html', selector: 'a')
 class MyComp {
 }
@@ -2012,7 +2012,7 @@ class MyComp {
   // ignore: non_constant_identifier_names
   Future test_completeInputNotStarted_standardHtmlInput() async {
     final dartSource = newSource('/completionTest.dart', '''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 @Component(templateUrl: 'completionTest.html', selector: 'a')
 class MyComp {
 }
@@ -2031,7 +2031,7 @@ class MyComp {
   // ignore: non_constant_identifier_names
   Future test_completeInputNotSuggestedTwice() async {
     final dartSource = newSource('/completionTest.dart', '''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 @Component(templateUrl: 'completionTest.html', selector: 'a',
     directives: const [OtherComp])
 class MyComp {
@@ -2058,7 +2058,7 @@ class OtherComp {
   // ignore: non_constant_identifier_names
   Future test_completeInputOutputBanana() async {
     final dartSource = newSource('/completionTest.dart', '''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 @Component(templateUrl: 'completionTest.html', selector: 'a',
     directives: const [OtherComp])
 class MyComp {
@@ -2092,7 +2092,7 @@ class OtherComp {
   // ignore: non_constant_identifier_names
   Future test_completeInputOutputBanana_at_incompleteTag_with_EOF() async {
     final dartSource = newSource('/completionTest.dart', '''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 @Component(templateUrl: 'completionTest.html', selector: 'a',
     directives: const [OtherComp])
 class MyComp {
@@ -2126,7 +2126,7 @@ class OtherComp {
   // ignore: non_constant_identifier_names
   Future test_completeInputOutputBanana_at_incompleteTag_with_newTag() async {
     final dartSource = newSource('/completionTest.dart', '''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 @Component(templateUrl: 'completionTest.html', selector: 'a',
     directives: const [OtherComp])
 class MyComp {
@@ -2160,7 +2160,7 @@ class OtherComp {
   // ignore: non_constant_identifier_names
   Future test_completeInputOutputNotSuggestedAfterTwoWay() async {
     final dartSource = newSource('/completionTest.dart', '''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 @Component(templateUrl: 'completionTest.html', selector: 'a',
     directives: const [OtherComp])
 class MyComp {
@@ -2186,7 +2186,7 @@ class OtherComp {
   // ignore: non_constant_identifier_names
   Future test_completeInputReplacing() async {
     final dartSource = newSource('/completionTest.dart', '''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 @Component(templateUrl: 'completionTest.html', selector: 'a',
     directives: const [OtherComp])
 class MyComp {
@@ -2213,7 +2213,7 @@ class OtherComp {
   // ignore: non_constant_identifier_names
   Future test_completeInputStarted() async {
     final dartSource = newSource('/completionTest.dart', '''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 @Component(templateUrl: 'completionTest.html', selector: 'a',
     directives: const [OtherComp])
 class MyComp {
@@ -2240,7 +2240,7 @@ class OtherComp {
   // ignore: non_constant_identifier_names
   Future test_completeInputStarted_at_incompleteTag_with_EOF() async {
     final dartSource = newSource('/completionTest.dart', '''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 @Component(templateUrl: 'completionTest.html', selector: 'a',
     directives: const [OtherComp])
 class MyComp {
@@ -2267,7 +2267,7 @@ class OtherComp {
   // ignore: non_constant_identifier_names
   Future test_completeInputStarted_at_incompleteTag_with_newTag() async {
     final dartSource = newSource('/completionTest.dart', '''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 @Component(templateUrl: 'completionTest.html', selector: 'a',
     directives: const [OtherComp])
 class MyComp {
@@ -2294,7 +2294,7 @@ class OtherComp {
   // ignore: non_constant_identifier_names
   Future test_completeInputStarted_plain_standardHtmlInput() async {
     final dartSource = newSource('/completionTest.dart', '''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 @Component(templateUrl: 'completionTest.html', selector: 'a')
 class MyComp {
 }
@@ -2313,7 +2313,7 @@ class MyComp {
   // ignore: non_constant_identifier_names
   Future test_completeInputStarted_standardHtmlInput() async {
     final dartSource = newSource('/completionTest.dart', '''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 @Component(templateUrl: 'completionTest.html', selector: 'a')
 class MyComp {
 }
@@ -2332,7 +2332,7 @@ class MyComp {
   // ignore: non_constant_identifier_names
   Future test_completeInputSuggestsItself() async {
     final dartSource = newSource('/completionTest.dart', '''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 @Component(templateUrl: 'completionTest.html', selector: 'a',
     directives: const [OtherComp])
 class MyComp {
@@ -2356,7 +2356,7 @@ class OtherComp {
   // ignore: non_constant_identifier_names
   Future test_completeMemberInMustache() async {
     final dartSource = newSource('/completionTest.dart', '''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 @Component(templateUrl: 'completionTest.html', selector: 'a')
 class MyComp {
   String text;
@@ -2377,7 +2377,7 @@ class MyComp {
   // ignore: non_constant_identifier_names
   Future test_completeMemberInNgFor() async {
     final dartSource = newSource('/completionTest.dart', '''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 @Component(templateUrl: 'completionTest.html', selector: 'a', directives: const [NgFor])
 class MyComp {
   String text;
@@ -2398,7 +2398,7 @@ class MyComp {
   // ignore: non_constant_identifier_names
   Future test_completeMemberInNgIf() async {
     final dartSource = newSource('/completionTest.dart', '''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 @Component(templateUrl: 'completionTest.html', selector: 'a', directives: const [NgIf])
 class MyComp {
   String text;
@@ -2419,7 +2419,7 @@ class MyComp {
   // ignore: non_constant_identifier_names
   Future test_completeMemberInNgIfPartial() async {
     final dartSource = newSource('/completionTest.dart', '''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 @Component(templateUrl: 'completionTest.html', selector: 'a', directives: const [NgIf])
 class MyComp {
   String text;
@@ -2439,7 +2439,7 @@ class MyComp {
   // ignore: non_constant_identifier_names
   Future test_completeNgForItem() async {
     final dartSource = newSource('/completionTest.dart', '''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 @Component(templateUrl: 'completionTest.html', selector: 'a', directives: const [NgFor])
 class MyComp {
   List<String> items;
@@ -2458,7 +2458,7 @@ class MyComp {
   // ignore: non_constant_identifier_names
   Future test_completeNgForStarted() async {
     final dartSource = newSource('/completionTest.dart', '''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 @Component(templateUrl: 'completionTest.html', selector: 'a', directives: const [NgFor])
 class MyComp {
   List<String> items;
@@ -2480,7 +2480,7 @@ class MyComp {
   // ignore: non_constant_identifier_names
   Future test_completeNgForStartedWithValue() async {
     final dartSource = newSource('/completionTest.dart', '''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 @Component(templateUrl: 'completionTest.html', selector: 'a', directives: const [NgFor])
 class MyComp {
   List<String> items;
@@ -2502,7 +2502,7 @@ class MyComp {
   // ignore: non_constant_identifier_names
   Future test_completeNgVars_notAfterDot() async {
     final dartSource = newSource('/completionTest.dart', '''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 @Component(templateUrl: 'completionTest.html', selector: 'a')
 class MyComp {
   List<String> items;
@@ -2523,7 +2523,7 @@ class MyComp {
   // ignore: non_constant_identifier_names
   Future test_completeOutputNotSuggestedTwice() async {
     final dartSource = newSource('/completionTest.dart', '''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 @Component(templateUrl: 'completionTest.html', selector: 'a',
     directives: const [OtherComp])
 class MyComp {
@@ -2551,7 +2551,7 @@ class OtherComp {
   // ignore: non_constant_identifier_names
   Future test_completeOutputReplacing() async {
     final dartSource = newSource('/completionTest.dart', '''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 @Component(templateUrl: 'completionTest.html', selector: 'a',
     directives: const [OtherComp])
 class MyComp {
@@ -2578,7 +2578,7 @@ class OtherComp {
   // ignore: non_constant_identifier_names
   Future test_completeOutputStarted() async {
     final dartSource = newSource('/completionTest.dart', '''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 @Component(templateUrl: 'completionTest.html', selector: 'a',
     directives: const [OtherComp])
 class MyComp {
@@ -2605,7 +2605,7 @@ class OtherComp {
   // ignore: non_constant_identifier_names
   Future test_completeOutputStarted_at_incompleteTag_with_EOF() async {
     final dartSource = newSource('/completionTest.dart', '''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 @Component(templateUrl: 'completionTest.html', selector: 'a',
     directives: const [OtherComp])
 class MyComp {
@@ -2633,7 +2633,7 @@ class OtherComp {
   // ignore: non_constant_identifier_names
   Future test_completeOutputStarted_at_incompleteTag_with_newTag() async {
     final dartSource = newSource('/completionTest.dart', '''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 @Component(templateUrl: 'completionTest.html', selector: 'a',
     directives: const [OtherComp])
 class MyComp {
@@ -2661,7 +2661,7 @@ class OtherComp {
   // ignore: non_constant_identifier_names
   Future test_completeOutputSuggestsItself() async {
     final dartSource = newSource('/completionTest.dart', '''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 @Component(templateUrl: 'completionTest.html', selector: 'a',
     directives: const [OtherComp])
 class MyComp {
@@ -2685,7 +2685,7 @@ class OtherComp {
   // ignore: non_constant_identifier_names
   Future test_completeStandardInputNotSuggestedTwice() async {
     final dartSource = newSource('/completionTest.dart', '''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 @Component(templateUrl: 'completionTest.html', selector: 'a',
     directives: const [OtherComp])
 class MyComp {
@@ -2713,7 +2713,7 @@ class OtherComp {
   // ignore: non_constant_identifier_names
   Future test_completeStandardInputSuggestsItself() async {
     final dartSource = newSource('/completionTest.dart', '''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 @Component(templateUrl: 'completionTest.html', selector: 'a',
     directives: const [OtherComp])
 class MyComp {
@@ -2737,7 +2737,7 @@ class OtherComp {
   // ignore: non_constant_identifier_names
   Future test_completeStarAttrsNotStarted() async {
     final dartSource = newSource('/completionTest.dart', '''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 @Component(templateUrl: 'completionTest.html', selector: 'a',
     directives: const [NgFor, NgIf, CustomTemplateDirective, NotTemplateDirective])
 class MyComp {
@@ -2770,7 +2770,7 @@ class NotTemplateDirective {
   // ignore: non_constant_identifier_names
   Future test_completeStarAttrsOnlyStar() async {
     final dartSource = newSource('/completionTest.dart', '''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 @Component(templateUrl: 'completionTest.html', selector: 'a', directives:
     const [NgFor, NgIf, CustomTemplateDirective, functionalTemplateDirective])
 class MyComp {
@@ -2804,7 +2804,7 @@ void functionalTemplateDirective(TemplateRef tpl);
   // ignore: non_constant_identifier_names
   Future test_completeStatements() async {
     final dartSource = newSource('/completionTest.dart', '''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 @Component(templateUrl: 'completionTest.html', selector: 'a')
 class MyComp {
   String text;
@@ -2824,7 +2824,7 @@ class MyComp {
   // ignore: non_constant_identifier_names
   Future test_completeStdOutputNotSuggestedTwice() async {
     final dartSource = newSource('/completionTest.dart', '''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 @Component(templateUrl: 'completionTest.html', selector: 'a',
     directives: const [OtherComp])
 class MyComp {
@@ -2851,7 +2851,7 @@ class OtherComp {
   // ignore: non_constant_identifier_names
   Future test_completeStdOutputSuggestsItself() async {
     final dartSource = newSource('/completionTest.dart', '''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 @Component(templateUrl: 'completionTest.html', selector: 'a',
     directives: const [OtherComp])
 class MyComp {
@@ -2876,7 +2876,7 @@ class OtherComp {
   // ignore: non_constant_identifier_names
   Future test_completeTransclusionSuggestion() async {
     final dartSource = newSource('/completionTest.dart', '''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 @Component(templateUrl: 'completionTest.html', selector: 'a',
     directives: const [ContainerComponent])
 class MyComp{}
@@ -2900,7 +2900,7 @@ class ContainerComponent{}
   // ignore: non_constant_identifier_names
   Future test_completeTransclusionSuggestionAfterTag() async {
     final dartSource = newSource('/completionTest.dart', '''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 @Component(templateUrl: 'completionTest.html', selector: 'a',
     directives: const [ContainerComponent])
 class MyComp{}
@@ -2928,7 +2928,7 @@ class ContainerComponent{}
   // ignore: non_constant_identifier_names
   Future test_completeTransclusionSuggestionBeforeTag() async {
     final dartSource = newSource('/completionTest.dart', '''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 @Component(templateUrl: 'completionTest.html', selector: 'a',
     directives: const [ContainerComponent])
 class MyComp{}
@@ -2956,7 +2956,7 @@ class ContainerComponent{}
   // ignore: non_constant_identifier_names
   Future test_completeTransclusionSuggestionInWhitespace() async {
     final dartSource = newSource('/completionTest.dart', '''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 @Component(templateUrl: 'completionTest.html', selector: 'a',
     directives: const [ContainerComponent])
 class MyComp{}
@@ -2983,7 +2983,7 @@ class ContainerComponent{}
   // ignore: non_constant_identifier_names
   Future test_completeTransclusionSuggestionStarted() async {
     final dartSource = newSource('/completionTest.dart', '''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 @Component(templateUrl: 'completionTest.html', selector: 'a',
     directives: const [ContainerComponent])
 class MyComp{}
@@ -3009,7 +3009,7 @@ class ContainerComponent{}
 
   Future test_completeTransclusionSuggestionStartedTagName() async {
     final dartSource = newSource('/completionTest.dart', '''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 @Component(templateUrl: 'completionTest.html', selector: 'a',
     directives: const [ContainerComponent])
 class MyComp{}
@@ -3036,7 +3036,7 @@ class ContainerComponent{}
   // ignore: non_constant_identifier_names
   Future test_completeUnclosedMustache() async {
     final dartSource = newSource('/completionTest.dart', '''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 @Component(templateUrl: 'completionTest.html', selector: 'a')
 class MyComp {
   String text;
@@ -3055,7 +3055,7 @@ class MyComp {
   // ignore: non_constant_identifier_names
   Future test_findCompletionTarget_afterUnclosedDom() async {
     final dartSource = newSource('/completionTest.dart', '''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 @Component(templateUrl: 'completionTest.html', selector: 'a')
 class MyComp {
   String text;
@@ -3074,7 +3074,7 @@ class MyComp {
   // ignore: non_constant_identifier_names
   Future test_noCompleteEmptyTagContents() async {
     final dartSource = newSource('/completionTest.dart', '''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 @Component(templateUrl: 'completionTest.html', selector: 'a',
     directives: const [OtherComp])
 class MyComp {
@@ -3101,7 +3101,7 @@ class OtherComp {
   // ignore: non_constant_identifier_names
   Future test_noCompleteInOutputInCloseTag() async {
     final dartSource = newSource('/completionTest.dart', '''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 @Component(templateUrl: 'completionTest.html', selector: 'a',
     directives: const [OtherComp])
 class MyComp {
@@ -3134,7 +3134,7 @@ class OtherComp {
   // ignore: non_constant_identifier_names
   Future test_noCompleteInOutputsOnTagNameCompletion() async {
     final dartSource = newSource('/completionTest.dart', '''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 @Component(templateUrl: 'completionTest.html', selector: 'a',
     directives: const [OtherComp])
 class MyComp {
@@ -3167,7 +3167,7 @@ class OtherComp {
   // ignore: non_constant_identifier_names
   Future test_noCompleteMemberInNgFor_forLettedName() async {
     final dartSource = newSource('/completionTest.dart', '''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 @Component(templateUrl: 'completionTest.html', selector: 'a', directives: const [NgFor])
 class MyComp {
   String text;
@@ -3186,7 +3186,7 @@ class MyComp {
   // ignore: non_constant_identifier_names
   Future test_noCompleteMemberInNgForAfterLettedName() async {
     final dartSource = newSource('/completionTest.dart', '''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 @Component(templateUrl: 'completionTest.html', selector: 'a', directives: const [NgFor])
 class MyComp {
   String text;
@@ -3205,7 +3205,7 @@ class MyComp {
   // ignore: non_constant_identifier_names
   Future test_noCompleteMemberInNgForInLet() async {
     final dartSource = newSource('/completionTest.dart', '''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 @Component(templateUrl: 'completionTest.html', selector: 'a', directives: const [NgFor])
 class MyComp {
   String text;
@@ -3224,7 +3224,7 @@ class MyComp {
   // ignore: non_constant_identifier_names
   Future test_noCompleteMemberInNgForInLettedName() async {
     final dartSource = newSource('/completionTest.dart', '''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 @Component(templateUrl: 'completionTest.html', selector: 'a', directives: const [NgFor])
 class MyComp {
   String text;
@@ -3243,7 +3243,7 @@ class MyComp {
   // ignore: non_constant_identifier_names
   Future test_noCompleteMemberInNgForRightAfterLet() async {
     final dartSource = newSource('/completionTest.dart', '''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 @Component(templateUrl: 'completionTest.html', selector: 'a', directives: const [NgFor])
 class MyComp {
   String text;
@@ -3262,7 +3262,7 @@ class MyComp {
   // ignore: non_constant_identifier_names
   Future test_refValue_begin() async {
     final dartSource = newSource('/completionTest.dart', '''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 @Component(templateUrl: 'completionTest.html', selector: 'a',
     directives: const [MyTagComponent, MyDirective])
 class MyComp {
@@ -3285,7 +3285,7 @@ class MyDirective {}
   // ignore: non_constant_identifier_names
   Future test_refValue_complete() async {
     final dartSource = newSource('/completionTest.dart', '''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 @Component(templateUrl: 'completionTest.html', selector: 'a',
     directives: const [MyTagComponent, MyDirective])
 class MyComp {
@@ -3308,7 +3308,7 @@ class MyDirective {}
   // ignore: non_constant_identifier_names
   Future test_refValue_middle() async {
     final dartSource = newSource('/completionTest.dart', '''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 @Component(templateUrl: 'completionTest.html', selector: 'a',
     directives: const [MyTagComponent, MyDirective])
 class MyComp {
@@ -3331,7 +3331,7 @@ class MyDirective {}
   // ignore: non_constant_identifier_names
   Future test_refValue_should_dedupe() async {
     final dartSource = newSource('/completionTest.dart', '''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 @Component(templateUrl: 'completionTest.html', selector: 'a',
     directives: const [MyTagComponent, MyDirectiveOne, MyDirectiveTwo])
 class MyComp {
