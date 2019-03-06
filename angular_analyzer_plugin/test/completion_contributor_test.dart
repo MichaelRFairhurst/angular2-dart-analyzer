@@ -223,6 +223,7 @@ class MyChildComponent2{}
   // ignore: non_constant_identifier_names
   Future test_completeInput_as_plainAttribute() async {
     addTestSource('''
+import 'dart:async';
 import 'package:angular/angular.dart';
 @Component(template: '<child-tag ^<div></div>', selector: 'my-tag',
 directives: const [MyChildComponent])
@@ -231,7 +232,7 @@ class MyComponent {}
 class MyChildComponent {
   @Input() String stringInput;
   @Input() int intInput;
-  @Output() EventEmitter<String> myEvent;
+  @Output() Stream<String> myEvent;
   
   bool _myDynamicInput = false;
   bool get myDynamicInput => _myDynamicInput;
@@ -251,6 +252,7 @@ class MyChildComponent {
   // ignore: non_constant_identifier_names
   Future test_completeInputNotStarted_at_incompleteTag_with_newTag() async {
     addTestSource('''
+import 'dart:async';
 import 'package:angular/angular.dart';
 @Component(template: '<child-tag ^<div></div>', selector: 'my-tag',
 directives: const [MyChildComponent])
@@ -258,7 +260,7 @@ class MyComponent {}
 @Component(template: '', selector: 'child-tag')
 class MyChildComponent {
   @Input() String stringInput;
-  @Output() EventEmitter<String> myEvent; 
+  @Output() Stream<String> myEvent; 
 }
     ''');
     await computeSuggestions();
@@ -270,6 +272,7 @@ class MyChildComponent {
   // ignore: non_constant_identifier_names
   Future test_completeInputStarted_at_incompleteTag_with_EOF() async {
     addTestSource('''
+import 'dart:async';
 import 'package:angular/angular.dart';
 @Component(template: '<child-tag [^', selector: 'my-tag',
 directives: const [MyChildComponent])
@@ -277,7 +280,7 @@ class MyComponent {}
 @Component(template: '', selector: 'child-tag')
 class MyChildComponent {
   @Input() String stringInput;
-  @Output() EventEmitter<String> myEvent;
+  @Output() Stream<String> myEvent;
 }
     ''');
     await computeSuggestions();
@@ -290,6 +293,7 @@ class MyChildComponent {
   // ignore: non_constant_identifier_names
   Future test_completeInputStarted_at_incompleteTag_with_newTag() async {
     addTestSource('''
+import 'dart:async';
 import 'package:angular/angular.dart';
 @Component(template: '<child-tag [^<div></div>', selector: 'my-tag',
 directives: const [MyChildComponent])
@@ -297,7 +301,7 @@ class MyComponent {}
 @Component(template: '', selector: 'child-tag')
 class MyChildComponent {
   @Input() String stringInput;
-  @Output() EventEmitter<String> myEvent;
+  @Output() Stream<String> myEvent;
 }
     ''');
     await computeSuggestions();
@@ -358,6 +362,7 @@ class MyComp {
   // ignore: non_constant_identifier_names
   Future test_completeMemberInInputOutput_at_incompleteTag_with_EOF() async {
     addTestSource('''
+import 'dart:async';
 import 'package:angular/angular.dart';
 @Component(template: '<child-tag ^', selector: 'my-tag',
 directives: const [MyChildComponent])
@@ -365,7 +370,7 @@ class MyComponent {}
 @Component(template: '', selector: 'child-tag')
 class MyChildComponent {
   @Input() String stringInput;
-  @Output() EventEmitter<String> myEvent;
+  @Output() Stream<String> myEvent;
 }
     ''');
     await computeSuggestions();
@@ -378,6 +383,7 @@ class MyChildComponent {
   // ignore: non_constant_identifier_names
   Future test_completeMemberInInputOutput_at_incompleteTag_with_newTag() async {
     addTestSource('''
+import 'dart:async';
 import 'package:angular/angular.dart';
 @Component(template: '<child-tag ^<div></div>', selector: 'my-tag',
 directives: const [MyChildComponent])
@@ -385,7 +391,7 @@ class MyComponent {}
 @Component(template: '', selector: 'child-tag')
 class MyChildComponent {
   @Input() String stringInput;
-  @Output() EventEmitter<String> myEvent;
+  @Output() Stream<String> myEvent;
 }
     ''');
     await computeSuggestions();
@@ -464,6 +470,7 @@ class MyComp {
   // ignore: non_constant_identifier_names
   Future test_completeOutputStarted_at_incompleteTag_with_EOF() async {
     addTestSource('''
+import 'dart:async';
 import 'package:angular/angular.dart';
 @Component(template: '<child-tag (^', selector: 'my-tag',
 directives: const [MyChildComponent])
@@ -471,7 +478,7 @@ class MyComponent {}
 @Component(template: '', selector: 'child-tag')
 class MyChildComponent {
   @Input() String stringInput;
-  @Output() EventEmitter<String> myEvent;
+  @Output() Stream<String> myEvent;
 }
     ''');
     await computeSuggestions();
@@ -484,6 +491,7 @@ class MyChildComponent {
   // ignore: non_constant_identifier_names
   Future test_completeOutputStarted_at_incompleteTag_with_newTag() async {
     addTestSource('''
+import 'dart:async';
 import 'package:angular/angular.dart';
 @Component(template: '<child-tag (^<div></div>', selector: 'my-tag',
 directives: const [MyChildComponent])
@@ -491,7 +499,7 @@ class MyComponent {}
 @Component(template: '', selector: 'child-tag')
 class MyChildComponent {
   @Input() String stringInput;
-  @Output() EventEmitter<String> myEvent;
+  @Output() Stream<String> myEvent;
 }
     ''');
     await computeSuggestions();
@@ -550,6 +558,7 @@ class HtmlCompletionContributorTest extends AbstractCompletionContributorTest {
   // ignore: non_constant_identifier_names
   Future test_availDirective_attribute_banana_noInput() async {
     final dartSource = newSource('/completionTest.dart', '''
+import 'dart:async';
 import 'package:angular/angular.dart';
 @Component(templateUrl: 'completionTest.html', selector: 'a',
     directives: const [MyTagComponent, MyDirective])
@@ -562,7 +571,7 @@ class MyDirective {
   @Input()
   String foo;
   @Output() 
-  EventEmitter<String> myDirectiveChange;
+  Stream<String> myDirectiveChange;
 }
     ''');
 
@@ -725,6 +734,7 @@ class MyDirective {}
   // ignore: non_constant_identifier_names
   Future test_availDirective_attribute_multipleAttribute_matchBanana() async {
     final dartSource = newSource('/completionTest.dart', '''
+import 'dart:async';
 import 'package:angular/angular.dart';
 @Component(templateUrl: 'completionTest.html', selector: 'a',
     directives: const [MyTagComponent, MyDirective])
@@ -737,7 +747,7 @@ class MyDirective {
   @Input()
   String myDirective;
   @Output()
-  EventEmitter<String> myDirectiveChange;
+  Stream<String> myDirectiveChange;
 }
     ''');
     addTestSource('<my-tag ^></my-tag>');
@@ -835,6 +845,7 @@ class MyDirective {}
   // ignore: non_constant_identifier_names
   Future test_availDirective_attribute_sharedBanana() async {
     final dartSource = newSource('/completionTest.dart', '''
+import 'dart:async';
 import 'package:angular/angular.dart';
 @Component(templateUrl: 'completionTest.html', selector: 'a',
     directives: const [MyTagComponent, MyDirective])
@@ -847,7 +858,7 @@ class MyDirective {
   @Input()
   String myDirective;
   @Output() 
-  EventEmitter<String> myDirectiveChange;
+  Stream<String> myDirectiveChange;
 }
     ''');
 
@@ -974,6 +985,7 @@ class MyComp {
   // ignore: non_constant_identifier_names
   Future test_completeBananaNotStarted() async {
     final dartSource = newSource('/completionTest.dart', '''
+import 'dart:async';
 import 'package:angular/angular.dart';
 @Component(templateUrl: 'completionTest.html', selector: 'a',
     directives: const [OtherComp])
@@ -982,7 +994,7 @@ class MyComp {
 @Component(template: '', selector: 'my-tag')
 class OtherComp {
   @Input() String name;
-  @Output() EventEmitter<String> nameChange;
+  @Output() Stream<String> nameChange;
 }
     ''');
 
@@ -1000,6 +1012,7 @@ class OtherComp {
   // ignore: non_constant_identifier_names
   Future test_completeBananaNotSuggested_after_inputUsed() async {
     final dartSource = newSource('/completionTest.dart', '''
+import 'dart:async';
 import 'package:angular/angular.dart';
 @Component(templateUrl: 'completionTest.html', selector: 'a',
     directives: const [OtherComp])
@@ -1008,7 +1021,7 @@ class MyComp {
 @Component(template: '', selector: 'my-tag')
 class OtherComp {
   @Input() String name;
-  @Output() EventEmitter<String> nameChange;
+  @Output() Stream<String> nameChange;
 }
     ''');
 
@@ -1026,6 +1039,7 @@ class OtherComp {
   // ignore: non_constant_identifier_names
   Future test_completeBananaNotSuggested_after_outputUsed() async {
     final dartSource = newSource('/completionTest.dart', '''
+import 'dart:async';
 import 'package:angular/angular.dart';
 @Component(templateUrl: 'completionTest.html', selector: 'a',
     directives: const [OtherComp])
@@ -1034,7 +1048,7 @@ class MyComp {
 @Component(template: '', selector: 'my-tag')
 class OtherComp {
   @Input() String name;
-  @Output() EventEmitter<String> nameChange;
+  @Output() Stream<String> nameChange;
 }
     ''');
 
@@ -1052,6 +1066,7 @@ class OtherComp {
   // ignore: non_constant_identifier_names
   Future test_completeBananaNotSuggestedTwice() async {
     final dartSource = newSource('/completionTest.dart', '''
+import 'dart:async';
 import 'package:angular/angular.dart';
 @Component(templateUrl: 'completionTest.html', selector: 'a',
     directives: const [OtherComp])
@@ -1060,7 +1075,7 @@ class MyComp {
 @Component(template: '', selector: 'my-tag')
 class OtherComp {
   @Input() String name;
-  @Output() EventEmitter<String> nameChange;
+  @Output() Stream<String> nameChange;
 }
     ''');
 
@@ -1078,6 +1093,8 @@ class OtherComp {
   // ignore: non_constant_identifier_names
   Future test_completeBananaReplacing() async {
     final dartSource = newSource('/completionTest.dart', '''
+import 'dart:async';
+import 'dart:async';
 import 'package:angular/angular.dart';
 @Component(templateUrl: 'completionTest.html', selector: 'a',
     directives: const [OtherComp])
@@ -1086,10 +1103,10 @@ class MyComp {
 @Component(template: '', selector: 'my-tag')
 class OtherComp {
   @Input() String name;
-  @Output() EventEmitter<String> nameChange;
+  @Output() Stream<String> nameChange;
   
   @Input() String codename;
-  @Output() EventEmitter<String> codenameChange;
+  @Output() Stream<String> codenameChange;
 }
     ''');
 
@@ -1110,6 +1127,7 @@ class OtherComp {
   // ignore: non_constant_identifier_names
   Future test_completeBananaStarted1() async {
     final dartSource = newSource('/completionTest.dart', '''
+import 'dart:async';
 import 'package:angular/angular.dart';
 @Component(templateUrl: 'completionTest.html', selector: 'a',
     directives: const [OtherComp])
@@ -1118,7 +1136,7 @@ class MyComp {
 @Component(template: '', selector: 'my-tag')
 class OtherComp {
   @Input() String name;
-  @Output() EventEmitter<String> nameChange;
+  @Output() Stream<String> nameChange;
 }
     ''');
 
@@ -1136,6 +1154,7 @@ class OtherComp {
   // ignore: non_constant_identifier_names
   Future test_completeBananaStarted1_at_incompleteTag_with_EOF() async {
     final dartSource = newSource('/completionTest.dart', '''
+import 'dart:async';
 import 'package:angular/angular.dart';
 @Component(templateUrl: 'completionTest.html', selector: 'a',
     directives: const [OtherComp])
@@ -1144,7 +1163,7 @@ class MyComp {
 @Component(template: '', selector: 'my-tag')
 class OtherComp {
   @Input() String name;
-  @Output() EventEmitter<String> nameChange;
+  @Output() Stream<String> nameChange;
 }
     ''');
 
@@ -1162,6 +1181,7 @@ class OtherComp {
   // ignore: non_constant_identifier_names
   Future test_completeBananaStarted2() async {
     final dartSource = newSource('/completionTest.dart', '''
+import 'dart:async';
 import 'package:angular/angular.dart';
 @Component(templateUrl: 'completionTest.html', selector: 'a',
     directives: const [OtherComp])
@@ -1170,7 +1190,7 @@ class MyComp {
 @Component(template: '', selector: 'my-tag')
 class OtherComp {
   @Input() String name;
-  @Output() EventEmitter<String> nameChange;
+  @Output() Stream<String> nameChange;
 }
     ''');
 
@@ -1188,6 +1208,7 @@ class OtherComp {
   // ignore: non_constant_identifier_names
   Future test_completeBananaStarted2_at_incompleteTag_with_EOF() async {
     final dartSource = newSource('/completionTest.dart', '''
+import 'dart:async';
 import 'package:angular/angular.dart';
 @Component(templateUrl: 'completionTest.html', selector: 'a',
     directives: const [OtherComp])
@@ -1196,7 +1217,7 @@ class MyComp {
 @Component(template: '', selector: 'my-tag')
 class OtherComp {
   @Input() String name;
-  @Output() EventEmitter<String> nameChange;
+  @Output() Stream<String> nameChange;
 }
     ''');
 
@@ -1214,6 +1235,7 @@ class OtherComp {
   // ignore: non_constant_identifier_names
   Future test_completeBananaStarted_at_incompleteTag_bananaStart() async {
     final dartSource = newSource('/completionTest.dart', '''
+import 'dart:async';
 import 'package:angular/angular.dart';
 @Component(templateUrl: 'completionTest.html', selector: 'a',
     directives: const [OtherComp])
@@ -1222,7 +1244,7 @@ class MyComp {
 @Component(template: '', selector: 'my-tag')
 class OtherComp {
   @Input() String name;
-  @Output() EventEmitter<String> nameChange;
+  @Output() Stream<String> nameChange;
 }
     ''');
 
@@ -1240,6 +1262,7 @@ class OtherComp {
   // ignore: non_constant_identifier_names
   Future test_completeBananaStarted_at_incompleteTag_bracketStart() async {
     final dartSource = newSource('/completionTest.dart', '''
+import 'dart:async';
 import 'package:angular/angular.dart';
 @Component(templateUrl: 'completionTest.html', selector: 'a',
     directives: const [OtherComp])
@@ -1248,7 +1271,7 @@ class MyComp {
 @Component(template: '', selector: 'my-tag')
 class OtherComp {
   @Input() String name;
-  @Output() EventEmitter<String> nameChange;
+  @Output() Stream<String> nameChange;
 }
     ''');
 
@@ -1266,6 +1289,7 @@ class OtherComp {
   // ignore: non_constant_identifier_names
   Future test_completeBananaSuggestsItself() async {
     final dartSource = newSource('/completionTest.dart', '''
+import 'dart:async';
 import 'package:angular/angular.dart';
 @Component(templateUrl: 'completionTest.html', selector: 'a',
     directives: const [OtherComp])
@@ -1274,7 +1298,7 @@ class MyComp {
 @Component(template: '', selector: 'my-tag')
 class OtherComp {
   @Input() String name;
-  @Output() EventEmitter<String> nameChange;
+  @Output() Stream<String> nameChange;
 }
     ''');
 
@@ -1969,6 +1993,7 @@ class MyComp {
   // ignore: non_constant_identifier_names
   Future test_completeInputNotStarted() async {
     final dartSource = newSource('/completionTest.dart', '''
+import 'dart:async';
 import 'package:angular/angular.dart';
 @Component(templateUrl: 'completionTest.html', selector: 'a',
     directives: const [OtherComp])
@@ -1977,7 +2002,7 @@ class MyComp {
 @Component(template: '', selector: 'my-tag')
 class OtherComp {
   @Input() String name;
-  @Output() EventEmitter<String> nameEvent;
+  @Output() Stream<String> nameEvent;
 }
     ''');
     addTestSource('<my-tag ^></my-tag>');
@@ -2031,6 +2056,7 @@ class MyComp {
   // ignore: non_constant_identifier_names
   Future test_completeInputNotSuggestedTwice() async {
     final dartSource = newSource('/completionTest.dart', '''
+import 'dart:async';
 import 'package:angular/angular.dart';
 @Component(templateUrl: 'completionTest.html', selector: 'a',
     directives: const [OtherComp])
@@ -2039,7 +2065,7 @@ class MyComp {
 @Component(template: '', selector: 'my-tag')
 class OtherComp {
   @Input() String name;
-  @Output() EventEmitter<String> nameEvent;
+  @Output() Stream<String> nameEvent;
 }
     ''');
 
@@ -2058,6 +2084,8 @@ class OtherComp {
   // ignore: non_constant_identifier_names
   Future test_completeInputOutputBanana() async {
     final dartSource = newSource('/completionTest.dart', '''
+import 'dart:async';
+import 'dart:async';
 import 'package:angular/angular.dart';
 @Component(templateUrl: 'completionTest.html', selector: 'a',
     directives: const [OtherComp])
@@ -2066,10 +2094,10 @@ class MyComp {
 @Component(template: '', selector: 'my-tag')
 class OtherComp {
   @Input() String name;
-  @Output() EventEmitter<String> nameEvent;
+  @Output() Stream<String> nameEvent;
   
   @Input() String twoWay;
-  @Output() EventEmitter<String> twoWayChange;
+  @Output() Stream<String> twoWayChange;
 }
     ''');
 
@@ -2092,6 +2120,8 @@ class OtherComp {
   // ignore: non_constant_identifier_names
   Future test_completeInputOutputBanana_at_incompleteTag_with_EOF() async {
     final dartSource = newSource('/completionTest.dart', '''
+import 'dart:async';
+import 'dart:async';
 import 'package:angular/angular.dart';
 @Component(templateUrl: 'completionTest.html', selector: 'a',
     directives: const [OtherComp])
@@ -2100,10 +2130,10 @@ class MyComp {
 @Component(template: '', selector: 'my-tag')
 class OtherComp {
   @Input() String name;
-  @Output() EventEmitter<String> nameEvent;
+  @Output() Stream<String> nameEvent;
   
   @Input() String twoWay;
-  @Output() EventEmitter<String> twoWayChange;
+  @Output() Stream<String> twoWayChange;
 }
     ''');
 
@@ -2126,6 +2156,7 @@ class OtherComp {
   // ignore: non_constant_identifier_names
   Future test_completeInputOutputBanana_at_incompleteTag_with_newTag() async {
     final dartSource = newSource('/completionTest.dart', '''
+import 'dart:async';
 import 'package:angular/angular.dart';
 @Component(templateUrl: 'completionTest.html', selector: 'a',
     directives: const [OtherComp])
@@ -2134,10 +2165,10 @@ class MyComp {
 @Component(template: '', selector: 'my-tag')
 class OtherComp {
   @Input() String name;
-  @Output() EventEmitter<String> nameEvent;
+  @Output() Stream<String> nameEvent;
   
   @Input() String twoWay;
-  @Output() EventEmitter<String> twoWayChange;
+  @Output() Stream<String> twoWayChange;
 }
     ''');
 
@@ -2160,6 +2191,7 @@ class OtherComp {
   // ignore: non_constant_identifier_names
   Future test_completeInputOutputNotSuggestedAfterTwoWay() async {
     final dartSource = newSource('/completionTest.dart', '''
+import 'dart:async';
 import 'package:angular/angular.dart';
 @Component(templateUrl: 'completionTest.html', selector: 'a',
     directives: const [OtherComp])
@@ -2169,7 +2201,7 @@ class MyComp {
 @Component(template: '', selector: 'my-tag')
 class OtherComp {
   @Input() String name;
-  @Output() EventEmitter<String> nameChange;
+  @Output() Stream<String> nameChange;
 }
     ''');
 
@@ -2186,6 +2218,7 @@ class OtherComp {
   // ignore: non_constant_identifier_names
   Future test_completeInputReplacing() async {
     final dartSource = newSource('/completionTest.dart', '''
+import 'dart:async';
 import 'package:angular/angular.dart';
 @Component(templateUrl: 'completionTest.html', selector: 'a',
     directives: const [OtherComp])
@@ -2194,7 +2227,7 @@ class MyComp {
 @Component(template: '', selector: 'my-tag')
 class OtherComp {
   @Input() String name;
-  @Output() EventEmitter<String> nameEvent;
+  @Output() Stream<String> nameEvent;
 }
     ''');
 
@@ -2213,6 +2246,7 @@ class OtherComp {
   // ignore: non_constant_identifier_names
   Future test_completeInputStarted() async {
     final dartSource = newSource('/completionTest.dart', '''
+import 'dart:async';
 import 'package:angular/angular.dart';
 @Component(templateUrl: 'completionTest.html', selector: 'a',
     directives: const [OtherComp])
@@ -2221,7 +2255,7 @@ class MyComp {
 @Component(template: '', selector: 'my-tag')
 class OtherComp {
   @Input() String name;
-  @Output() EventEmitter<String> nameEvent;
+  @Output() Stream<String> nameEvent;
 }
     ''');
 
@@ -2240,6 +2274,7 @@ class OtherComp {
   // ignore: non_constant_identifier_names
   Future test_completeInputStarted_at_incompleteTag_with_EOF() async {
     final dartSource = newSource('/completionTest.dart', '''
+import 'dart:async';
 import 'package:angular/angular.dart';
 @Component(templateUrl: 'completionTest.html', selector: 'a',
     directives: const [OtherComp])
@@ -2248,7 +2283,7 @@ class MyComp {
 @Component(template: '', selector: 'my-tag')
 class OtherComp {
   @Input() String name;
-  @Output() EventEmitter<String> nameEvent;
+  @Output() Stream<String> nameEvent;
 }
     ''');
 
@@ -2267,6 +2302,7 @@ class OtherComp {
   // ignore: non_constant_identifier_names
   Future test_completeInputStarted_at_incompleteTag_with_newTag() async {
     final dartSource = newSource('/completionTest.dart', '''
+import 'dart:async';
 import 'package:angular/angular.dart';
 @Component(templateUrl: 'completionTest.html', selector: 'a',
     directives: const [OtherComp])
@@ -2275,7 +2311,7 @@ class MyComp {
 @Component(template: '', selector: 'my-tag')
 class OtherComp {
   @Input() String name;
-  @Output() EventEmitter<String> nameEvent;
+  @Output() Stream<String> nameEvent;
 }
     ''');
 
@@ -2332,6 +2368,7 @@ class MyComp {
   // ignore: non_constant_identifier_names
   Future test_completeInputSuggestsItself() async {
     final dartSource = newSource('/completionTest.dart', '''
+import 'dart:async';
 import 'package:angular/angular.dart';
 @Component(templateUrl: 'completionTest.html', selector: 'a',
     directives: const [OtherComp])
@@ -2340,7 +2377,7 @@ class MyComp {
 @Component(template: '', selector: 'my-tag')
 class OtherComp {
   @Input() String name;
-  @Output() EventEmitter<String> nameEvent;
+  @Output() Stream<String> nameEvent;
 }
     ''');
 
@@ -2523,6 +2560,7 @@ class MyComp {
   // ignore: non_constant_identifier_names
   Future test_completeOutputNotSuggestedTwice() async {
     final dartSource = newSource('/completionTest.dart', '''
+import 'dart:async';
 import 'package:angular/angular.dart';
 @Component(templateUrl: 'completionTest.html', selector: 'a',
     directives: const [OtherComp])
@@ -2531,7 +2569,7 @@ class MyComp {
 @Component(template: '', selector: 'my-tag')
 class OtherComp {
   @Input() String name;
-  @Output() EventEmitter<String> nameEvent;
+  @Output() Stream<String> nameEvent;
 }
     ''');
 
@@ -2551,6 +2589,7 @@ class OtherComp {
   // ignore: non_constant_identifier_names
   Future test_completeOutputReplacing() async {
     final dartSource = newSource('/completionTest.dart', '''
+import 'dart:async';
 import 'package:angular/angular.dart';
 @Component(templateUrl: 'completionTest.html', selector: 'a',
     directives: const [OtherComp])
@@ -2559,7 +2598,7 @@ class MyComp {
 @Component(template: '', selector: 'my-tag')
 class OtherComp {
   @Input() String name;
-  @Output() EventEmitter<String> nameEvent;
+  @Output() Stream<String> nameEvent;
 }
     ''');
 
@@ -2578,6 +2617,7 @@ class OtherComp {
   // ignore: non_constant_identifier_names
   Future test_completeOutputStarted() async {
     final dartSource = newSource('/completionTest.dart', '''
+import 'dart:async';
 import 'package:angular/angular.dart';
 @Component(templateUrl: 'completionTest.html', selector: 'a',
     directives: const [OtherComp])
@@ -2586,7 +2626,7 @@ class MyComp {
 @Component(template: '', selector: 'my-tag')
 class OtherComp {
   @Input() String name;
-  @Output() EventEmitter<String> nameEvent;
+  @Output() Stream<String> nameEvent;
 }
     ''');
 
@@ -2605,6 +2645,7 @@ class OtherComp {
   // ignore: non_constant_identifier_names
   Future test_completeOutputStarted_at_incompleteTag_with_EOF() async {
     final dartSource = newSource('/completionTest.dart', '''
+import 'dart:async';
 import 'package:angular/angular.dart';
 @Component(templateUrl: 'completionTest.html', selector: 'a',
     directives: const [OtherComp])
@@ -2613,7 +2654,7 @@ class MyComp {
 @Component(template: '', selector: 'my-tag')
 class OtherComp {
   @Input() String name;
-  @Output() EventEmitter<String> nameEvent;
+  @Output() Stream<String> nameEvent;
 }
     ''');
 
@@ -2633,6 +2674,7 @@ class OtherComp {
   // ignore: non_constant_identifier_names
   Future test_completeOutputStarted_at_incompleteTag_with_newTag() async {
     final dartSource = newSource('/completionTest.dart', '''
+import 'dart:async';
 import 'package:angular/angular.dart';
 @Component(templateUrl: 'completionTest.html', selector: 'a',
     directives: const [OtherComp])
@@ -2641,7 +2683,7 @@ class MyComp {
 @Component(template: '', selector: 'my-tag')
 class OtherComp {
   @Input() String name;
-  @Output() EventEmitter<String> nameEvent;
+  @Output() Stream<String> nameEvent;
 }
     ''');
 
@@ -2661,6 +2703,7 @@ class OtherComp {
   // ignore: non_constant_identifier_names
   Future test_completeOutputSuggestsItself() async {
     final dartSource = newSource('/completionTest.dart', '''
+import 'dart:async';
 import 'package:angular/angular.dart';
 @Component(templateUrl: 'completionTest.html', selector: 'a',
     directives: const [OtherComp])
@@ -2669,7 +2712,7 @@ class MyComp {
 @Component(template: '', selector: 'my-tag')
 class OtherComp {
   @Input() String name;
-  @Output() EventEmitter<String> nameEvent;
+  @Output() Stream<String> nameEvent;
 }
     ''');
 
@@ -2685,6 +2728,7 @@ class OtherComp {
   // ignore: non_constant_identifier_names
   Future test_completeStandardInputNotSuggestedTwice() async {
     final dartSource = newSource('/completionTest.dart', '''
+import 'dart:async';
 import 'package:angular/angular.dart';
 @Component(templateUrl: 'completionTest.html', selector: 'a',
     directives: const [OtherComp])
@@ -2693,7 +2737,7 @@ class MyComp {
 @Component(template: '', selector: 'my-tag')
 class OtherComp {
   @Input() String name;
-  @Output() EventEmitter<String> nameEvent;
+  @Output() Stream<String> nameEvent;
 }
     ''');
 
@@ -2713,6 +2757,7 @@ class OtherComp {
   // ignore: non_constant_identifier_names
   Future test_completeStandardInputSuggestsItself() async {
     final dartSource = newSource('/completionTest.dart', '''
+import 'dart:async';
 import 'package:angular/angular.dart';
 @Component(templateUrl: 'completionTest.html', selector: 'a',
     directives: const [OtherComp])
@@ -2721,7 +2766,7 @@ class MyComp {
 @Component(template: '', selector: 'my-tag')
 class OtherComp {
   @Input() String name;
-  @Output() EventEmitter<String> nameEvent;
+  @Output() Stream<String> nameEvent;
 }
     ''');
 
@@ -2824,6 +2869,7 @@ class MyComp {
   // ignore: non_constant_identifier_names
   Future test_completeStdOutputNotSuggestedTwice() async {
     final dartSource = newSource('/completionTest.dart', '''
+import 'dart:async';
 import 'package:angular/angular.dart';
 @Component(templateUrl: 'completionTest.html', selector: 'a',
     directives: const [OtherComp])
@@ -2832,7 +2878,7 @@ class MyComp {
 @Component(template: '', selector: 'my-tag')
 class OtherComp {
   @Input() String name;
-  @Output() EventEmitter<String> nameEvent;
+  @Output() Stream<String> nameEvent;
 }
     ''');
 
@@ -2851,6 +2897,7 @@ class OtherComp {
   // ignore: non_constant_identifier_names
   Future test_completeStdOutputSuggestsItself() async {
     final dartSource = newSource('/completionTest.dart', '''
+import 'dart:async';
 import 'package:angular/angular.dart';
 @Component(templateUrl: 'completionTest.html', selector: 'a',
     directives: const [OtherComp])
@@ -2859,7 +2906,7 @@ class MyComp {
 @Component(template: '', selector: 'my-tag')
 class OtherComp {
   @Input() String name;
-  @Output() EventEmitter<String> nameEvent;
+  @Output() Stream<String> nameEvent;
 }
     ''');
 
@@ -3074,6 +3121,7 @@ class MyComp {
   // ignore: non_constant_identifier_names
   Future test_noCompleteEmptyTagContents() async {
     final dartSource = newSource('/completionTest.dart', '''
+import 'dart:async';
 import 'package:angular/angular.dart';
 @Component(templateUrl: 'completionTest.html', selector: 'a',
     directives: const [OtherComp])
@@ -3082,7 +3130,7 @@ class MyComp {
 @Component(template: '', selector: 'my-tag')
 class OtherComp {
   @Input() String name;
-  @Output() EventEmitter event;
+  @Output() Stream event;
 }
     ''');
 
@@ -3101,6 +3149,7 @@ class OtherComp {
   // ignore: non_constant_identifier_names
   Future test_noCompleteInOutputInCloseTag() async {
     final dartSource = newSource('/completionTest.dart', '''
+import 'dart:async';
 import 'package:angular/angular.dart';
 @Component(templateUrl: 'completionTest.html', selector: 'a',
     directives: const [OtherComp])
@@ -3109,10 +3158,10 @@ class MyComp {
 @Component(template: '', selector: 'my-tag')
 class OtherComp {
   @Input() String name;
-  @Output() EventEmitter event;
+  @Output() Stream event;
   
   @Input() String twoWay;
-  @Output() EventEmitter<String> twoWayChange;
+  @Output() Stream<String> twoWayChange;
 }
     ''');
 
@@ -3134,6 +3183,7 @@ class OtherComp {
   // ignore: non_constant_identifier_names
   Future test_noCompleteInOutputsOnTagNameCompletion() async {
     final dartSource = newSource('/completionTest.dart', '''
+import 'dart:async';
 import 'package:angular/angular.dart';
 @Component(templateUrl: 'completionTest.html', selector: 'a',
     directives: const [OtherComp])
@@ -3142,10 +3192,10 @@ class MyComp {
 @Component(template: '', selector: 'my-tag')
 class OtherComp {
   @Input() String name;
-  @Output() EventEmitter event;
+  @Output() Stream event;
   
   @Input() String twoWay;
-  @Output() EventEmitter<String> twoWayChange;
+  @Output() Stream<String> twoWayChange;
 }
     ''');
 

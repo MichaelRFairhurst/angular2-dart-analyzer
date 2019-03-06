@@ -608,6 +608,7 @@ class MyComponent {
   // ignore: non_constant_identifier_names
   Future test_outputs() async {
     final code = r'''
+import 'dart:async';
 import 'package:angular/angular.dart';
 
 @Component(
@@ -615,11 +616,11 @@ import 'package:angular/angular.dart';
     template: '<p></p>')
 class MyComponent {
   @Output()
-  EventEmitter<int> outputOne;
+  Stream<int> outputOne;
   @Output('outputTwo')
-  EventEmitter secondOutput;
+  Stream secondOutput;
   @Output()
-  EventEmitter get someGetter => null;
+  Stream get someGetter => null;
 }
 ''';
     final source = newSource('/test.dart', code);

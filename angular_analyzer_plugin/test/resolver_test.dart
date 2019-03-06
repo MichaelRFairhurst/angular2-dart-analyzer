@@ -621,6 +621,7 @@ class GenericComponent<T extends String> {
       // ignore: non_constant_identifier_names
       test_expression_inputAndOutputBinding_extendGenericUnbounded_ok() async {
     _addDartSource(r'''
+import 'dart:async';
 @Component(selector: 'test-panel', directives: const [GenericComponent],
     templateUrl: 'test_panel.html')
 class TestPanel {
@@ -628,12 +629,12 @@ class TestPanel {
 }
 class Generic<T> {
   @Output()
-  EventEmitter<T> output;
+  Stream<T> output;
   @Input()
   T input;
 
   @Output()
-  EventEmitter<T> twoWayChange;
+  Stream<T> twoWayChange;
   @Input()
   T twoWay;
 }
@@ -653,6 +654,8 @@ class GenericComponent<T> extends Generic {
       // ignore: non_constant_identifier_names
       test_expression_inputAndOutputBinding_genericDirective_chain_ok() async {
     _addDartSource(r'''
+import 'dart:async';
+import 'dart:async';
 @Component(selector: 'test-panel', directives: const [GenericComponent],
     templateUrl: 'test_panel.html')
 class TestPanel {
@@ -660,10 +663,10 @@ class TestPanel {
 }
 @Component(selector: 'generic-comp', template: '')
 class GenericComponent<T extends E, E> {
-  @Output() EventEmitter<T> output;
+  @Output() Stream<T> output;
   @Input() T input;
 
-  @Output() EventEmitter<T> twoWayChange;
+  @Output() Stream<T> twoWayChange;
   @Input() T twoWay;
 }
 ''');
@@ -679,6 +682,7 @@ class GenericComponent<T extends E, E> {
       // ignore: non_constant_identifier_names
       test_expression_inputAndOutputBinding_genericDirective_nested_ok() async {
     _addDartSource(r'''
+import 'dart:async';
 @Component(selector: 'test-panel', directives: const [GenericComponent],
     templateUrl: 'test_panel.html')
 class TestPanel {
@@ -686,10 +690,10 @@ class TestPanel {
 }
 @Component(selector: 'generic-comp', template: '')
 class GenericComponent<T> {
-  @Output() EventEmitter<List<T>> output;
+  @Output() Stream<List<T>> output;
   @Input() List<T> input;
 
-  @Output() EventEmitter<List<T>> twoWayChange;
+  @Output() Stream<List<T>> twoWayChange;
   @Input() List<T> twoWay;
 }
 ''');
@@ -704,6 +708,7 @@ class GenericComponent<T> {
   // ignore: non_constant_identifier_names
   Future test_expression_inputAndOutputBinding_genericDirective_ok() async {
     _addDartSource(r'''
+import 'dart:async';
 @Component(selector: 'test-panel', directives: const [GenericComponent],
     templateUrl: 'test_panel.html')
 class TestPanel {
@@ -711,10 +716,10 @@ class TestPanel {
 }
 @Component(selector: 'generic-comp', template: '')
 class GenericComponent<T> {
-  @Output() EventEmitter<T> output;
+  @Output() Stream<T> output;
   @Input() T input;
 
-  @Output() EventEmitter<T> twoWayChange;
+  @Output() Stream<T> twoWayChange;
   @Input() T twoWay;
 }
 ''');
@@ -730,6 +735,7 @@ class GenericComponent<T> {
       // ignore: non_constant_identifier_names
       test_expression_inputAndOutputBinding_genericDirectiveChild_ok() async {
     _addDartSource(r'''
+import 'dart:async';
 @Component(selector: 'test-panel', directives: const [GenericComponent],
     templateUrl: 'test_panel.html')
 class TestPanel {
@@ -737,12 +743,12 @@ class TestPanel {
 }
 class Generic<T> {
   @Output()
-  EventEmitter<T> output;
+  Stream<T> output;
   @Input()
   T input;
 
   @Output()
-  EventEmitter<T> twoWayChange;
+  Stream<T> twoWayChange;
   @Input()
   T twoWay;
 }
@@ -1382,6 +1388,7 @@ class TestPanel {
       // ignore: non_constant_identifier_names
       test_expression_outputBinding_genericDirective_lowerBoundTypeError() async {
     _addDartSource(r'''
+import 'dart:async';
 @Component(selector: 'test-panel', directives: const [GenericComponent],
     templateUrl: 'test_panel.html')
 class TestPanel {
@@ -1389,7 +1396,7 @@ class TestPanel {
 }
 @Component(selector: 'generic-comp', template: '')
 class GenericComponent<T extends String> {
-  @Output() EventEmitter<T> string;
+  @Output() Stream<T> string;
 }
 ''');
     final code = r"""
@@ -1404,6 +1411,7 @@ class GenericComponent<T extends String> {
   // ignore: non_constant_identifier_names
   Future test_expression_outputBinding_noValue() async {
     _addDartSource(r'''
+import 'dart:async';
 @Component(selector: 'test-panel', directives: const [TitleComponent],
     templateUrl: 'test_panel.html')
 class TestPanel {
@@ -1411,7 +1419,7 @@ class TestPanel {
 }
 @Component(selector: 'title-comp', template: '')
 class TitleComponent {
-  @Output() EventEmitter<int> title;
+  @Output() Stream<int> title;
 }
 ''');
     final code = r"""
@@ -1426,6 +1434,7 @@ class TitleComponent {
   // ignore: non_constant_identifier_names
   Future test_expression_outputBinding_typeError() async {
     _addDartSource(r'''
+import 'dart:async';
 @Component(selector: 'test-panel', directives: const [TitleComponent],
     templateUrl: 'test_panel.html')
 class TestPanel {
@@ -1433,7 +1442,7 @@ class TestPanel {
 }
 @Component(selector: 'title-comp', template: '')
 class TitleComponent {
-  @Output() EventEmitter<int> output;
+  @Output() Stream<int> output;
 }
 ''');
     final code = r"""
@@ -1909,6 +1918,7 @@ class TestPanel {
       // ignore: non_constant_identifier_names
       test_expression_twoWayBinding_genericDirective_lowerBoundTypeError() async {
     _addDartSource(r'''
+import 'dart:async';
 @Component(selector: 'test-panel', directives: const [GenericComponent],
     templateUrl: 'test_panel.html')
 class TestPanel {
@@ -1916,7 +1926,7 @@ class TestPanel {
 }
 @Component(selector: 'generic-comp', template: '')
 class GenericComponent<T extends String> {
-  @Output() EventEmitter<T> stringChange;
+  @Output() Stream<T> stringChange;
   @Input() dynamic string;
 }
 ''');
@@ -1932,6 +1942,7 @@ class GenericComponent<T extends String> {
   // ignore: non_constant_identifier_names
   Future test_expression_twoWayBinding_inputTypeError() async {
     _addDartSource(r'''
+import 'dart:async';
 @Component(selector: 'test-panel', directives: const [TitleComponent],
     templateUrl: 'test_panel.html')
 class TestPanel {
@@ -1940,7 +1951,7 @@ class TestPanel {
 @Component(selector: 'title-comp', template: '')
 class TitleComponent {
   @Input() int title;
-  @Output() EventEmitter<String> titleChange;
+  @Output() Stream<String> titleChange;
 }
 ''');
     final code = r"""
@@ -1955,6 +1966,7 @@ class TitleComponent {
   // ignore: non_constant_identifier_names
   Future test_expression_twoWayBinding_noAttr_emptyBinding() async {
     _addDartSource(r'''
+import 'dart:async';
 @Component(selector: 'test-panel', directives: const [TitleComponent],
     templateUrl: 'test_panel.html')
 class TestPanel {
@@ -1963,7 +1975,7 @@ class TestPanel {
 @Directive(selector: '[titled]', template: '')
 class TitleComponent {
   @Input() String twoWay;
-  @Output() EventEmitter<String> twoWayChange;
+  @Output() Stream<String> twoWayChange;
 }
 ''');
     final code = r"""
@@ -1978,6 +1990,7 @@ class TitleComponent {
   // ignore: non_constant_identifier_names
   Future test_expression_twoWayBinding_noInputToBind() async {
     _addDartSource(r'''
+import 'dart:async';
 @Component(selector: 'test-panel', directives: const [TitleComponent],
     templateUrl: 'test_panel.html')
 class TestPanel {
@@ -1985,7 +1998,7 @@ class TestPanel {
 }
 @Component(selector: 'title-comp', template: '')
 class TitleComponent {
-  @Output() EventEmitter<String> noInputChange;
+  @Output() Stream<String> noInputChange;
 }
 ''');
     final code = r"""
@@ -2022,6 +2035,7 @@ class TitleComponent {
   // ignore: non_constant_identifier_names
   Future test_expression_twoWayBinding_notAssignableError() async {
     _addDartSource(r'''
+import 'dart:async';
 @Component(selector: 'test-panel',
     directives: const [TitleComponent], templateUrl: 'test_panel.html')
 class TestPanel {
@@ -2030,7 +2044,7 @@ class TestPanel {
 @Component(selector: 'title-comp', template: '')
 class TitleComponent {
   @Input() String title;
-  @Output() EventEmitter<String> titleChange;
+  @Output() Stream<String> titleChange;
 }
 ''');
     final code = r"""
@@ -2047,6 +2061,7 @@ class TitleComponent {
   // ignore: non_constant_identifier_names
   Future test_expression_twoWayBinding_outputTypeError() async {
     _addDartSource(r'''
+import 'dart:async';
 @Component(selector: 'test-panel', directives: const [TitleComponent],
     templateUrl: 'test_panel.html')
 class TestPanel {
@@ -2055,7 +2070,7 @@ class TestPanel {
 @Component(selector: 'title-comp', template: '')
 class TitleComponent {
   @Input() String title;
-  @Output() EventEmitter<int> titleChange;
+  @Output() Stream<int> titleChange;
 }
 ''');
     final code = r"""
@@ -2070,6 +2085,7 @@ class TitleComponent {
   // ignore: non_constant_identifier_names
   Future test_expression_twoWayBinding_valid() async {
     _addDartSource(r'''
+import 'dart:async';
 @Component(selector: 'test-panel', directives: const [TitleComponent],
     templateUrl: 'test_panel.html')
 class TestPanel {
@@ -2078,7 +2094,7 @@ class TestPanel {
 @Directive(selector: '[titled]', template: '')
 class TitleComponent {
   @Input() String title;
-  @Output() EventEmitter<String> titleChange;
+  @Output() Stream<String> titleChange;
 }
 ''');
     _addHtmlSource(r"""
@@ -3325,11 +3341,12 @@ class TestPanel {
   // ignore: non_constant_identifier_names
   Future test_outputReference() async {
     _addDartSource(r'''
+import 'dart:async';
 @Component(selector: 'name-panel', template: r"<div>AAA</div>")
 class NamePanel {
-  @Output() EventEmitter aaa;
-  @Output() EventEmitter bbb;
-  @Output() EventEmitter ccc;
+  @Output() Stream aaa;
+  @Output() Stream bbb;
+  @Output() Stream ccc;
 }
 @Component(selector: 'test-panel', templateUrl: 'test_panel.html',
     directives: const [NamePanel])
@@ -5796,10 +5813,11 @@ class UseTripleEq {
   // ignore: non_constant_identifier_names
   Future test_twoWayReference() async {
     _addDartSource(r'''
+import 'dart:async';
 @Component(selector: 'name-panel', template: r"<div>AAA</div>")
 class NamePanel {
   @Input() int value;
-  @Output() EventEmitter<int> valueChange;
+  @Output() Stream<int> valueChange;
 }
 @Component(selector: 'test-panel', templateUrl: 'test_panel.html',
     directives: const [NamePanel])

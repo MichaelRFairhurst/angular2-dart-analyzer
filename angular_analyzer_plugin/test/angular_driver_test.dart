@@ -3080,6 +3080,7 @@ class ComponentA {
   // ignore: non_constant_identifier_names
   Future test_inheritMetadata() async {
     final code = r'''
+import 'dart:async';
 import 'package:angular/angular.dart';
 
 @Component(selector: 'foo', template: '')
@@ -3087,7 +3088,7 @@ class BaseComponent {
   @Input()
   String input;
   @Output()
-  EventEmitter<String> output;
+  Stream<String> output;
 
   @ViewChild(BaseComponent)
   BaseComponent queryView;
@@ -3232,6 +3233,7 @@ class VarianceComponent extends BaseComponent {
   // ignore: non_constant_identifier_names
   Future test_inheritMetadataChildDirective() async {
     final childCode = r'''
+import 'dart:async';
 import 'package:angular/angular.dart';
 
 @Component(selector: 'foo', template: '')
@@ -3239,7 +3241,7 @@ class BaseComponent {
   @Input()
   String input;
   @Output()
-  EventEmitter<String> output;
+  Stream<String> output;
 
   @ViewChild(BaseComponent)
   BaseComponent queryView;
@@ -3499,6 +3501,7 @@ class MyComponent {
   // ignore: non_constant_identifier_names
   Future test_outputs() async {
     final code = r'''
+import 'dart:async';
 import 'package:angular/angular.dart';
 
 @Component(
@@ -3506,11 +3509,11 @@ import 'package:angular/angular.dart';
     template: '<p></p>')
 class MyComponent {
   @Output()
-  EventEmitter<int> outputOne;
+  Stream<int> outputOne;
   @Output('outputTwo')
-  EventEmitter secondOutput;
+  Stream secondOutput;
   @Output()
-  EventEmitter get someGetter => null;
+  Stream get someGetter => null;
 }
 ''';
     final source = newSource('/test.dart', code);
@@ -3717,13 +3720,14 @@ class MyComponent {
   // ignore: non_constant_identifier_names
   Future test_parameterizedInheritedInputsOutputs() async {
     final code = r'''
+import 'dart:async';
 import 'package:angular/angular.dart';
 
 class Generic<T> {
   @Input()
   T inputViaParentDecl;
   @Output()
-  EventEmitter<T> outputViaParentDecl;
+  Stream<T> outputViaParentDecl;
 }
 
 @Component(selector: 'my-component', template: '<p></p>')
@@ -3757,13 +3761,14 @@ class MyComponent extends Generic {
   // ignore: non_constant_identifier_names
   Future test_parameterizedInheritedInputsOutputsSpecified() async {
     final code = r'''
+import 'dart:async';
 import 'package:angular/angular.dart';
 
 class Generic<T> {
   @Input()
   T inputViaParentDecl;
   @Output()
-  EventEmitter<T> outputViaParentDecl;
+  Stream<T> outputViaParentDecl;
 }
 
 @Component(selector: 'my-component', template: '<p></p>')
@@ -3797,19 +3802,20 @@ class MyComponent extends Generic<String> {
   // ignore: non_constant_identifier_names
   Future test_parameterizedInputsOutputs() async {
     final code = r'''
+import 'dart:async';
 import 'package:angular/angular.dart';
 
 @Component(
     selector: 'my-component',
     template: '<p></p>')
 class MyComponent<T, A extends String, B extends A> {
-  @Output() EventEmitter<T> dynamicOutput;
+  @Output() Stream<T> dynamicOutput;
   @Input() T dynamicInput;
-  @Output() EventEmitter<A> stringOutput;
+  @Output() Stream<A> stringOutput;
   @Input() A stringInput;
-  @Output() EventEmitter<B> stringOutput2;
+  @Output() Stream<B> stringOutput2;
   @Input() B stringInput2;
-  @Output() EventEmitter<List<B>> listOutput;
+  @Output() Stream<List<B>> listOutput;
   @Input() List<B> listInput;
 }
 
