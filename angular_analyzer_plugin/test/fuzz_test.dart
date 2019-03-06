@@ -360,6 +360,7 @@ typedef A();
 ''';
 
   static const String baseDart = r'''
+import 'dart:async';
 import 'package:angular/angular.dart';
 
 @Component(
@@ -379,8 +380,8 @@ class ComponentA {
 class CounterComponent {
   int count;
   @Input() int maxCount;
-  EventEmitter<String> resetEvent;
-  @Output() EventEmitter<int> incremented;
+  Stream<String> resetEvent;
+  @Output() Stream<int> incremented;
 
   @ContentChild(CounterComponent)
   CounterComponent recursedComponent;

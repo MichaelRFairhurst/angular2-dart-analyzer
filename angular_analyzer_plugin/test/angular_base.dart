@@ -11,7 +11,6 @@ class AngularTestBase extends AnalyzerTestBase {
     newSource('/angular/angular.dart', r'''
 library angular;
 
-export 'src/core/async.dart';
 export 'src/core/metadata.dart';
 export 'src/core/ng_if.dart';
 export 'src/core/ng_for.dart';
@@ -113,39 +112,6 @@ class TemplateRef {}
 class ElementRef {}
 class ViewContainerRef {}
 class PipeTransform {}
-''');
-    newSource('/angular/src/core/async.dart', r'''
-import 'dart:async';
-
-class EventEmitter<T> extends Stream<T> {
-  StreamController<dynamic> _controller;
-
-  /**
-   * Creates an instance of [EventEmitter], which depending on [isAsync],
-   * delivers events synchronously or asynchronously.
-   */
-  EventEmitter([bool isAsync = true]) {
-    _controller = new StreamController.broadcast(sync: !isAsync);
-  }
-
-  StreamSubscription listen(void onData(dynamic line),
-      {void onError(Error error), void onDone(), bool cancelOnError}) {
-    return _controller.stream.listen(onData,
-        onError: onError, onDone: onDone, cancelOnError: cancelOnError);
-  }
-
-  void add(value) {
-    _controller.add(value);
-  }
-
-  void addError(error) {
-    _controller.addError(error);
-  }
-
-  void close() {
-    _controller.close();
-  }
-}
 ''');
     newSource('/angular/src/core/ng_if.dart', r'''
 import 'metadata.dart';
