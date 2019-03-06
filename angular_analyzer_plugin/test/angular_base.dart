@@ -8,16 +8,6 @@ class AngularTestBase extends AnalyzerTestBase {
   }
 
   void _addAngularSources() {
-    newSource('/angular2/angular2.dart', r'''
-library angular2;
-
-export 'package:angular/angular.dart';
-''');
-    newSource('/angular2/security.dart', r'''
-library angular2.security;
-
-export 'package:angular/security.dart';
-''');
     newSource('/angular/angular.dart', r'''
 library angular;
 

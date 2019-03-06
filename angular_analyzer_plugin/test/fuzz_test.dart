@@ -360,7 +360,7 @@ typedef A();
 ''';
 
   static const String baseDart = r'''
-import 'package:angular2/angular2.dart';
+import 'package:angular/angular.dart';
 
 @Component(
   selector: 'my-aaa',
