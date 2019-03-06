@@ -204,7 +204,7 @@ class SyntacticDiscovery extends AnnotationProcessorMixin {
             AngularWarningCode.PIPE_CANNOT_BE_ABSTRACT, node);
       }
 
-      return new Pipe(pipeName, SourceRange(pipeNameOffset, pipeName.length),
+      return new Pipe(pipeName, SourceRange(pipeNameOffset, pipeName?.length),
           classDeclaration.name.name, _source);
     }
     return null;

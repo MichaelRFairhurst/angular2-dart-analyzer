@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:analyzer/dart/element/element.dart';
 import 'package:analyzer/error/error.dart';
 import 'package:analyzer/src/dart/analysis/file_state.dart';
@@ -35,7 +37,7 @@ void assertPropertyReference(
   final element = resolvedRange.element;
   for (final input in directive.inputs) {
     if (input.name == name) {
-      expect(element, same(input));
+      expect(element, input);
       return;
     }
   }
@@ -133,18 +135,11 @@ class AngularDriverTestBase extends AngularTestBase {
   }
 
   @override
-  void setUp() {
+  Future<void> setUp() async {
     super.setUp();
-    angularDriver = new AngularDriver(
-        resourceProvider,
-        new MockNotificationManager(),
-        dartDriver,
-        scheduler,
-        byteStore,
-        sourceFactory,
-        new FileContentOverlay(),
-        ngOptions);
+    angularDriver = new AngularDriver(resourceProvider, dartDriver, scheduler,
+        byteStore, sourceFactory, new FileContentOverlay(), ngOptions);
+
+    await angularDriver.getStandardAngular();
   }
 }
-
-class MockNotificationManager extends Mock implements NotificationManager {}

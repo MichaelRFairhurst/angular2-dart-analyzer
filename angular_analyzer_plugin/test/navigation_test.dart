@@ -54,7 +54,7 @@ class AngularNavigationTest extends AngularDriverTestBase {
   }
 
   @override
-  void setUp() {
+  Future<void> setUp() async {
     super.setUp();
     // TODO(mfairhurst): remove `as dynamic`. See https://github.com/dart-lang/sdk/issues/33934
     when(collector.addRegion(

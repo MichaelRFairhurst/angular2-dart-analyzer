@@ -23,11 +23,12 @@ import 'package:angular_analyzer_plugin/src/file_tracker.dart';
 import 'package:angular_analyzer_plugin/src/from_file_prefixed_error.dart';
 import 'package:angular_analyzer_plugin/src/ignoring_error_listener.dart';
 import 'package:angular_analyzer_plugin/src/model.dart';
+import 'package:angular_analyzer_plugin/src/model/lazy/component.dart' as lazy;
 import 'package:angular_analyzer_plugin/src/model/syntactic/annotated_class.dart'
     as syntactic;
-import 'package:angular_analyzer_plugin/src/model/syntactic/directive_base.dart'
-    as syntactic;
 import 'package:angular_analyzer_plugin/src/model/syntactic/component.dart'
+    as syntactic;
+import 'package:angular_analyzer_plugin/src/model/syntactic/directive_base.dart'
     as syntactic;
 import 'package:angular_analyzer_plugin/src/model/syntactic/ng_content.dart'
     as syntactic;
@@ -46,15 +47,8 @@ import 'package:angular_analyzer_plugin/src/view_extraction.dart';
 import 'package:crypto/crypto.dart';
 
 class AngularDriver
-    implements
-        AnalysisDriverGeneric,
-        FileDirectiveProvider,
-        FilePipeProvider,
-        DirectiveLinkerEnablement,
-        FileHasher {
+    implements AnalysisDriverGeneric, DirectiveProvider, FileHasher {
   final ResourceProvider _resourceProvider;
-  // TODO(mfairhurst) remove NotificationManager & old plugin loader.
-  final NotificationManager notificationManager;
   final AnalysisDriverScheduler _scheduler;
   final AnalysisDriver dartDriver;
   final FileContentOverlay contentOverlay;
@@ -83,7 +77,6 @@ class AngularDriver
 
   AngularDriver(
       this._resourceProvider,
-      this.notificationManager,
       this.dartDriver,
       this._scheduler,
       this.byteStore,
@@ -221,29 +214,12 @@ class AngularDriver
     _scheduler.notify(this);
   }
 
-  Future<DirectivesResult> getAngularTopLevels(String path) async {
-    final baseKey = _fileTracker.getContentSignature(path).toHex();
-    final key = '$baseKey.ngunlinked';
-    final bytes = byteStore.get(key);
-    if (bytes != null) {
-      final source = getSource(path);
-      return link(new UnlinkedDartSummary.fromBuffer(bytes), source, path);
-    }
-
-    final dartResult = await dartDriver.getResult(path);
-    if (dartResult == null) {
-      return null;
-    }
-
-    final ast = dartResult.unit;
-    final source = dartResult.unit.declaredElement.source;
-    final extractor = new SyntacticDiscovery(ast, source);
-    final topLevels = extractor.discoverTopLevels();
-    final errors = new List<AnalysisError>.from(extractor.errorListener.errors);
-    final summary = summarizeDartResult(topLevels, errors);
-    final newBytes = summary.toBuffer();
-    byteStore.put(key, newBytes);
-    return link(summary, source, path);
+  @override
+  AngularTopLevel getAngularTopLevel(Element element) {
+    final path = element.source.fullName;
+    final summary = _getUnlinkedAngularTopLevels(path);
+    final linker = new LazyLinker(standardAngular, standardHtml, this);
+    return linkTopLevel(summary, element, linker);
   }
 
   @override
@@ -303,7 +279,7 @@ class AngularDriver
   String getFileContent(String path) =>
       contentOverlay[path] ??
       ((Source source) => // ignore: avoid_types_on_closure_parameters
-          source.exists() ? source.contents.data : "")(getSource(path));
+          source.exists() ? source.contents.data : "")(_getSource(path));
 
   Future<String> getHtmlKey(String htmlPath) async {
     final key = await _fileTracker.getHtmlSignature(htmlPath);
@@ -311,15 +287,17 @@ class AngularDriver
   }
 
   @override
-  Future<List<syntactic.NgContent>> getHtmlNgContent(String path) async {
+  List<syntactic.NgContent> getHtmlNgContent(String path) {
     final baseKey = _fileTracker.getContentSignature(path).toHex();
     final key = '$baseKey.ngunlinked';
     final bytes = byteStore.get(key);
-    final source = getSource(path);
+    final source = _getSource(path);
     if (bytes != null) {
-      return new DirectiveLinker(this, standardAngular, null)
-          .deserializeNgContents(
-              new UnlinkedHtmlSummary.fromBuffer(bytes).ngContents, source);
+      final linker = new EagerLinker(null, null, null, null);
+      return new UnlinkedHtmlSummary.fromBuffer(bytes)
+          .ngContents
+          .map((ngContent) => linker.ngContent(ngContent, source))
+          .toList();
     }
 
     final htmlContent = getFileContent(path);
@@ -345,8 +323,12 @@ class AngularDriver
   }
 
   @override
-  Source getSource(String path) =>
-      _resourceProvider.getFile(path).createSource();
+  Pipe getPipe(ClassElement element) {
+    final path = element.source.fullName;
+    final summary = _getUnlinkedAngularTopLevels(path);
+    final linker = new LazyLinker(standardAngular, standardHtml, this);
+    return linkPipe(summary.pipeSummaries, element, linker);
+  }
 
   Future<StandardAngular> getStandardAngular() async {
     if (standardAngular == null) {
@@ -434,32 +416,8 @@ class AngularDriver
   }
 
   @override
-  Future<CompilationUnitElement> getUnit(String path) async =>
-      (await dartDriver.getUnitElement(path)).element;
-
-  @override
   Future<String> getUnitElementSignature(String path) =>
       dartDriver.getUnitElementSignature(path);
-
-  @override
-  Future<List<AngularTopLevel>> getUnlinkedAngularTopLevels(path) async =>
-      (await getAngularTopLevels(path)).angularTopLevels;
-
-  @override
-  Future<List<Pipe>> getUnlinkedPipes(path) async =>
-      (await getAngularTopLevels(path)).pipes;
-
-  Future<DirectivesResult> link(
-      UnlinkedDartSummary unlinked, Source source, String path) async {
-    final errorListener = new RecordingErrorListener();
-    final errorReporter = new ErrorReporter(errorListener, source);
-    return new DirectivesResult(
-        path,
-        await resynthesizeDirectives(unlinked, path, errorReporter),
-        await resynthesizePipes(unlinked, path, errorReporter),
-        deserializeErrors(source, unlinked.errors)
-          ..addAll(errorListener.errors));
-  }
 
   @override
   Future<Null> performWork() async {
@@ -520,47 +478,17 @@ class AngularDriver
 
     if (_filesToAnalyze.isNotEmpty) {
       final path = _filesToAnalyze.first;
-      await pushDartErrors(path);
       _filesToAnalyze.remove(path);
       return;
     }
 
     if (_htmlFilesToAnalyze.isNotEmpty) {
       final path = _htmlFilesToAnalyze.first;
-      await pushHtmlErrors(path);
       _htmlFilesToAnalyze.remove(path);
       return;
     }
 
     return;
-  }
-
-  Future pushDartErrors(String path) async {
-    final result = await _resolveDart(path);
-    if (result == null) {
-      return;
-    }
-    final errors = result.errors;
-    final lineInfo = new LineInfo.fromContent(getFileContent(path));
-    // TODO(mfairhurst) remove this with old plugin loader
-    notificationManager.recordAnalysisErrors(path, lineInfo, errors);
-  }
-
-  Future pushDartNavigation(String path) async {}
-
-  Future pushDartOccurrences(String path) async {}
-
-  Future pushHtmlErrors(String htmlPath) async {
-    final errors = (await _resolveHtml(htmlPath)).errors;
-    final lineInfo = new LineInfo.fromContent(getFileContent(htmlPath));
-    // TODO(mfairhurst) remove this with old plugin loader
-    notificationManager.recordAnalysisErrors(htmlPath, lineInfo, errors);
-  }
-
-  @deprecated
-  Future<List<AnalysisError>> requestDartErrors(String path) async {
-    final result = await requestDartResult(path);
-    return result.errors;
   }
 
   /// Get a fully linked (warning: slow) [DirectivesResult] for the components
@@ -575,12 +503,6 @@ class AngularDriver
     return completer.future;
   }
 
-  @deprecated
-  Future<List<AnalysisError>> requestHtmlErrors(String path) async {
-    final result = await requestDartResult(path);
-    return result.errors;
-  }
-
   /// Get a fully linked (warning: slow) [DirectivesResult] for the templates in
   /// this HTML path. Note that you may get an empty HTML file if dart analysis
   /// has not finished finding all `templateUrl`s.
@@ -593,21 +515,36 @@ class AngularDriver
     return completer.future;
   }
 
-  Future<List<AngularTopLevel>> resynthesizeDirectives(
-          UnlinkedDartSummary unlinked,
-          String path,
-          ErrorReporter errorReporter) async =>
-      new DirectiveLinker(this, await getStandardAngular(), errorReporter)
-          .resynthesizeDirectives(unlinked, path);
+  String _getHtmlKey(String htmlPath) {
+    final key = _fileTracker.getHtmlSignature(htmlPath);
+    return '${key.toHex()}.ngresolved';
+  }
 
-  Future<List<Pipe>> resynthesizePipes(UnlinkedDartSummary unlinked,
-      String path, ErrorReporter errorReporter) async {
-    if (unlinked == null) {
-      return [];
+  Source _getSource(String path) =>
+      _resourceProvider.getFile(path).createSource();
+
+  UnlinkedDartSummary _getUnlinkedAngularTopLevels(String path) {
+    final baseKey = _fileTracker.getContentSignature(path).toHex();
+    final key = '$baseKey.ngunlinked';
+    final bytes = byteStore.get(key);
+    if (bytes != null) {
+      return new UnlinkedDartSummary.fromBuffer(bytes);
     }
-    final unit = await getUnit(path);
-    return linkPipes(unlinked.pipeSummaries, errorReporter, unit,
-        await getStandardAngular());
+
+    final dartResult = dartDriver.parseFileSync(path);
+    if (dartResult == null) {
+      return null;
+    }
+
+    final ast = dartResult.unit;
+    final source = _getSource(path);
+    final extractor = new SyntacticDiscovery(ast, source);
+    final topLevels = extractor.discoverTopLevels();
+    final errors = new List<AnalysisError>.from(extractor.errorListener.errors);
+    final summary = summarizeDartResult(topLevels, errors);
+    final newBytes = summary.toBuffer();
+    byteStore.put(key, newBytes);
+    return summary;
   }
 
   bool _ownsFile(String path) =>
@@ -647,36 +584,30 @@ class AngularDriver
           ..setDartImports(path, summary.referencedDartFiles);
 
         final result = new DirectivesResult.fromCache(
-            path, deserializeErrors(getSource(path), summary.errors));
+            path, deserializeErrors(_getSource(path), summary.errors));
         _dartResultsController.add(result);
         return result;
       }
     }
 
-    final result = await getAngularTopLevels(path);
-    final directives = result.directives;
-    final pipes = result.pipes;
     final unit = (await dartDriver.getUnitElement(path)).element;
     if (unit == null) {
       return null;
     }
+
     final context = unit.context;
     final source = unit.source;
 
-    final errors = new List<AnalysisError>.from(result.errors);
-    final standardHtml = await getStandardHtml();
+    final unlinkedSummary = _getUnlinkedAngularTopLevels(path);
+    final errorListener = new RecordingErrorListener();
+    final errorReporter = new ErrorReporter(errorListener, _getSource(path));
+    final linker =
+        new EagerLinker(standardAngular, standardHtml, errorReporter, this);
+    final directives = linkTopLevels(unlinkedSummary, unit, linker);
+    final pipes = linkPipes(unlinkedSummary.pipeSummaries, unit, linker);
 
-    final linkErrorListener = new RecordingErrorListener();
-    final linkErrorReporter = new ErrorReporter(linkErrorListener, source);
-
-    final linker = new ChildDirectiveLinker(this, this,
-        await getStandardAngular(), await getStandardHtml(), linkErrorReporter);
-    await linker.linkDirectivesAndPipes(directives, pipes, unit.library);
-    final attrValidator = new AttributeAnnotationValidator(linkErrorReporter);
-    new List<AbstractClassDirective>.from(
-            directives.where((d) => d is AbstractClassDirective))
-        .forEach(attrValidator.validate);
-    errors.addAll(linkErrorListener.errors);
+    final errors = deserializeErrors(source, unlinkedSummary.errors)
+      ..addAll(errorListener.errors);
 
     final htmlViews = <String>[];
     final usesDart = <String>[];
@@ -800,33 +731,21 @@ class AngularDriver
 
   Future<DirectivesResult> _resolveHtmlFrom(
       String htmlPath, String dartPath) async {
-    final result = await getAngularTopLevels(dartPath);
-    final directives = result.directives;
-    final pipes = result.pipes;
     final unit = (await dartDriver.getUnitElement(dartPath)).element;
-    final htmlSource = _sourceFactory.forUri('file:$htmlPath');
 
     if (unit == null) {
       return null;
     }
+
+    final summary = _getUnlinkedAngularTopLevels(dartPath);
+    final linker = new LazyLinker(standardAngular, standardHtml, this);
+    final directives = linkTopLevels(summary, unit, linker);
+    final htmlSource = _sourceFactory.forUri('file:$htmlPath');
     final context = unit.context;
     final dartSource = _sourceFactory.forUri('file:$dartPath');
     final htmlContent = getFileContent(htmlPath);
-    final standardHtml = await getStandardHtml();
 
     final errors = <AnalysisError>[];
-    // ignore link errors, they are exposed when resolving dart
-    final linkErrorListener = new IgnoringErrorListener();
-    final linkErrorReporter = new ErrorReporter(linkErrorListener, dartSource);
-
-    final linker = new ChildDirectiveLinker(this, this,
-        await getStandardAngular(), await getStandardHtml(), linkErrorReporter);
-    await linker.linkDirectivesAndPipes(directives, pipes, unit.library);
-    final attrValidator = new AttributeAnnotationValidator(linkErrorReporter);
-
-    new List<AbstractClassDirective>.from(
-            directives.where((d) => d is AbstractClassDirective))
-        .forEach(attrValidator.validate);
 
     final fullyResolvedDirectives = <AbstractDirective>[];
 
@@ -887,7 +806,7 @@ class AngularDriver
       }
     }
 
-    return new DirectivesResult(htmlPath, directives, pipes, errors,
+    return new DirectivesResult(htmlPath, directives, [], errors,
         fullyResolvedDirectives: fullyResolvedDirectives);
   }
 }
@@ -918,27 +837,4 @@ class DirectivesResult {
 
   List<AbstractDirective> get directives => new List<AbstractDirective>.from(
       angularTopLevels.where((c) => c is AbstractDirective));
-}
-
-class SyntacticDirectivesResult {
-  final String filename;
-  final List<syntactic.TopLevel> topLevels;
-  List<AnalysisError> errors;
-  List<syntactic.Pipe> pipes;
-  bool cacheResult;
-  SyntacticDirectivesResult(
-      this.filename, this.topLevels, this.pipes, this.errors)
-      : cacheResult = false;
-
-  SyntacticDirectivesResult.fromCache(this.filename, this.errors)
-      : topLevels = const [],
-        cacheResult = true;
-
-  List<AngularAnnotatedClass> get angularAnnotatedClasses =>
-      new List<AngularAnnotatedClass>.from(
-          topLevels.where((c) => c is syntactic.AnnotatedClass));
-
-  List<syntactic.DirectiveBase> get directives =>
-      new List<syntactic.DirectiveBase>.from(
-          topLevels.where((c) => c is syntactic.DirectiveBase));
 }

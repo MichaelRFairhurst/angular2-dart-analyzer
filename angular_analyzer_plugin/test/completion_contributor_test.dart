@@ -15,7 +15,7 @@ void main() {
 @reflectiveTest
 class DartCompletionContributorTest extends AbstractCompletionContributorTest {
   @override
-  void setUp() {
+  Future<void> setUp() async {
     testFile = '/completionTest.dart';
     super.setUp();
   }
@@ -542,7 +542,7 @@ class HtmlCompletionContributorTest extends AbstractCompletionContributorTest {
 
   // ignore: non_constant_identifier_names
   @override
-  void setUp() {
+  Future<void> setUp() async {
     testFile = '/completionTest.html';
     super.setUp();
   }
