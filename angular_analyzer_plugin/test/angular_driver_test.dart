@@ -10,6 +10,9 @@ import 'package:angular_analyzer_plugin/errors.dart';
 import 'package:angular_analyzer_plugin/src/directive_linking.dart';
 import 'package:angular_analyzer_plugin/src/from_file_prefixed_error.dart';
 import 'package:angular_analyzer_plugin/src/model.dart';
+import 'package:angular_analyzer_plugin/src/model/lazy/component.dart' as lazy;
+import 'package:angular_analyzer_plugin/src/model/lazy/directive.dart' as lazy;
+import 'package:angular_analyzer_plugin/src/model/lazy/pipe.dart' as lazy;
 import 'package:angular_analyzer_plugin/src/options.dart';
 import 'package:angular_analyzer_plugin/src/selector.dart';
 import 'package:angular_analyzer_plugin/src/view_extraction.dart';
@@ -362,7 +365,7 @@ class BuildStandardHtmlComponentsTest extends AngularDriverTestBase {
 @reflectiveTest
 class BuildStandardHtmlTest extends AngularDriverTestBase {
   @override
-  void setUp() {
+  Future<void> setUp() {
     // Don't perform setup before tests. Tests will run `super.setUp()`.
   }
 
@@ -711,60 +714,16 @@ class BuildUnitViewsTest extends AngularDriverTestBase {
   Future getViews(final Source source) async {
     final dartResult = await dartDriver.getResult(source.fullName);
     fillErrorListener(dartResult.errors);
-    final result = await angularDriver.getAngularTopLevels(source.fullName);
+    final result = await angularDriver.requestDartResult(source.fullName);
     directives = result.directives;
     pipes = result.pipes;
 
-    final linker = new ChildDirectiveLinker(
-        angularDriver,
-        angularDriver,
-        await angularDriver.getStandardAngular(),
-        await angularDriver.getStandardHtml(),
-        new ErrorReporter(errorListener, source));
-    await linker.linkDirectivesAndPipes(
-        directives, pipes, dartResult.unit.element.library);
     views = directives
         .map((d) => d is Component ? d.view : null)
         .where((d) => d != null)
         .toList();
     errors = result.errors;
     fillErrorListener(errors);
-  }
-
-  // ignore: non_constant_identifier_names
-  Future test_buildViewsDoesntGetDependentDirectives() async {
-    final code = r'''
-import 'package:angular2/angular2.dart';
-import 'other_file.dart';
-
-@Component(selector: 'my-component', template: 'My template',
-    directives: const [OtherComponent])
-class MyComponent {}
-''';
-    final otherCode = r'''
-import 'package:angular2/angular2.dart';
-@Component(selector: 'other-component', template: 'My template',
-    directives: const [NgFor])
-class OtherComponent {}
-''';
-    final source = newSource('/test.dart', code);
-    newSource('/other_file.dart', otherCode);
-    await getViews(source);
-    {
-      final view = getViewByClassName(views, 'MyComponent');
-      {
-        expect(view.directives, hasLength(1));
-      }
-
-      // shouldn't be run yet
-      for (final directive in view.directives) {
-        if (directive is Component) {
-          expect(directive.view.directives, hasLength(0));
-        }
-      }
-    }
-    // no errors
-    errorListener.assertNoErrors();
   }
 
   // ignore: non_constant_identifier_names
@@ -846,7 +805,7 @@ class MyComponent {}
     final source = newSource('/test.dart', code);
     await getViews(source);
     errorListener.assertErrorsWithCodes(
-        <ErrorCode>[AngularWarningCode.TYPE_IS_NOT_A_DIRECTIVE]);
+        <ErrorCode>[AngularWarningCode.TYPE_LITERAL_EXPECTED]);
   }
 
   // ignore: non_constant_identifier_names
@@ -2017,7 +1976,7 @@ class MyComponent {}
     final source = newSource('/test.dart', code);
     await getViews(source);
     errorListener.assertErrorsWithCodes(
-        <ErrorCode>[AngularWarningCode.TYPE_IS_NOT_A_PIPE]);
+        <ErrorCode>[AngularWarningCode.TYPE_LITERAL_EXPECTED]);
   }
 
   // ignore: non_constant_identifier_names
@@ -2353,6 +2312,16 @@ abstract class GatherAnnotationsTestMixin implements AngularDriverTestBase {
   List<AnalysisError> errors;
 
   // ignore: non_constant_identifier_names
+  Future getDirectives(final Source source) async {
+    final dartResult = await dartDriver.getResult(source.fullName);
+    fillErrorListener(dartResult.errors);
+    final result = await angularDriver.requestDartResult(source.fullName);
+    directives = result.directives;
+    pipes = result.pipes;
+    errors = result.errors;
+    fillErrorListener(errors);
+  }
+
   Future test_hasContentChildrenDirective_worksInFuture() async {
     final code = r'''
 import 'package:angular2/angular2.dart';
@@ -2381,16 +2350,6 @@ class ContentChildComp {}
     expect(children.typeRange.length, equals("List<ContentChildComp>".length));
     // validate
     errorListener.assertNoErrors();
-  }
-
-  Future getDirectives(final Source source) async {
-    final dartResult = await dartDriver.getResult(source.fullName);
-    fillErrorListener(dartResult.errors);
-    final result = await angularDriver.getAngularTopLevels(source.fullName);
-    directives = result.directives;
-    pipes = result.pipes;
-    errors = result.errors;
-    fillErrorListener(errors);
   }
 }
 
@@ -5218,6 +5177,61 @@ class TextPanel {
         expect(element.nameOffset, dartCode.indexOf('text; // 1'));
       }
     }
+  }
+
+  // ignore: non_constant_identifier_names
+  Future test_lazyLinkResolve() async {
+    final dartSource = newSource('/test_panel.dart', r'''
+import 'package:angular/angular.dart';
+import 'not_necessary_to_resolve.dart';
+@Component(selector: 'test-panel', templateUrl: 'test_panel.html',
+    directives: const [
+      NotNecessaryToResolve,
+      NotNecessaryToResolveDirective,
+    ],
+    pipes: const [NotNecessaryToResolvePipe])
+class TestPanel {
+}''');
+
+    newSource('/not_necessary_to_resolve.dart', r'''
+import 'package:angular/angular.dart';
+@Component(selector: 'not-necessary-to-resolve', template: '')
+class NotNecessaryToResolve {
+}
+@Directive(selector: 'not-necessary-to-resolve-directive')
+class NotNecessaryToResolveDirective {
+}
+
+@Pipe('notNecessary')
+class NotNecessaryToResolvePipe {}
+''');
+    final htmlSource = newSource('/test_panel.html', r"""
+<div></div>
+    """);
+
+    await getDirectives(dartSource, htmlSource);
+    await angularDriver.requestHtmlResult('/test_panel.html');
+
+    final view = views.single;
+    final subdirectives = view.directives;
+    expect(view.directives, hasLength(2));
+
+    final subcomponent = subdirectives[0];
+    expect(subcomponent, const isInstanceOf<lazy.Component>());
+    final lazysubcomponent = subcomponent as lazy.Component;
+    expect(lazysubcomponent.isLinked, false);
+
+    final subdirective = subdirectives[1];
+    expect(subdirective, const isInstanceOf<lazy.Directive>());
+    final lazysubdirective = subdirective as lazy.Directive;
+    expect(lazysubdirective.isLinked, false);
+
+    expect(view.pipes, hasLength(1));
+
+    final pipe = view.pipes[0];
+    expect(pipe, const isInstanceOf<lazy.Pipe>());
+    final lazypipe = pipe as lazy.Pipe;
+    expect(lazypipe.isLinked, false);
   }
 
   // ignore: non_constant_identifier_names

@@ -73,7 +73,7 @@ abstract class AbstractCompletionContributorTest
   }
 
   @override
-  void setUp() {
+  Future<void> setUp() async {
     super.setUp();
     contributors = createContributors();
   }
