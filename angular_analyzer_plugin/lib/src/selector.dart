@@ -1,9 +1,8 @@
-library angular2.src.analysis.analyzer_plugin.src.selector;
-
 import 'dart:collection';
 
 import 'package:analyzer/src/generated/source.dart';
 import 'package:angular_analyzer_plugin/src/model.dart';
+import 'package:angular_analyzer_plugin/src/model/navigable.dart';
 import 'package:angular_analyzer_plugin/src/strings.dart';
 import 'package:meta/meta.dart';
 
@@ -42,7 +41,7 @@ class AndSelector extends Selector {
       selectors.every((selector) => selector.availableTo(element));
 
   @override
-  List<AngularElement> getAttributes(ElementView element) =>
+  List<SelectorName> getAttributes(ElementView element) =>
       selectors.expand((selector) => selector.getAttributes(element)).toList();
 
   @override
@@ -54,6 +53,7 @@ class AndSelector extends Selector {
 
     var onSuccess = SelectorMatch.NonTagMatch;
     for (final selector in selectors) {
+      // Important: do not pass the template down, as that will record matches.
       final theMatch = selector.match(element, null);
       if (theMatch == SelectorMatch.TagMatch) {
         onSuccess = theMatch;
@@ -61,8 +61,12 @@ class AndSelector extends Selector {
         return SelectorMatch.NoMatch;
       }
     }
-    for (final selector in selectors) {
-      selector.match(element, template);
+
+    // Record matches here now that we know the whole selector matched.
+    if (template != null) {
+      for (final selector in selectors) {
+        selector.match(element, template);
+      }
     }
     return onSuccess;
   }
@@ -91,7 +95,7 @@ class AndSelector extends Selector {
 /// with the given name, and that attribute contains the value of the selector.
 class AttributeContainsSelector extends AttributeSelectorBase {
   @override
-  final AngularElement nameElement;
+  final SelectorName nameElement;
   final String value;
 
   AttributeContainsSelector(this.nameElement, this.value);
@@ -103,14 +107,14 @@ class AttributeContainsSelector extends AttributeSelectorBase {
   List<HtmlTagForSelector> refineTagSuggestions(
       List<HtmlTagForSelector> context) {
     for (final tag in context) {
-      tag.setAttribute(nameElement.name, value: value);
+      tag.setAttribute(nameElement.string, value: value);
     }
     return context;
   }
 
   @override
   String toString() {
-    final name = nameElement.name;
+    final name = nameElement.string;
     return '[$name*=$value]';
   }
 }
@@ -119,13 +123,13 @@ class AttributeContainsSelector extends AttributeSelectorBase {
 /// given name, and (optionally) with the given value;
 class AttributeSelector extends AttributeSelectorBase {
   @override
-  final AngularElement nameElement;
+  final SelectorName nameElement;
   final String value;
 
   AttributeSelector(this.nameElement, this.value);
 
   @override
-  List<AngularElement> getAttributes(ElementView element) =>
+  List<SelectorName> getAttributes(ElementView element) =>
       match(element, null) == SelectorMatch.NonTagMatch ? [] : [nameElement];
 
   @override
@@ -136,14 +140,14 @@ class AttributeSelector extends AttributeSelectorBase {
   List<HtmlTagForSelector> refineTagSuggestions(
       List<HtmlTagForSelector> context) {
     for (final tag in context) {
-      tag.setAttribute(nameElement.name, value: value);
+      tag.setAttribute(nameElement.string, value: value);
     }
     return context;
   }
 
   @override
   String toString() {
-    final name = nameElement.name;
+    final name = nameElement.string;
     if (value != null) {
       return '[$name=$value]';
     }
@@ -151,18 +155,19 @@ class AttributeSelector extends AttributeSelectorBase {
   }
 }
 
+/// Base functionality for selectors that begin by finding a named attribute.
 abstract class AttributeSelectorBase extends Selector {
-  AngularElement get nameElement;
+  SelectorName get nameElement;
 
   @override
   bool availableTo(ElementView element) =>
       !element.attributes.keys.contains(findAttribute(element)) ||
       match(element, null) != SelectorMatch.NoMatch;
 
-  String findAttribute(ElementView element) => nameElement.name;
+  String findAttribute(ElementView element) => nameElement.string;
 
   @override
-  List<AngularElement> getAttributes(ElementView element) =>
+  List<SelectorName> getAttributes(ElementView element) =>
       element.attributes.keys.contains(findAttribute(element))
           ? []
           : [nameElement];
@@ -191,11 +196,9 @@ abstract class AttributeSelectorBase extends Selector {
     }
 
     // OK
-    if (template != null) {
-      template.addRange(
-          new SourceRange(attributeSpan.offset, attributeSpan.length),
-          nameElement);
-    }
+    template?.addRange(
+        new SourceRange(attributeSpan.offset, attributeSpan.length),
+        nameElement);
     return SelectorMatch.NonTagMatch;
   }
 
@@ -211,7 +214,7 @@ abstract class AttributeSelectorBase extends Selector {
 /// and with contents that match the given regex.
 class AttributeStartsWithSelector extends AttributeSelectorBase {
   @override
-  final AngularElement nameElement;
+  final SelectorName nameElement;
 
   final String value;
 
@@ -232,22 +235,25 @@ class AttributeStartsWithSelector extends AttributeSelectorBase {
 /// The [Selector] that matches elements that have an attribute with any name,
 /// and with contents that match the given regex.
 class AttributeValueRegexSelector extends Selector {
-  final String regexpStr;
+  final SelectorName regexpElement;
   final RegExp regexp;
 
-  AttributeValueRegexSelector(this.regexpStr) : regexp = new RegExp(regexpStr);
+  AttributeValueRegexSelector(this.regexpElement)
+      : regexp = new RegExp(regexpElement.string);
 
   @override
   bool availableTo(ElementView element) =>
       match(element, null) == SelectorMatch.NonTagMatch;
 
   @override
-  List<AngularElement> getAttributes(ElementView element) => [];
+  List<SelectorName> getAttributes(ElementView element) => [];
 
   @override
   SelectorMatch match(ElementView element, Template template) {
-    for (final value in element.attributes.values) {
+    for (final attr in element.attributes.keys) {
+      final value = element.attributes[attr];
       if (regexp.hasMatch(value)) {
+        template?.addRange(element.attributeValueSpans[value], regexpElement);
         return SelectorMatch.NonTagMatch;
       }
     }
@@ -265,12 +271,12 @@ class AttributeValueRegexSelector extends Selector {
       context;
 
   @override
-  String toString() => '[*=$regexpStr]';
+  String toString() => '[*=${regexpElement.string}]';
 }
 
 /// The [Selector] that matches elements with the given (static) classes.
 class ClassSelector extends Selector {
-  final AngularElement nameElement;
+  final SelectorName nameElement;
 
   ClassSelector(this.nameElement);
 
@@ -280,11 +286,11 @@ class ClassSelector extends Selector {
   // Always return true - classes can always be added to satisfy without
   // having to remove or change existing classes.
   @override
-  List<AngularElement> getAttributes(ElementView element) => [];
+  List<SelectorName> getAttributes(ElementView element) => [];
 
   @override
   SelectorMatch match(ElementView element, Template template) {
-    final name = nameElement.name;
+    final name = nameElement.string;
     final val = element.attributes['class'];
     // no 'class' attribute
     if (val == null) {
@@ -319,13 +325,13 @@ class ClassSelector extends Selector {
   List<HtmlTagForSelector> refineTagSuggestions(
       List<HtmlTagForSelector> context) {
     for (final tag in context) {
-      tag.addClass(nameElement.name);
+      tag.addClass(nameElement.string);
     }
     return context;
   }
 
   @override
-  String toString() => '.${nameElement.name}';
+  String toString() => '.${nameElement.string}';
 }
 
 /// The [Selector] that checks a TextNode for contents by a regex
@@ -338,8 +344,10 @@ class ContainsSelector extends Selector {
   bool availableTo(ElementView element) => false;
 
   @override
-  List<AngularElement> getAttributes(ElementView element) => [];
+  List<SelectorName> getAttributes(ElementView element) => [];
 
+  /// Not yet supported.
+  ///
   /// TODO check against actual text contents so we know which :contains
   /// directives were used (for when we want to advise removal of unused
   /// directives).
@@ -370,34 +378,30 @@ class ContainsSelector extends Selector {
 
 /// The element name based selector.
 class ElementNameSelector extends Selector {
-  final AngularElement nameElement;
+  final SelectorName nameElement;
 
   ElementNameSelector(this.nameElement);
 
   @override
   bool availableTo(ElementView element) =>
-      nameElement.name == element.localName;
+      nameElement.string == element.localName;
 
   @override
-  List<AngularElement> getAttributes(ElementView element) => [];
+  List<SelectorName> getAttributes(ElementView element) => [];
 
   @override
   SelectorMatch match(ElementView element, Template template) {
-    final name = nameElement.name;
+    final name = nameElement.string;
     // match
     if (element.localName != name) {
       return SelectorMatch.NoMatch;
     }
-    // done if no template
-    if (template == null) {
-      return SelectorMatch.TagMatch;
-    }
     // record resolution
     if (element.openingNameSpan != null) {
-      template.addRange(element.openingNameSpan, nameElement);
+      template?.addRange(element.openingNameSpan, nameElement);
     }
     if (element.closingNameSpan != null) {
-      template.addRange(element.closingNameSpan, nameElement);
+      template?.addRange(element.closingNameSpan, nameElement);
     }
     return SelectorMatch.TagMatch;
   }
@@ -411,15 +415,16 @@ class ElementNameSelector extends Selector {
   List<HtmlTagForSelector> refineTagSuggestions(
       List<HtmlTagForSelector> context) {
     for (final tag in context) {
-      tag.name = nameElement.name;
+      tag.name = nameElement.string;
     }
     return context;
   }
 
   @override
-  String toString() => nameElement.name;
+  String toString() => nameElement.string;
 }
 
+/// Represents an Html element that can be matched by a selector.
 abstract class ElementView {
   Map<String, SourceRange> get attributeNameSpans;
   Map<String, String> get attributes;
@@ -431,12 +436,15 @@ abstract class ElementView {
   SourceRange get openingSpan;
 }
 
-/// Where possible it is good to be able to suggest a fully completed html tag to
-/// match a selector. This has a few challenges: the selector may match multiple
-/// things, it may not include any tag name to go off of at all. It may lend
-/// itself to infinite suggestions (such as matching a regex), and parts of its
-/// selector may cancel other parts out leading to invalid suggestions (such as
-/// [prop=this][prop=thistoo]), especially in the presence of heavy booleans.
+/// A constraint system for suggesting full HTML tags from a [Selector].
+///
+/// Where possible it is good to be able to suggest a fully completed html tag
+/// to match a selector. This has a few challenges: the selector may match
+/// multiple things, it may not include any tag name to go off of at all. It may
+/// lend itself to infinite suggestions (such as matching a regex), and parts
+/// of its selector may cancel other parts out leading to invalid suggestions
+/// (such as [prop=this][prop=thistoo]), especially in the presence of heavy
+/// booleans.
 ///
 /// This doesn't track :not, so it may still suggest invalid things, but in
 /// general the goal of this class is that its an empty shell which tracks
@@ -532,11 +540,12 @@ class NotSelector extends Selector {
       condition.match(element, null) == SelectorMatch.NoMatch;
 
   @override
-  List<AngularElement> getAttributes(ElementView element) => [];
+  List<SelectorName> getAttributes(ElementView element) => [];
 
   @override
   SelectorMatch match(ElementView element, Template template) =>
-      condition.match(element, template) == SelectorMatch.NoMatch
+      // pass null into the lower condition -- don't record NOT matches.
+      condition.match(element, null) == SelectorMatch.NoMatch
           ? SelectorMatch.NonTagMatch
           : SelectorMatch.NoMatch;
 
@@ -565,21 +574,26 @@ class OrSelector extends Selector {
       selectors.any((selector) => selector.availableTo(element));
 
   @override
-  List<AngularElement> getAttributes(ElementView element) =>
+  List<SelectorName> getAttributes(ElementView element) =>
       selectors.expand((selector) => selector.getAttributes(element)).toList();
 
   @override
   SelectorMatch match(ElementView element, Template template) {
-    var onNoTagMatch = SelectorMatch.NoMatch;
+    var match = SelectorMatch.NoMatch;
     for (final selector in selectors) {
-      final theMatch = selector.match(element, template);
-      if (theMatch == SelectorMatch.TagMatch) {
+      // Eagerly record: if *any* matches, we want it recorded immediately.
+      final subMatch = selector.match(element, template);
+
+      if (match == SelectorMatch.NoMatch) {
+        match = subMatch;
+      }
+
+      if (subMatch == SelectorMatch.TagMatch) {
         return SelectorMatch.TagMatch;
-      } else if (theMatch == SelectorMatch.NonTagMatch) {
-        onNoTagMatch = SelectorMatch.NonTagMatch;
       }
     }
-    return onNoTagMatch;
+
+    return match;
   }
 
   @override
@@ -609,46 +623,73 @@ abstract class Selector {
   String originalString;
   int offset;
 
-  /// Check whether the given [element] can potentially match with
-  /// this selector. Or simply put, if there is no violation
+  /// Whether the given [element] can potentially match with this selector.
+  ///
+  /// Essentially, if the [ElementView] does not violate the current selector,
   /// then the given [element] is 'availableTo' this selector without
   /// contradiction.
   ///
-  /// Policy is 'availableTo' is true if selector can match
-  /// without having to change/remove existing decorator.
+  /// This is used in code completion; 'availableTo' should be true if the
+  /// selector can match the [element] without having to change/remove an
+  /// existing decorator on the [element].
   bool availableTo(ElementView element);
 
-  /// Returns a list of all [AngularElement]s where each is an attribute name,
-  /// and each attribute could be added to [element] and the selector would
-  /// still be [availableTo] it.
-  List<AngularElement> getAttributes(ElementView element);
+  /// Attributes that could be added to [element] and preserve [availableTo].
+  ///
+  /// Used by code completion. Returns a list of all [SelectorName]s where
+  /// each is an attribute name to possibly suggest.
+  List<SelectorName> getAttributes(ElementView element);
 
   /// Check whether the given [element] matches this selector.
-  /// If yes, then record resolved ranges into [template].
+  ///
+  /// [Template] may be provided or null; if it is provided then the selector
+  /// should record the match on the template. If it is not provided, then we
+  /// either are matching where it can't be recorded, or we are not yet ready to
+  /// record (for instance, we're checking a part of an AND selector and can't
+  /// record until all parts are known to match).
   SelectorMatch match(ElementView element, Template template);
 
+  /// Collect all [ElementNameSelector]s in this [Selector]'s full AST.
   void recordElementNameSelectors(List<ElementNameSelector> recordingList);
 
-  /// See [HtmlTagForSelector] for info on what this does.
+  /// Further constrain [HtmlTagForSelector] list for suggesting tag names.
+  ///
+  /// See [HtmlTagForSelector] for detailed info on what this does.
   List<HtmlTagForSelector> refineTagSuggestions(
       List<HtmlTagForSelector> context);
 
-  /// See [HtmlTagForSelector] for info on what this does. Selectors should NOT
-  /// override this method, but rather [refineTagSuggestions].
+  /// Generate constraint list of [HtmlTagForSelector] for suggesting tag names.
+  ///
+  /// See [HtmlTagForSelector] for detailed info on what this does.
+  ///
+  /// Selectors should NOT override this method, but rather override
+  /// [refineTagSuggestions].
   List<HtmlTagForSelector> suggestTags() {
     // create a seed tag: ORs will copy this, everything else modifies. Each
     // selector returns the newest set of tags to be transformed.
     final tags = [new HtmlTagForSelector()];
     return refineTagSuggestions(tags).where((t) => t.isValid).toList();
   }
+}
+
+/// Whether a selector matched, and whether it matched the tag.
+///
+/// This is important because we need to know when a selector matched a tag
+/// in the general sense, but also if that tag's name was matched, so that we
+/// can provide "unknown tag name" errors.
+///
+/// Note that we don't currently show any "unknown attribute name" errors, so
+/// this is sufficient for now.
+enum SelectorMatch {
+  NoMatch,
+  NonTagMatch,
+  TagMatch
 } // chars with dash, may end with or be just '*'.
 
-enum SelectorMatch { NoMatch, NonTagMatch, TagMatch }
-
 /// A name that is a part of a [Selector].
-class SelectorName extends AngularElementImpl {
-  SelectorName(String name, int nameOffset, int nameLength, Source source)
-      : super(name, nameOffset, nameLength, source);
+class SelectorName extends NavigableString {
+  SelectorName(String name, SourceRange sourceRange, Source source)
+      : super(name, sourceRange, source);
 }
 
 class SelectorParseError extends FormatException {
@@ -757,14 +798,14 @@ class SelectorParser {
       } else if (currentMatchType == _SelectorRegexMatch.Tag) {
         final nameOffset = fileOffset + currentMatch.start;
         final name = currentMatchStr;
-        selectors.add(new ElementNameSelector(
-            new SelectorName(name, nameOffset, name.length, source)));
+        selectors.add(new ElementNameSelector(new SelectorName(
+            name, new SourceRange(nameOffset, name.length), source)));
         advance();
       } else if (currentMatchType == _SelectorRegexMatch.Class) {
         final nameOffset = fileOffset + currentMatch.start + 1;
         final name = currentMatchStr;
-        selectors.add(new ClassSelector(
-            new SelectorName(name, nameOffset, name.length, source)));
+        selectors.add(new ClassSelector(new SelectorName(
+            name, new SourceRange(nameOffset, name.length), source)));
         advance();
       } else if (currentMatchType == _SelectorRegexMatch.Attribute) {
         final nameIndex = currentMatch.start + '['.length;
@@ -789,22 +830,30 @@ class SelectorParser {
           if (operator != '=') {
             _unexpected(operator, nameIndex + name.length);
           }
-          selectors.add(new AttributeValueRegexSelector(
-              value.substring(1, value.length - 1)));
+          final valueOffset = nameIndex + name.length + '='.length;
+          final regex = value.substring(1, value.length - 1);
+          selectors.add(new AttributeValueRegexSelector(new SelectorName(
+              regex, new SourceRange(valueOffset, regex.length), source)));
           continue;
         } else if (operator == '*=') {
           name = name.replaceAll('*', '');
           selectors.add(new AttributeContainsSelector(
-              new SelectorName(name, nameOffset, name.length, source), value));
+              new SelectorName(
+                  name, new SourceRange(nameOffset, name.length), source),
+              value));
           continue;
         } else if (operator == '^=') {
           selectors.add(new AttributeStartsWithSelector(
-              new SelectorName(name, nameOffset, name.length, source), value));
+              new SelectorName(
+                  name, new SourceRange(nameOffset, name.length), source),
+              value));
           continue;
         }
 
         selectors.add(new AttributeSelector(
-            new SelectorName(name, nameOffset, name.length, source), value));
+            new SelectorName(
+                name, SourceRange(nameOffset, name.length), source),
+            value));
       } else if (currentMatchType == _SelectorRegexMatch.Comma) {
         advance();
         final rhs = parseNested();

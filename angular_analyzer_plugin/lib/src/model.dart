@@ -11,6 +11,7 @@ import 'package:analyzer/src/generated/source.dart' show Source, SourceRange;
 import 'package:analyzer/src/generated/utilities_general.dart';
 import 'package:angular_analyzer_plugin/ast.dart';
 import 'package:angular_analyzer_plugin/errors.dart';
+import 'package:angular_analyzer_plugin/src/model/navigable.dart';
 import 'package:angular_analyzer_plugin/src/model/syntactic/ng_content.dart';
 import 'package:angular_analyzer_plugin/src/selector.dart';
 import 'package:angular_analyzer_plugin/src/standard_components.dart';
@@ -110,7 +111,7 @@ class AngularAnnotatedClass extends AngularTopLevel {
 }
 
 /// The base class for all Angular elements.
-abstract class AngularElement {
+abstract class AngularElement implements Navigable {
   dart.CompilationUnitElement get compilationElement;
 
   /// Return the name of this element, not `null`.
@@ -150,6 +151,9 @@ class AngularElementImpl implements AngularElement {
   @override
   int get hashCode => JenkinsSmiHash.hash4(
       name.hashCode, nameOffset ?? -1, nameLength ?? -1, source.hashCode);
+
+  @override
+  SourceRange get navigationRange => new SourceRange(nameOffset, nameLength);
 
   @override
   bool operator ==(Object other) =>
@@ -566,15 +570,15 @@ class ResolvedRange {
   /// The [SourceRange] where [element] is referenced.
   final SourceRange range;
 
-  /// The [AngularElement] referenced at [range].
-  final AngularElement element;
+  /// The [Navigable] concept referenced at [range].
+  final Navigable element;
 
   ResolvedRange(this.range, this.element);
 
   @override
   String toString() => '$range=[$element, '
-      'nameOffset=${element.nameOffset}, '
-      'nameLength=${element.nameLength}, '
+      'nameOffset=${element.navigationRange.offset}, '
+      'nameLength=${element.navigationRange.length}, '
       'source=${element.source}]';
 }
 
@@ -606,7 +610,7 @@ class Template {
   }
 
   /// Records that the given [element] is referenced at the given [range].
-  void addRange(SourceRange range, AngularElement element) {
+  void addRange(SourceRange range, Navigable element) {
     assert(range != null);
     assert(range.offset != null);
     assert(range.offset >= 0);

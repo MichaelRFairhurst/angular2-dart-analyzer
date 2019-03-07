@@ -1,5 +1,6 @@
 import 'package:analyzer/src/generated/source.dart';
 import 'package:angular_analyzer_plugin/src/model.dart';
+import 'package:angular_analyzer_plugin/src/model/navigable.dart';
 import 'package:angular_analyzer_plugin/src/selector.dart';
 import 'package:mockito/mockito.dart';
 import 'package:test/test.dart';
@@ -135,8 +136,8 @@ class AndSelectorTest extends _SelectorTest {
 
 @reflectiveTest
 class AttributeContainsSelectorTest extends _SelectorTest {
-  final AngularElement nameElement =
-      new AngularElementImpl('kind', 10, 5, null);
+  final SelectorName nameElement =
+      new SelectorName('kind', new SourceRange(10, 5), null);
   // ignore: non_constant_identifier_names
   void test_match() {
     final selector = new AttributeContainsSelector(nameElement, 'search');
@@ -202,8 +203,8 @@ class AttributeContainsSelectorTest extends _SelectorTest {
 
 @reflectiveTest
 class AttributeSelectorTest extends _SelectorTest {
-  final AngularElement nameElement =
-      new AngularElementImpl('kind', 10, 5, null);
+  final SelectorName nameElement =
+      new SelectorName('kind', new SourceRange(10, 5), null);
 
   // ignore: non_constant_identifier_names
   void test_match_name_value() {
@@ -265,7 +266,7 @@ class AttributeSelectorTest extends _SelectorTest {
 @reflectiveTest
 class AttributeStartsWithSelectorTest extends _SelectorTest {
   final selector = new AttributeStartsWithSelector(
-      new AngularElementImpl('abc', 10, 5, null), 'xyz');
+      new SelectorName('abc', new SourceRange(10, 5), null), 'xyz');
 
   // ignore: non_constant_identifier_names
   void test_exactMatch() {
@@ -337,11 +338,14 @@ class AttributeStartsWithSelectorTest extends _SelectorTest {
 
 @reflectiveTest
 class AttributeValueRegexSelectorTest extends _SelectorTest {
-  final selector = new AttributeValueRegexSelector("abc");
+  final selector = new AttributeValueRegexSelector(
+      new SelectorName("abc", new SourceRange(0, 3), null));
 
   // ignore: non_constant_identifier_names
   void test_match() {
     when(element.attributes).thenReturn({'kind': '0abcd'});
+    when(element.attributeValueSpans)
+        .thenReturn({'kind': _newStringSpan(100, '0abcd')});
     expect(
         selector.match(element, template), equals(SelectorMatch.NonTagMatch));
     expect(selector.availableTo(element), true);
@@ -351,6 +355,8 @@ class AttributeValueRegexSelectorTest extends _SelectorTest {
   void test_match_justOne() {
     when(element.attributes)
         .thenReturn({'kind': 'bcd', 'plop': 'zabcz', 'klark': 'efg'});
+    when(element.attributeValueSpans)
+        .thenReturn({'plop': _newStringSpan(100, 'zabcz')});
     expect(
         selector.match(element, template), equals(SelectorMatch.NonTagMatch));
     expect(selector.availableTo(element), true);
@@ -374,7 +380,7 @@ class AttributeValueRegexSelectorTest extends _SelectorTest {
 
 @reflectiveTest
 class ClassSelectorTest extends _SelectorTest {
-  final nameElement = new AngularElementImpl('nice', 10, 5, null);
+  final nameElement = new SelectorName('nice', new SourceRange(10, 5), null);
   ClassSelector selector;
 
   @override
@@ -449,8 +455,8 @@ class ElementNameSelectorTest extends _SelectorTest {
   @override
   void setUp() {
     super.setUp();
-    selector =
-        new ElementNameSelector(new AngularElementImpl('panel', 10, 5, null));
+    selector = new ElementNameSelector(
+        new SelectorName('panel', new SourceRange(10, 5), null));
   }
 
   // ignore: non_constant_identifier_names
@@ -767,7 +773,7 @@ class NotSelectorTest extends _SelectorTest {
 
   // ignore: non_constant_identifier_names
   void test_notAttribute_availableTo_false() {
-    final nameElement = new AngularElementImpl('kind', 10, 5, null);
+    final nameElement = new SelectorName('kind', new SourceRange(10, 5), null);
     final attributeSelector = new AttributeSelector(nameElement, null);
     when(element.attributes).thenReturn({'kind': 'strange'});
     when(element.attributeNameSpans)
@@ -778,7 +784,7 @@ class NotSelectorTest extends _SelectorTest {
 
   // ignore: non_constant_identifier_names
   void test_notAttribute_availableTo_true() {
-    final nameElement = new AngularElementImpl('kind', 10, 5, null);
+    final nameElement = new SelectorName('kind', new SourceRange(10, 5), null);
     final attributeSelector = new AttributeSelector(nameElement, null);
     when(element.attributes).thenReturn({'not-kind': 'strange'});
     when(element.attributeNameSpans)
@@ -937,17 +943,17 @@ class SelectorParserTest {
       final subSelector = selector.selectors[0] as AttributeSelector;
       final nameElement = subSelector.nameElement;
       expect(nameElement.source, source);
-      expect(nameElement.name, 'ng-for');
-      expect(nameElement.nameOffset, 11);
-      expect(nameElement.nameLength, 'ng-for'.length);
+      expect(nameElement.string, 'ng-for');
+      expect(nameElement.navigationRange.offset, 11);
+      expect(nameElement.navigationRange.length, 'ng-for'.length);
     }
     {
       final subSelector = selector.selectors[1] as AttributeSelector;
       final nameElement = subSelector.nameElement;
       expect(nameElement.source, source);
-      expect(nameElement.name, 'ng-for-of');
-      expect(nameElement.nameOffset, 19);
-      expect(nameElement.nameLength, 'ng-for-of'.length);
+      expect(nameElement.string, 'ng-for-of');
+      expect(nameElement.navigationRange.offset, 19);
+      expect(nameElement.navigationRange.length, 'ng-for-of'.length);
     }
   }
 
@@ -982,9 +988,9 @@ class SelectorParserTest {
     {
       final nameElement = selector.nameElement;
       expect(nameElement.source, source);
-      expect(nameElement.name, 'kind');
-      expect(nameElement.nameOffset, 11);
-      expect(nameElement.nameLength, 'kind'.length);
+      expect(nameElement.string, 'kind');
+      expect(nameElement.navigationRange.offset, 11);
+      expect(nameElement.navigationRange.length, 'kind'.length);
     }
     expect(selector.value, 'pretty');
   }
@@ -1000,7 +1006,7 @@ class SelectorParserTest {
       {
         final nameElement = subSelector.nameElement;
         expect(nameElement.source, source);
-        expect(nameElement.name, 'single');
+        expect(nameElement.string, 'single');
       }
       // Ensure there are no quotes within the value
       expect(subSelector.value, 'quotes');
@@ -1010,7 +1016,7 @@ class SelectorParserTest {
       {
         final nameElement = subSelector.nameElement;
         expect(nameElement.source, source);
-        expect(nameElement.name, 'double');
+        expect(nameElement.string, 'double');
       }
       // Ensure there are no quotes within the value
       expect(subSelector.value, 'quotes');
@@ -1024,9 +1030,9 @@ class SelectorParserTest {
     {
       final nameElement = selector.nameElement;
       expect(nameElement.source, source);
-      expect(nameElement.name, 'kind');
-      expect(nameElement.nameOffset, 11);
-      expect(nameElement.nameLength, 'kind'.length);
+      expect(nameElement.string, 'kind');
+      expect(nameElement.navigationRange.offset, 11);
+      expect(nameElement.navigationRange.length, 'kind'.length);
     }
     expect(selector.value, 'pretty');
   }
@@ -1038,9 +1044,9 @@ class SelectorParserTest {
     {
       final nameElement = selector.nameElement;
       expect(nameElement.source, source);
-      expect(nameElement.name, 'ng-for');
-      expect(nameElement.nameOffset, 11);
-      expect(nameElement.nameLength, 'ng-for'.length);
+      expect(nameElement.string, 'ng-for');
+      expect(nameElement.navigationRange.offset, 11);
+      expect(nameElement.navigationRange.length, 'ng-for'.length);
     }
     expect(selector.value, isNull);
   }
@@ -1061,7 +1067,7 @@ class SelectorParserTest {
   void test_attribute_startsWith() {
     final selector = new SelectorParser(source, 10, '[foo^=bar]').parse()
         as AttributeStartsWithSelector;
-    expect(selector.nameElement.name, 'foo');
+    expect(selector.nameElement.string, 'foo');
     expect(selector.value, 'bar');
   }
 
@@ -1069,7 +1075,7 @@ class SelectorParserTest {
   void test_attribute_startsWith_quoted() {
     final selector = new SelectorParser(source, 10, '[foo^="bar"]').parse()
         as AttributeStartsWithSelector;
-    expect(selector.nameElement.name, 'foo');
+    expect(selector.nameElement.string, 'foo');
     expect(selector.value, 'bar');
   }
 
@@ -1077,7 +1083,7 @@ class SelectorParserTest {
   void test_attribute_textRegex() {
     final selector = new SelectorParser(source, 10, '[*=/pretty/]').parse()
         as AttributeValueRegexSelector;
-    expect(selector.regexpStr, 'pretty');
+    expect(selector.regexpElement.string, 'pretty');
   }
 
   // ignore: non_constant_identifier_names
@@ -1096,9 +1102,9 @@ class SelectorParserTest {
         new SelectorParser(source, 10, '.nice').parse() as ClassSelector;
     final nameElement = selector.nameElement;
     expect(nameElement.source, source);
-    expect(nameElement.name, 'nice');
-    expect(nameElement.nameOffset, 11);
-    expect(nameElement.nameLength, 'nice'.length);
+    expect(nameElement.string, 'nice');
+    expect(nameElement.navigationRange.offset, 11);
+    expect(nameElement.navigationRange.length, 'nice'.length);
   }
 
   // ignore: non_constant_identifier_names
@@ -1185,9 +1191,9 @@ class SelectorParserTest {
         as ElementNameSelector;
     final nameElement = selector.nameElement;
     expect(nameElement.source, source);
-    expect(nameElement.name, 'text-panel');
-    expect(nameElement.nameOffset, 10);
-    expect(nameElement.nameLength, 'text-panel'.length);
+    expect(nameElement.string, 'text-panel');
+    expect(nameElement.navigationRange.offset, 10);
+    expect(nameElement.navigationRange.length, 'text-panel'.length);
   }
 
   // ignore: non_constant_identifier_names
@@ -1198,9 +1204,9 @@ class SelectorParserTest {
       final condition = selector.condition as ElementNameSelector;
       final nameElement = condition.nameElement;
       expect(nameElement.source, source);
-      expect(nameElement.name, 'aaa');
-      expect(nameElement.nameOffset, 15);
-      expect(nameElement.nameLength, 'aaa'.length);
+      expect(nameElement.string, 'aaa');
+      expect(nameElement.navigationRange.offset, 15);
+      expect(nameElement.navigationRange.length, 'aaa'.length);
     }
   }
 
@@ -1213,17 +1219,17 @@ class SelectorParserTest {
       final subSelector = selector.selectors[0] as ElementNameSelector;
       final nameElement = subSelector.nameElement;
       expect(nameElement.source, source);
-      expect(nameElement.name, 'aaa');
-      expect(nameElement.nameOffset, 10);
-      expect(nameElement.nameLength, 'aaa'.length);
+      expect(nameElement.string, 'aaa');
+      expect(nameElement.navigationRange.offset, 10);
+      expect(nameElement.navigationRange.length, 'aaa'.length);
     }
     {
       final subSelector = selector.selectors[1] as ElementNameSelector;
       final nameElement = subSelector.nameElement;
       expect(nameElement.source, source);
-      expect(nameElement.name, 'bbb');
-      expect(nameElement.nameOffset, 14);
-      expect(nameElement.nameLength, 'bbb'.length);
+      expect(nameElement.string, 'bbb');
+      expect(nameElement.navigationRange.offset, 14);
+      expect(nameElement.navigationRange.length, 'bbb'.length);
     }
   }
 }
@@ -1232,10 +1238,10 @@ class SelectorParserTest {
 class SuggestTagsTest {
   // ignore: non_constant_identifier_names
   void test_suggestAndMergesSuggestionConstraints() {
-    final nameSelector =
-        new ElementNameSelector(new AngularElementImpl('panel', 10, 5, null));
+    final nameSelector = new ElementNameSelector(
+        new SelectorName('panel', new SourceRange(10, 5), null));
     final attrSelector = new AttributeContainsSelector(
-        new AngularElementImpl('attr', 10, 5, null), "value");
+        new SelectorName('attr', new SourceRange(10, 5), null), "value");
     final selector = new AndSelector([nameSelector, attrSelector]);
 
     final suggestions = selector.suggestTags();
@@ -1246,16 +1252,16 @@ class SuggestTagsTest {
 
   // ignore: non_constant_identifier_names
   void test_suggestAndOr() {
-    final nameSelector1 =
-        new ElementNameSelector(new AngularElementImpl('name1', 10, 5, null));
-    final nameSelector2 =
-        new ElementNameSelector(new AngularElementImpl('name2', 10, 5, null));
+    final nameSelector1 = new ElementNameSelector(
+        new SelectorName('name1', new SourceRange(10, 5), null));
+    final nameSelector2 = new ElementNameSelector(
+        new SelectorName('name2', new SourceRange(10, 5), null));
     final orSelector1 = new OrSelector([nameSelector1, nameSelector2]);
 
     final attrSelector1 = new AttributeContainsSelector(
-        new AngularElementImpl('attr1', 10, 5, null), "value");
+        new SelectorName('attr1', new SourceRange(10, 5), null), "value");
     final attrSelector2 = new AttributeContainsSelector(
-        new AngularElementImpl('attr2', 10, 5, null), "value");
+        new SelectorName('attr2', new SourceRange(10, 5), null), "value");
     final orSelector2 = new OrSelector([attrSelector1, attrSelector2]);
 
     final selector = new AndSelector([orSelector1, orSelector2]);
@@ -1274,8 +1280,8 @@ class SuggestTagsTest {
 
   // ignore: non_constant_identifier_names
   void test_suggestClass() {
-    final selector =
-        new ClassSelector(new AngularElementImpl('myclass', 10, 5, null));
+    final selector = new ClassSelector(
+        new SelectorName('myclass', new SourceRange(10, 5), null));
 
     final suggestions = _evenInvalidSuggestions(selector);
     expect(suggestions.length, 1);
@@ -1285,10 +1291,10 @@ class SuggestTagsTest {
 
   // ignore: non_constant_identifier_names
   void test_suggestClasses() {
-    final selector1 =
-        new ClassSelector(new AngularElementImpl('class1', 10, 5, null));
-    final selector2 =
-        new ClassSelector(new AngularElementImpl('class2', 10, 5, null));
+    final selector1 = new ClassSelector(
+        new SelectorName('class1', new SourceRange(10, 5), null));
+    final selector2 = new ClassSelector(
+        new SelectorName('class2', new SourceRange(10, 5), null));
 
     final suggestions =
         selector2.refineTagSuggestions(_evenInvalidSuggestions(selector1));
@@ -1313,8 +1319,8 @@ class SuggestTagsTest {
 
   // ignore: non_constant_identifier_names
   void test_suggestNodeName() {
-    final selector =
-        new ElementNameSelector(new AngularElementImpl('panel', 10, 5, null));
+    final selector = new ElementNameSelector(
+        new SelectorName('panel', new SourceRange(10, 5), null));
 
     final suggestions = selector.suggestTags();
     expect(suggestions.length, 1);
@@ -1324,15 +1330,15 @@ class SuggestTagsTest {
 
   // ignore: non_constant_identifier_names
   void test_suggestOrAnd() {
-    final nameSelector1 =
-        new ElementNameSelector(new AngularElementImpl('name1', 10, 5, null));
+    final nameSelector1 = new ElementNameSelector(
+        new SelectorName('name1', new SourceRange(10, 5), null));
     final attrSelector1 = new AttributeContainsSelector(
-        new AngularElementImpl('attr1', 10, 5, null), "value");
+        new SelectorName('attr1', new SourceRange(10, 5), null), "value");
     final andSelector1 = new AndSelector([nameSelector1, attrSelector1]);
-    final nameSelector2 =
-        new ElementNameSelector(new AngularElementImpl('name2', 10, 5, null));
+    final nameSelector2 = new ElementNameSelector(
+        new SelectorName('name2', new SourceRange(10, 5), null));
     final attrSelector2 = new AttributeContainsSelector(
-        new AngularElementImpl('attr2', 10, 5, null), "value");
+        new SelectorName('attr2', new SourceRange(10, 5), null), "value");
     final andSelector2 = new AndSelector([nameSelector2, attrSelector2]);
     final selector = new OrSelector([andSelector1, andSelector2]);
 
@@ -1346,10 +1352,10 @@ class SuggestTagsTest {
 
   // ignore: non_constant_identifier_names
   void test_suggestOrMergesSuggestionConstraints() {
-    final nameSelector =
-        new ElementNameSelector(new AngularElementImpl('panel', 10, 5, null));
+    final nameSelector = new ElementNameSelector(
+        new SelectorName('panel', new SourceRange(10, 5), null));
     final attrSelector = new AttributeContainsSelector(
-        new AngularElementImpl('attr', 10, 5, null), "value");
+        new SelectorName('attr', new SourceRange(10, 5), null), "value");
     final selector = new OrSelector([nameSelector, attrSelector]);
 
     final suggestions = _evenInvalidSuggestions(selector);
@@ -1364,16 +1370,16 @@ class SuggestTagsTest {
 
   // ignore: non_constant_identifier_names
   void test_suggestOrOr() {
-    final nameSelector1 =
-        new ElementNameSelector(new AngularElementImpl('name1', 10, 5, null));
-    final nameSelector2 =
-        new ElementNameSelector(new AngularElementImpl('name2', 10, 5, null));
+    final nameSelector1 = new ElementNameSelector(
+        new SelectorName('name1', new SourceRange(10, 5), null));
+    final nameSelector2 = new ElementNameSelector(
+        new SelectorName('name2', new SourceRange(10, 5), null));
     final orSelector1 = new OrSelector([nameSelector1, nameSelector2]);
 
     final attrSelector1 = new AttributeContainsSelector(
-        new AngularElementImpl('attr1', 10, 5, null), "value");
+        new SelectorName('attr1', new SourceRange(10, 5), null), "value");
     final attrSelector2 = new AttributeContainsSelector(
-        new AngularElementImpl('attr2', 10, 5, null), "value");
+        new SelectorName('attr2', new SourceRange(10, 5), null), "value");
     final orSelector2 = new OrSelector([attrSelector1, attrSelector2]);
 
     final selector = new OrSelector([orSelector1, orSelector2]);
@@ -1393,7 +1399,7 @@ class SuggestTagsTest {
   // ignore: non_constant_identifier_names
   void test_suggestPropertyNoValue() {
     final selector = new AttributeSelector(
-        new AngularElementImpl('attr', 10, 5, null), null);
+        new SelectorName('attr', new SourceRange(10, 5), null), null);
 
     final suggestions = _evenInvalidSuggestions(selector);
     expect(suggestions.length, 1);
@@ -1404,7 +1410,7 @@ class SuggestTagsTest {
   // ignore: non_constant_identifier_names
   void test_suggestPropertyWithValue() {
     final selector = new AttributeSelector(
-        new AngularElementImpl('attr', 10, 5, null), "blah");
+        new SelectorName('attr', new SourceRange(10, 5), null), "blah");
 
     final suggestions = _evenInvalidSuggestions(selector);
     expect(suggestions.length, 1);
@@ -1414,7 +1420,8 @@ class SuggestTagsTest {
 
   // ignore: non_constant_identifier_names
   void test_suggestRegexPropertyValueNoops() {
-    final selector = new AttributeValueRegexSelector("foo");
+    final selector = new AttributeValueRegexSelector(
+        new SelectorName('foo', new SourceRange(0, 3), null));
 
     final suggestions = _evenInvalidSuggestions(selector);
     expect(suggestions.length, 1);
@@ -1425,8 +1432,8 @@ class SuggestTagsTest {
 
   // ignore: non_constant_identifier_names
   void test_suggestTagsFiltersInvalidResults() {
-    final selector =
-        new ClassSelector(new AngularElementImpl('class', 10, 5, null));
+    final selector = new ClassSelector(
+        new SelectorName('class', new SourceRange(10, 5), null));
     expect(_evenInvalidSuggestions(selector), hasLength(1));
     expect(_evenInvalidSuggestions(selector).first.isValid, isFalse);
     expect(selector.suggestTags(), hasLength(0));
@@ -1435,7 +1442,7 @@ class SuggestTagsTest {
   // ignore: non_constant_identifier_names
   void test_suggestWildcardProperty() {
     final selector = new AttributeContainsSelector(
-        new AngularElementImpl('attr', 10, 5, null), "value");
+        new SelectorName('attr', new SourceRange(10, 5), null), "value");
 
     final suggestions = _evenInvalidSuggestions(selector);
     expect(suggestions.length, 1);
@@ -1475,13 +1482,13 @@ class _SelectorTest {
     when(template.addRange(typed(any), typed(any)) as dynamic)
         .thenAnswer((invocation) {
       final range = invocation.positionalArguments[0] as SourceRange;
-      final element = invocation.positionalArguments[1] as AngularElement;
+      final element = invocation.positionalArguments[1] as SelectorName;
       resolvedRanges.add(new ResolvedRange(range, element));
     });
   }
 
   void _assertRange(ResolvedRange resolvedRange, int offset, int length,
-      AngularElement element) {
+      NavigableString element) {
     final range = resolvedRange.range;
     expect(range.offset, offset);
     expect(range.length, length);

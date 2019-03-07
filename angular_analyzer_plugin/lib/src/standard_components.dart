@@ -145,8 +145,8 @@ class BuildStandardHtmlComponentsVisitor extends RecursiveAstVisitor {
     return new Component(classElement,
         inputs: inputElements,
         outputs: outputElements,
-        selector: new ElementNameSelector(
-            new SelectorName(tag, tagOffset, tag.length, source)),
+        selector: new ElementNameSelector(new SelectorName(
+            tag, new SourceRange(tagOffset, tag.length), source)),
         isHtml: true);
   }
 
