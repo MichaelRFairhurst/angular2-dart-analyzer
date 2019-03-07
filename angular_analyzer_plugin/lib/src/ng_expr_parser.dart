@@ -6,6 +6,17 @@ import 'package:analyzer/src/dart/ast/token.dart';
 import 'package:analyzer/src/generated/parser.dart';
 import 'package:analyzer/src/generated/source.dart';
 
+/// Override the old analyzer parser and give it pipe support.
+///
+/// This should not exist, as the old parser is no longer being maintained.
+/// However, we cannot use the core angular expression parser because it does
+/// not generate the Dart AST, and it does not have error recovery for auto
+/// completion.
+///
+/// In practice, the fact that it is not maintained has not been a problem,
+/// because new syntax added to Dart is not available in the angular parser
+/// anyway. However, it is not immune to bit-rot, and a longer-term solution
+/// here that uses the CFE fasta parser will eventually be required.
 class NgExprParser extends Parser {
   NgExprParser(Source source, AnalysisErrorListener errorListener)
       : super.withoutFasta(source, errorListener);
@@ -16,8 +27,12 @@ class NgExprParser extends Parser {
   @override
   Expression parseBitwiseOrExpression() => parsePipeExpression();
 
-  /// Parse pipe expression. Return the result as a cast expression `as dynamic`
-  /// with _ng_pipeXXX properties to be resolved specially later.
+  /// Parse pipe expression.
+  ///
+  /// We cannot safely extend the dart AST to add a PipeExpression class because
+  /// the visitor pattern is a closed design. Instead, return the result as a
+  /// cast expression `as dynamic` with _ng_pipeXXX properties to be resolved
+  /// specially later.
   ///
   ///     bitwiseOrExpression ::=
   ///         bitwiseXorExpression ('|' pipeName [: arg]*)*
@@ -53,6 +68,7 @@ class NgExprParser extends Parser {
   }
 
   /// Parse a bitwise or expression to be treated as a pipe.
+  ///
   /// Return the resolved left-hand expression as a dynamic type.
   ///
   ///     pipeExpression ::= identifier[':' expression]*
