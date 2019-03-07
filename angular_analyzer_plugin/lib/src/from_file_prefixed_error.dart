@@ -1,12 +1,16 @@
 import 'package:analyzer/error/error.dart';
 import 'package:analyzer/src/generated/source.dart';
 
-// A wrapper around AnalysisError which also links back to a "from" file and
-// classname for context.
-//
-// Is a wrapper, not just an extension, so that it can have a different hashCode
-// than the error without a "from" path, in the case that a file is included
-// both sanely and strangely (which is common: prod and test).
+/// A wrapper around [AnalysisError] which links to a "from" file and classname.
+///
+/// When users have a non-standard template Url, this error message shows them
+/// "In YourComponent: Error Message (from your_file.dart)" which helps users
+/// understand why the error occurred.
+///
+/// This is a wrapper, not just an extension, so that it can have a different
+/// [hashCode] and operator`==` than the error without a "from" path. Template
+/// files are used in two contexts (ie, from a prod & test component), and we
+/// want to make sure the errors are not equal across those contexts.
 class FromFilePrefixedError implements AnalysisError {
   final String fromSourcePath;
   final String classname;
@@ -66,4 +70,10 @@ class FromFilePrefixedError implements AnalysisError {
 
   @override
   Source get source => originalError.source;
+
+  @override
+  bool operator ==(Object other) =>
+      other is FromFilePrefixedError &&
+      other.originalError == originalError &&
+      other._message == message;
 }
