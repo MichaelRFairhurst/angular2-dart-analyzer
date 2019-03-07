@@ -2,6 +2,7 @@ import 'package:analyzer/dart/element/element.dart';
 import 'package:analyzer/src/generated/source.dart';
 import 'package:angular_analyzer_plugin/ast.dart';
 import 'package:angular_analyzer_plugin/src/model.dart';
+import 'package:angular_analyzer_plugin/src/model/navigable.dart';
 import 'package:angular_analyzer_plugin/src/selector.dart';
 import 'package:test/test.dart';
 
@@ -72,50 +73,6 @@ class DartElementAssert extends _AbstractElementAssert {
   }
 }
 
-class ElementAssert {
-  final String _dartCode;
-  final Source _dartSource;
-  final String _htmlCode;
-  final Source _htmlSource;
-  final AngularElement element;
-  final int _referenceOffset;
-
-  ElementAssert(this._dartCode, this._dartSource, this._htmlCode,
-      this._htmlSource, this.element, this._referenceOffset);
-
-  AngularElementAssert get angular {
-    expect(element, const isInstanceOf<AngularElement>());
-    return new AngularElementAssert(element, _dartSource);
-  }
-
-  DartElementAssert get dart {
-    expect(element, const isInstanceOf<DartElement>());
-    final dartElement = element as DartElement;
-    return new DartElementAssert(dartElement.element, _dartSource, _dartCode);
-  }
-
-  AngularElementAssert get input {
-    expect(element, const isInstanceOf<InputElement>());
-    return new AngularElementAssert(element, _dartSource);
-  }
-
-  LocalVariableAssert get local {
-    expect(element, const isInstanceOf<LocalVariable>());
-    return new LocalVariableAssert(
-        element as LocalVariable, _referenceOffset, _htmlSource, _htmlCode);
-  }
-
-  AngularElementAssert get output {
-    expect(element, const isInstanceOf<OutputElement>());
-    return new AngularElementAssert(element, _dartSource);
-  }
-
-  AngularElementAssert get selector {
-    expect(element, const isInstanceOf<SelectorName>());
-    return new AngularElementAssert(element, _dartSource);
-  }
-}
-
 class LocalVariableAssert extends _AbstractElementAssert {
   final LocalVariable variable;
   final int _referenceOffset;
@@ -136,6 +93,85 @@ class LocalVariableAssert extends _AbstractElementAssert {
 
   LocalVariableAssert type(String expectedTypeName) {
     expect(variable.dartVariable.type.displayName, expectedTypeName);
+    return this;
+  }
+}
+
+class NavigableAssert extends _AbstractElementAssert {
+  final String _dartCode;
+  final Source _dartSource;
+  final String _htmlCode;
+  final Source _htmlSource;
+  final Navigable element;
+  final int _referenceOffset;
+
+  NavigableAssert(this._dartCode, this._dartSource, this._htmlCode,
+      this._htmlSource, this.element, this._referenceOffset);
+
+  AngularElementAssert get angular {
+    expect(element, const isInstanceOf<AngularElement>());
+    return new AngularElementAssert(element as AngularElement, _dartSource);
+  }
+
+  DartElementAssert get dart {
+    expect(element, const isInstanceOf<DartElement>());
+    final dartElement = element as DartElement;
+    return new DartElementAssert(dartElement.element, _dartSource, _dartCode);
+  }
+
+  AngularElementAssert get input {
+    expect(element, const isInstanceOf<InputElement>());
+    return new AngularElementAssert(element as InputElement, _dartSource);
+  }
+
+  LocalVariableAssert get local {
+    expect(element, const isInstanceOf<LocalVariable>());
+    return new LocalVariableAssert(
+        element as LocalVariable, _referenceOffset, _htmlSource, _htmlCode);
+  }
+
+  AngularElementAssert get output {
+    expect(element, const isInstanceOf<OutputElement>());
+    return new AngularElementAssert(element as OutputElement, _dartSource);
+  }
+
+  SelectorNameAssert get selector {
+    expect(element, const isInstanceOf<SelectorName>());
+    return new SelectorNameAssert(element as SelectorName, _dartSource);
+  }
+
+  NavigableAssert inFileName(String expectedName) {
+    expect(element.source.fullName, endsWith(expectedName));
+    _source = element.source;
+    _code = null;
+    return this;
+  }
+}
+
+class SelectorNameAssert extends _AbstractElementAssert {
+  final SelectorName selectorName;
+
+  SelectorNameAssert(this.selectorName, Source source) : super(source);
+
+  SelectorNameAssert get inCoreHtml {
+    _inCoreHtml(selectorName.source);
+    return this;
+  }
+
+  SelectorNameAssert at(String search) {
+    _at(selectorName.navigationRange.offset, search);
+    return this;
+  }
+
+  SelectorNameAssert inFileName(String expectedName) {
+    expect(selectorName.source.fullName, endsWith(expectedName));
+    _source = selectorName.source;
+    _code = null;
+    return this;
+  }
+
+  SelectorNameAssert string(String expectedName) {
+    expect(selectorName.string, expectedName);
     return this;
   }
 }

@@ -22,7 +22,7 @@ void assertComponentReference(
   final selector = component.selector as ElementNameSelector;
   final element = resolvedRange.element;
   expect(element, selector.nameElement);
-  expect(resolvedRange.range.length, selector.nameElement.name.length);
+  expect(resolvedRange.range.length, selector.nameElement.string.length);
 }
 
 PropertyAccessorElement assertGetter(ResolvedRange resolvedRange) {

@@ -733,18 +733,18 @@ class TemplateCompleter {
   /// and extracts non-violating plain-text attribute-directives
   /// and inputs (if name overlaps with attribute-directive).
   void suggestFromAvailableDirectives(
-    Map<AbstractDirective, List<AngularElement>> availableDirectives,
+    Map<AbstractDirective, List<SelectorName>> availableDirectives,
     CompletionCollector collector, {
     bool suggestInputs: false,
     bool suggestBananas: false,
     bool suggestPlainAttributes: false,
   }) {
     availableDirectives.forEach((directive, selectors) {
-      final attributeSelectors = <String, AngularElement>{};
+      final attributeSelectors = <String, SelectorName>{};
       final validInputs = <InputElement>[];
 
       for (final attribute in selectors) {
-        attributeSelectors[attribute.name] = attribute;
+        attributeSelectors[attribute.string] = attribute;
       }
 
       for (final input in directive.inputs) {
@@ -775,7 +775,7 @@ class TemplateCompleter {
 
       if (suggestPlainAttributes) {
         attributeSelectors.forEach((name, selector) {
-          final nameOffset = selector.nameOffset;
+          final nameOffset = selector.navigationRange.offset;
           final locationSource = selector.source.fullName;
           collector.addSuggestion(_createPlainAttributeSuggestions(
               name,
@@ -989,7 +989,7 @@ class TemplateCompleter {
         suggestStarAttrsForSelector(subselector, collector);
       }
     } else if (selector is AttributeSelector) {
-      if (selector.nameElement.name == "ngForOf") {
+      if (selector.nameElement.string == "ngForOf") {
         // `ngFor`'s selector includes `[ngForOf]`, but `*ngForOf=..` won't ever
         // work, because it then becomes impossible to satisfy the other half,
         // `[ngFor]`. Hardcode to filter this out, rather than using some kind
@@ -1057,8 +1057,8 @@ class TemplateCompleter {
       String elementTagName, AbstractDirective directive, ElementKind kind) {
     final selector = directive.elementTags.firstWhere(
         (currSelector) => currSelector.toString() == elementTagName);
-    final offset = selector.nameElement.nameOffset;
-    final length = selector.nameElement.nameLength;
+    final offset = selector.nameElement.navigationRange.offset;
+    final length = selector.nameElement.navigationRange.length;
 
     final location =
         new Location(directive.source.fullName, offset, length, 0, 0);
@@ -1165,11 +1165,11 @@ class TemplateCompleter {
   }
 
   Element _createStarAttrElement(AttributeSelector selector, ElementKind kind) {
-    final name = '*${selector.nameElement.name}';
+    final name = '*${selector.nameElement.string}';
     final location = new Location(
         selector.nameElement.source.fullName,
-        selector.nameElement.nameOffset,
-        selector.nameElement.name.length,
+        selector.nameElement.navigationRange.offset,
+        selector.nameElement.navigationRange.length,
         0,
         0);
     final flags = Element.makeFlags();
@@ -1178,7 +1178,7 @@ class TemplateCompleter {
 
   CompletionSuggestion _createStarAttrSuggestion(
       AttributeSelector selector, int defaultRelevance, Element element) {
-    final completion = '*${selector.nameElement.name}';
+    final completion = '*${selector.nameElement.string}';
     return new CompletionSuggestion(CompletionSuggestionKind.IDENTIFIER,
         defaultRelevance, completion, completion.length, 0, false, false,
         element: element);

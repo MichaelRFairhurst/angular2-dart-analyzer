@@ -98,27 +98,27 @@ class AngularNavigation implements NavigationContributor {
       final offset = resolvedRange.range.offset;
       final element = resolvedRange.element;
 
-      if (element.nameOffset == null) {
+      if (element.navigationRange.offset == null) {
         continue;
       }
 
-      final lineInfo = element.compilationElement?.lineInfo ??
-          new LineInfo.fromContent(
-              _contentOverlay[element.source.fullName] ?? "");
+      final lineInfo = new LineInfo.fromContent(
+          _contentOverlay[element.source.fullName] ?? "");
 
       if (lineInfo == null) {
         continue;
       }
 
-      final offsetLineLocation = lineInfo.getLocation(element.nameOffset);
+      final offsetLineLocation =
+          lineInfo.getLocation(element.navigationRange.offset);
       collector.addRegion(
           offset,
           resolvedRange.range.length,
           protocol.ElementKind.UNKNOWN,
           new protocol.Location(
               element.source.fullName,
-              element.nameOffset,
-              element.nameLength,
+              element.navigationRange.offset,
+              element.navigationRange.length,
               offsetLineLocation.lineNumber,
               offsetLineLocation.columnNumber));
     }

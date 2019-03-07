@@ -4,6 +4,7 @@ import 'package:analyzer/dart/ast/ast.dart';
 import 'package:analyzer/dart/element/element.dart';
 import 'package:analyzer/src/generated/source.dart';
 import 'package:angular_analyzer_plugin/src/model.dart';
+import 'package:angular_analyzer_plugin/src/selector.dart';
 import 'package:meta/meta.dart';
 
 abstract class AngularAstNode {
@@ -174,7 +175,7 @@ class ElementInfo extends NodeInfo implements HasDirectives {
   @override
   final boundStandardInputs = <InputBinding>[];
   @override
-  final availableDirectives = <AbstractDirective, List<AngularElement>>{};
+  final availableDirectives = <AbstractDirective, List<SelectorName>>{};
 
   int childNodesMaxEnd;
 
@@ -278,7 +279,7 @@ enum ExpressionBoundType { input, twoWay, attr, attrIf, clazz, style }
 /// [TemplateAttribute]. Contains an array of [DirectiveBinding]s because those
 /// contain more info than just the bound directive.
 abstract class HasDirectives extends AngularAstNode {
-  Map<AbstractDirective, List<AngularElement>> get availableDirectives;
+  Map<AbstractDirective, List<SelectorName>> get availableDirectives;
   List<DirectiveBinding> get boundDirectives;
   List<InputBinding> get boundStandardInputs;
   List<OutputBinding> get boundStandardOutputs;
@@ -395,7 +396,7 @@ class TemplateAttribute extends BoundAttributeInfo implements HasDirectives {
   @override
   final boundStandardInputs = <InputBinding>[];
   @override
-  final availableDirectives = <AbstractDirective, List<AngularElement>>{};
+  final availableDirectives = <AbstractDirective, List<SelectorName>>{};
 
   String prefix;
 

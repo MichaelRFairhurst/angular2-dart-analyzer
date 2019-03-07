@@ -115,8 +115,8 @@ class TestPanel {
 """);
     await _resolveSingleTemplate(dartSource);
     expect(ranges, hasLength(2));
-    _assertElement('aaa}}').dart.getter.at('aaa; // 1');
-    _assertElement('bbb}}').dart.getter.at('bbb; // 2');
+    _assertNavigable('aaa}}').dart.getter.at('aaa; // 1');
+    _assertNavigable('bbb}}').dart.getter.at('bbb; // 2');
   }
 
   // ignore: non_constant_identifier_names
@@ -135,7 +135,7 @@ class TestPanel {}
 """);
     await _resolveSingleTemplate(dartSource);
     errorListener.assertNoErrors();
-    _assertElement("name-panel-attr=")
+    _assertNavigable("name-panel-attr=")
         .angular
         .inFileName('/test_panel.dart')
         .at("namePanelAttr");
@@ -540,8 +540,8 @@ class TestPanel {
 """);
     await _resolveSingleTemplate(dartSource);
     expect(ranges, hasLength(3));
-    _assertElement('click)').output.inCoreHtml;
-    _assertElement('handleClick').dart.method.at('handleClick(MouseEvent');
+    _assertNavigable('click)').output.inCoreHtml;
+    _assertNavigable('handleClick').dart.method.at('handleClick(MouseEvent');
 
     errorListener.assertNoErrors();
     final search = new ElementSearch((e) => e.localName == "div");
@@ -567,8 +567,8 @@ class TestPanel {
 """);
     await _resolveSingleTemplate(dartSource);
     expect(ranges, hasLength(2));
-    _assertElement('click=').output.inCoreHtml;
-    _assertElement('handleClick()').dart.method.at('handleClick(MouseEvent');
+    _assertNavigable('click=').output.inCoreHtml;
+    _assertNavigable('handleClick()').dart.method.at('handleClick(MouseEvent');
   }
 
   Future
@@ -844,8 +844,11 @@ class TitleComponent {
     _addHtmlSource(code);
     await _resolveSingleTemplate(dartSource);
     errorListener.assertNoErrors();
-    _assertElement('title=').input.inFileName('/test_panel.dart').at('title;');
-    _assertElement('id=').input.inCoreHtml;
+    _assertNavigable('title=')
+        .input
+        .inFileName('/test_panel.dart')
+        .at('title;');
+    _assertNavigable('id=').input.inCoreHtml;
   }
 
   // ignore: non_constant_identifier_names
@@ -872,7 +875,10 @@ class TitleComponent {
     _addHtmlSource(code);
     await _resolveSingleTemplate(dartSource);
     errorListener.assertNoErrors();
-    _assertElement('title=').input.inFileName('/test_panel.dart').at('title(');
+    _assertNavigable('title=')
+        .input
+        .inFileName('/test_panel.dart')
+        .at('title(');
   }
 
   // ignore: non_constant_identifier_names
@@ -912,7 +918,7 @@ class TestPanel {
 """);
     await _resolveSingleTemplate(dartSource);
     expect(ranges, hasLength(1));
-    _assertElement("text'>").dart.getter.at('text; // 1');
+    _assertNavigable("text'>").dart.getter.at('text; // 1');
   }
 
   // ignore: non_constant_identifier_names
@@ -1341,7 +1347,7 @@ class SomeComponent {
 """);
     await _resolveSingleTemplate(dartSource);
     errorListener.assertNoErrors();
-    _assertElement('click').output.inCoreHtml;
+    _assertNavigable('click').output.inCoreHtml;
   }
 
   // ignore: non_constant_identifier_names
@@ -1364,7 +1370,7 @@ class SomeComponent {
 """);
     await _resolveSingleTemplate(dartSource);
     errorListener.assertNoErrors();
-    _assertElement('hidden').input.inCoreHtml;
+    _assertNavigable('hidden').input.inCoreHtml;
   }
 
   // ignore: non_constant_identifier_names
@@ -2614,7 +2620,7 @@ class HasTemplateInputComponent {
 """);
     await _resolveSingleTemplate(dartSource);
     errorListener.assertNoErrors();
-    _assertElement('someTemplate"').local.at('someTemplate>');
+    _assertNavigable('someTemplate"').local.at('someTemplate>');
   }
 
   // ignore: non_constant_identifier_names
@@ -2637,7 +2643,7 @@ class TestPanel extends BaseComponent {
 """);
     await _resolveSingleTemplate(dartSource);
     expect(ranges, hasLength(1));
-    _assertElement("text}}").dart.getter.at('text; // 1');
+    _assertNavigable("text}}").dart.getter.at('text; // 1');
     errorListener.assertNoErrors();
   }
 
@@ -2661,10 +2667,10 @@ class TestPanel {}
 <name-panel aaa='1' [bbb]='2' bind-ccc='3' id="someid"></name-panel>
 """);
     await _resolveSingleTemplate(dartSource);
-    _assertElement("aaa=").input.at("aaa;");
-    _assertElement("bbb]=").input.at("bbb;");
-    _assertElement("ccc=").input.at("ccc;");
-    _assertElement("id=").input.inCoreHtml;
+    _assertNavigable("aaa=").input.at("aaa;");
+    _assertNavigable("bbb]=").input.at("bbb;");
+    _assertNavigable("ccc=").input.at("ccc;");
+    _assertNavigable("id=").input.inCoreHtml;
   }
 
   // ignore: non_constant_identifier_names
@@ -2688,19 +2694,19 @@ class FoobarDirective {
 """);
     await _resolveSingleTemplate(dartSource);
     errorListener.assertNoErrors();
-    _assertElement("ngFor let").selector.inFileName('ng_for.dart');
-    _assertElement("item [").local.declaration.type('String');
+    _assertNavigable("ngFor let").selector.inFileName('ng_for.dart');
+    _assertNavigable("item [").local.declaration.type('String');
     _assertSelectorElement("ngForOf]")
         .selector
-        .name('ngForOf')
+        .string('ngForOf')
         .inFileName('ng_for.dart');
     _assertInputElement("ngForOf]")
         .input
         .name('ngForOf')
         .inFileName('ng_for.dart');
-    _assertElement("items'").dart.getter.at('items = []');
-    _assertElement("i='index").local.declaration.type('int');
-    _assertElement("item").local.at('item [');
+    _assertNavigable("items'").dart.getter.at('items = []');
+    _assertNavigable("i='index").local.declaration.type('int');
+    _assertNavigable("item").local.at('item [');
   }
 
   // ignore: non_constant_identifier_names
@@ -2740,7 +2746,9 @@ class MyDivComponent {
 """);
     await _resolveSingleTemplate(dartSource);
     errorListener.assertNoErrors();
-    _assertElement("myTargetElement.someString)").local.at("myTargetElement>");
+    _assertNavigable("myTargetElement.someString)")
+        .local
+        .at("myTargetElement>");
   }
 
   // ignore: non_constant_identifier_names
@@ -2761,11 +2769,11 @@ class TestPanel {}
 </div>
 """);
     await _resolveSingleTemplate(dartSource);
-    _assertElement("myDirective #").selector.at("myDirective]");
-    _assertElement("value=").local.declaration.type('MyDirective');
-    _assertElement("exportedValue'>").angular.at("exportedValue')");
-    _assertElement("value.aaa").local.at("value=");
-    _assertElement("aaa}}").dart.getter.at('aaa; // 1');
+    _assertNavigable("myDirective #").selector.at("myDirective]");
+    _assertNavigable("value=").local.declaration.type('MyDirective');
+    _assertNavigable("exportedValue'>").angular.at("exportedValue')");
+    _assertNavigable("value.aaa").local.at("value=");
+    _assertNavigable("aaa}}").dart.getter.at('aaa; // 1');
   }
 
   // ignore: non_constant_identifier_names
@@ -2837,7 +2845,7 @@ class TestPanel {}
 """);
     await _resolveSingleTemplate(dartSource);
     errorListener.assertNoErrors();
-    _assertElement("handle'>").local.at("handle></bbb>").type('ComponentB');
+    _assertNavigable("handle'>").local.at("handle></bbb>").type('ComponentB');
   }
 
   // ignore: non_constant_identifier_names
@@ -2927,8 +2935,8 @@ class MyIterable<T> extends BaseIterable<T> {
 """);
     await _resolveSingleTemplate(dartSource);
     errorListener.assertNoErrors();
-    _assertElement("item.").local.at('item of').type('String');
-    _assertElement("length}}").dart.getter;
+    _assertNavigable("item.").local.at('item of').type('String');
+    _assertNavigable("length}}").dart.getter;
   }
 
   // ignore: non_constant_identifier_names
@@ -2969,9 +2977,9 @@ class TestPanel {
     await _resolveSingleTemplate(dartSource);
     errorListener.assertNoErrors();
     expect(template.ranges, hasLength(7));
-    _assertElement("ngFor=").selector.inFileName('ng_for.dart');
-    _assertElement("operator of").local.declaration.type('String');
-    _assertElement("length}}").dart.getter;
+    _assertNavigable("ngFor=").selector.inFileName('ng_for.dart');
+    _assertNavigable("operator of").local.declaration.type('String');
+    _assertNavigable("length}}").dart.getter;
     errorListener.assertNoErrors();
     final search = new ElementSearch((e) => e.localName == "li");
     template.ast.accept(search);
@@ -3002,9 +3010,9 @@ class TestPanel {
     await _resolveSingleTemplate(dartSource);
     errorListener.assertNoErrors();
     expect(template.ranges, hasLength(7));
-    _assertElement("ngFor=").selector.inFileName('ng_for.dart');
-    _assertElement("operator of").local.declaration.type('String');
-    _assertElement("length}}").dart.getter;
+    _assertNavigable("ngFor=").selector.inFileName('ng_for.dart');
+    _assertNavigable("operator of").local.declaration.type('String');
+    _assertNavigable("length}}").dart.getter;
     errorListener.assertNoErrors();
   }
 
@@ -3026,29 +3034,29 @@ class TestPanel {
     await _resolveSingleTemplate(dartSource);
     errorListener.assertNoErrors();
     expect(template.ranges, hasLength(22));
-    _assertElement("ngFor=").selector.inFileName('ng_for.dart');
-    _assertElement("item of").local.declaration.type('String');
+    _assertNavigable("ngFor=").selector.inFileName('ng_for.dart');
+    _assertNavigable("item of").local.declaration.type('String');
     _assertSelectorElement("of items")
         .selector
-        .name('ngForOf')
+        .string('ngForOf')
         .inFileName('ng_for.dart');
     _assertInputElement("of items")
         .input
         .name('ngForOf')
         .inFileName('ng_for.dart');
-    _assertElement("items;").dart.getter.at('items = []');
-    _assertElement("i = index").local.declaration.type('int');
-    _assertElement("i}}").local.at('i = index');
-    _assertElement("item.").local.at('item of');
-    _assertElement("length}}").dart.getter;
-    _assertElement("e = even").local.declaration.type('bool');
-    _assertElement("e}}").local.at('e = even');
-    _assertElement("o = odd").local.declaration.type('bool');
-    _assertElement("o}}").local.at('o = odd');
-    _assertElement("f = first").local.declaration.type('bool');
-    _assertElement("f}}").local.at('f = first');
-    _assertElement("l = last").local.declaration.type('bool');
-    _assertElement("l}}").local.at('l = last');
+    _assertNavigable("items;").dart.getter.at('items = []');
+    _assertNavigable("i = index").local.declaration.type('int');
+    _assertNavigable("i}}").local.at('i = index');
+    _assertNavigable("item.").local.at('item of');
+    _assertNavigable("length}}").dart.getter;
+    _assertNavigable("e = even").local.declaration.type('bool');
+    _assertNavigable("e}}").local.at('e = even');
+    _assertNavigable("o = odd").local.declaration.type('bool');
+    _assertNavigable("o}}").local.at('o = odd');
+    _assertNavigable("f = first").local.declaration.type('bool');
+    _assertNavigable("f}}").local.at('f = first');
+    _assertNavigable("l = last").local.declaration.type('bool');
+    _assertNavigable("l}}").local.at('l = last');
   }
 
   // ignore: non_constant_identifier_names
@@ -3066,7 +3074,7 @@ class TestPanel {
 """);
     await _resolveSingleTemplate(dartSource);
     errorListener.assertNoErrors();
-    _assertElement("item == null").local.at('item of items');
+    _assertNavigable("item == null").local.at('item of items');
   }
 
   // ignore: non_constant_identifier_names
@@ -3085,21 +3093,21 @@ class TestPanel {
 """);
     await _resolveSingleTemplate(dartSource);
     errorListener.assertNoErrors();
-    _assertElement("ngFor let").selector.inFileName('ng_for.dart');
-    _assertElement("item of").local.declaration.type('String');
+    _assertNavigable("ngFor let").selector.inFileName('ng_for.dart');
+    _assertNavigable("item of").local.declaration.type('String');
     _assertSelectorElement("of items")
         .selector
-        .name('ngForOf')
+        .string('ngForOf')
         .inFileName('ng_for.dart');
     _assertInputElement("of items")
         .input
         .name('ngForOf')
         .inFileName('ng_for.dart');
-    _assertElement("items;").dart.getter.at('items = []');
-    _assertElement("i = index").local.declaration.type('int');
-    _assertElement("i}}").local.at('i = index');
-    _assertElement("item.").local.at('item of');
-    _assertElement("length}}").dart.getter;
+    _assertNavigable("items;").dart.getter.at('items = []');
+    _assertNavigable("i = index").local.declaration.type('int');
+    _assertNavigable("i}}").local.at('i = index');
+    _assertNavigable("item.").local.at('item of');
+    _assertNavigable("length}}").dart.getter;
   }
 
   // ignore: non_constant_identifier_names
@@ -3118,21 +3126,21 @@ class TestPanel {
 """);
     await _resolveSingleTemplate(dartSource);
     errorListener.assertNoErrors();
-    _assertElement("ngFor:").selector.inFileName('ng_for.dart');
-    _assertElement("item, of").local.declaration.type('String');
+    _assertNavigable("ngFor:").selector.inFileName('ng_for.dart');
+    _assertNavigable("item, of").local.declaration.type('String');
     _assertSelectorElement("of = items,")
         .selector
-        .name('ngForOf')
+        .string('ngForOf')
         .inFileName('ng_for.dart');
     _assertInputElement("of = items,")
         .input
         .name('ngForOf')
         .inFileName('ng_for.dart');
-    _assertElement("items,").dart.getter.at('items = []');
-    _assertElement("i=index").local.declaration.type('int');
-    _assertElement("i}}").local.at('i=index');
-    _assertElement("item.").local.at('item, of');
-    _assertElement("length}}").dart.getter;
+    _assertNavigable("items,").dart.getter.at('items = []');
+    _assertNavigable("i=index").local.declaration.type('int');
+    _assertNavigable("i}}").local.at('i=index');
+    _assertNavigable("item.").local.at('item, of');
+    _assertNavigable("length}}").dart.getter;
   }
 
   // ignore: non_constant_identifier_names
@@ -3151,21 +3159,21 @@ class TestPanel {
 """);
     await _resolveSingleTemplate(dartSource);
     errorListener.assertNoErrors();
-    _assertElement("ngFor let").selector.inFileName('ng_for.dart');
-    _assertElement("item [").local.declaration.type('String');
+    _assertNavigable("ngFor let").selector.inFileName('ng_for.dart');
+    _assertNavigable("item [").local.declaration.type('String');
     _assertSelectorElement("ngForOf]")
         .selector
-        .name('ngForOf')
+        .string('ngForOf')
         .inFileName('ng_for.dart');
     _assertInputElement("ngForOf]")
         .input
         .name('ngForOf')
         .inFileName('ng_for.dart');
-    _assertElement("items'").dart.getter.at('items = []');
-    _assertElement("i='index").local.declaration.type('int');
-    _assertElement("i}}").local.at("i='index");
-    _assertElement("item.").local.at('item [');
-    _assertElement("length}}").dart.getter;
+    _assertNavigable("items'").dart.getter.at('items = []');
+    _assertNavigable("i='index").local.declaration.type('int');
+    _assertNavigable("i}}").local.at("i='index");
+    _assertNavigable("item.").local.at('item [');
+    _assertNavigable("length}}").dart.getter;
   }
 
   // ignore: non_constant_identifier_names
@@ -3278,8 +3286,8 @@ class TestPanel {
     errorListener.assertNoErrors();
     _assertSelectorElement("ngIf=").selector.inFileName('ng_if.dart');
     _assertInputElement("ngIf=").input.inFileName('ng_if.dart');
-    _assertElement("text.").dart.getter.at('text; // 1');
-    _assertElement("length != 0").dart.getter;
+    _assertNavigable("text.").dart.getter.at('text; // 1');
+    _assertNavigable("length != 0").dart.getter;
   }
 
   // ignore: non_constant_identifier_names
@@ -3315,8 +3323,8 @@ class TestPanel {
     errorListener.assertNoErrors();
     _assertSelectorElement("ngIf text").selector.inFileName('ng_if.dart');
     _assertInputElement("ngIf text").input.inFileName('ng_if.dart');
-    _assertElement("text.").dart.getter.at('text; // 1');
-    _assertElement("length != 0").dart.getter;
+    _assertNavigable("text.").dart.getter.at('text; // 1');
+    _assertNavigable("length != 0").dart.getter;
   }
 
   // ignore: non_constant_identifier_names
@@ -3334,8 +3342,8 @@ class TestPanel {
     await _resolveSingleTemplate(dartSource);
     _assertSelectorElement("ngIf]").selector.inFileName('ng_if.dart');
     _assertInputElement("ngIf]").input.inFileName('ng_if.dart');
-    _assertElement("text.").dart.getter.at('text; // 1');
-    _assertElement("length != 0").dart.getter;
+    _assertNavigable("text.").dart.getter.at('text; // 1');
+    _assertNavigable("length != 0").dart.getter;
   }
 
   // ignore: non_constant_identifier_names
@@ -3356,8 +3364,8 @@ class TestPanel {}
 <name-panel aaa='1' (bbb)='2' on-ccc='3'></name-panel>
 """);
     await _resolveSingleTemplate(dartSource);
-    _assertElement("bbb)=").output.at("bbb;");
-    _assertElement("ccc=").output.at("ccc;");
+    _assertNavigable("bbb)=").output.at("bbb;");
+    _assertNavigable("ccc=").output.at("ccc;");
     final search = new ElementSearch((e) => e.localName == "name-panel");
     template.ast.accept(search);
 
@@ -3410,7 +3418,7 @@ class MyTag {
     """;
     _addHtmlSource(code);
     await _resolveSingleTemplate(dartSource);
-    _assertElement("my-tag")
+    _assertNavigable("my-tag")
         .selector
         .inFileName("test_panel.dart")
         .at("my-tag");
@@ -3640,36 +3648,39 @@ exports ok:
     await _resolveSingleTemplate(dartSource);
     errorListener.assertNoErrors();
     expect(ranges, hasLength(28));
-    _assertElement('TestPanel').dart.at('TestPanel {');
-    _assertElement('componentStatic').dart.method.at('componentStatic() {');
-    _assertElement('myAccessor').dart.getter.at('myAccessor = 1');
-    _assertElement('MyEnum').dart.at('MyEnum {');
-    _assertElement('myVal').dart.at('myVal }');
-    _assertElement('myFunction').dart.at('myFunction() {');
-    _assertElement('MyClass').dart.at('MyClass {');
-    _assertElement('myStaticMethod').dart.at('myStaticMethod() {');
-    _assertElement('myStaticGetter').dart.at('myStaticGetter =>');
-    _assertElement('prefixed').dart.prefix.at('prefixed;');
-    _assertElement('otherAccessor')
+    _assertNavigable('TestPanel').dart.at('TestPanel {');
+    _assertNavigable('componentStatic').dart.method.at('componentStatic() {');
+    _assertNavigable('myAccessor').dart.getter.at('myAccessor = 1');
+    _assertNavigable('MyEnum').dart.at('MyEnum {');
+    _assertNavigable('myVal').dart.at('myVal }');
+    _assertNavigable('myFunction').dart.at('myFunction() {');
+    _assertNavigable('MyClass').dart.at('MyClass {');
+    _assertNavigable('myStaticMethod').dart.at('myStaticMethod() {');
+    _assertNavigable('myStaticGetter').dart.at('myStaticGetter =>');
+    _assertNavigable('prefixed').dart.prefix.at('prefixed;');
+    _assertNavigable('otherAccessor')
         .dart
         .getter
         .inFile('/prefixed.dart')
         .at('otherAccessor = 2.0');
-    _assertElement('OtherEnum').dart.inFile('/prefixed.dart').at('OtherEnum {');
-    _assertElement('otherVal').dart.inFile('/prefixed.dart').at('otherVal }');
-    _assertElement('otherFunction')
+    _assertNavigable('OtherEnum')
+        .dart
+        .inFile('/prefixed.dart')
+        .at('OtherEnum {');
+    _assertNavigable('otherVal').dart.inFile('/prefixed.dart').at('otherVal }');
+    _assertNavigable('otherFunction')
         .dart
         .inFile('/prefixed.dart')
         .at('otherFunction() {');
-    _assertElement('OtherClass')
+    _assertNavigable('OtherClass')
         .dart
         .inFile('/prefixed.dart')
         .at('OtherClass {');
-    _assertElement('otherStaticMethod')
+    _assertNavigable('otherStaticMethod')
         .dart
         .inFile('/prefixed.dart')
         .at('otherStaticMethod() {');
-    _assertElement('otherStaticGetter')
+    _assertNavigable('otherStaticGetter')
         .dart
         .inFile('/prefixed.dart')
         .at('otherStaticGetter =>');
@@ -5245,14 +5256,14 @@ class TestPanel {
        (change)='inputChange(inputEl.value, inputEl.validationMessage)'>
 """);
     await _resolveSingleTemplate(dartSource);
-    _assertElement('input #').selector.inCoreHtml.at('input");');
-    _assertElement('inputEl M').local.at('inputEl M');
-    _assertElement('inputChange(inputEl').dart.method.at('inputChange(Str');
-    _assertElement('inputEl.value').local.at('inputEl M');
-    _assertElement('value, ').dart.getter.inCoreHtml;
-    _assertElement('inputEl.validationMessage').local.at('inputEl M');
-    _assertElement('validationMessage)').dart.getter.inCoreHtml;
-    _assertElement('change)').output.inCoreHtml;
+    _assertNavigable('input #').selector.inCoreHtml.at('input");');
+    _assertNavigable('inputEl M').local.at('inputEl M');
+    _assertNavigable('inputChange(inputEl').dart.method.at('inputChange(Str');
+    _assertNavigable('inputEl.value').local.at('inputEl M');
+    _assertNavigable('value, ').dart.getter.inCoreHtml;
+    _assertNavigable('inputEl.validationMessage').local.at('inputEl M');
+    _assertNavigable('validationMessage)').dart.getter.inCoreHtml;
+    _assertNavigable('change)').output.inCoreHtml;
     errorListener.assertNoErrors();
     expect(ranges, hasLength(8));
   }
@@ -5270,14 +5281,14 @@ class TestPanel {
        (change)='inputChange(inputEl.value, inputEl.validationMessage)'>
 """);
     await _resolveSingleTemplate(dartSource);
-    _assertElement('input ref').selector.inCoreHtml.at('input");');
-    _assertElement('inputEl M').local.at('inputEl M');
-    _assertElement('inputChange(inputEl').dart.method.at('inputChange(Str');
-    _assertElement('inputEl.value').local.at('inputEl M');
-    _assertElement('value, ').dart.getter.inCoreHtml;
-    _assertElement('inputEl.validationMessage').local.at('inputEl M');
-    _assertElement('validationMessage)').dart.getter.inCoreHtml;
-    _assertElement('change)').output.inCoreHtml;
+    _assertNavigable('input ref').selector.inCoreHtml.at('input");');
+    _assertNavigable('inputEl M').local.at('inputEl M');
+    _assertNavigable('inputChange(inputEl').dart.method.at('inputChange(Str');
+    _assertNavigable('inputEl.value').local.at('inputEl M');
+    _assertNavigable('value, ').dart.getter.inCoreHtml;
+    _assertNavigable('inputEl.validationMessage').local.at('inputEl M');
+    _assertNavigable('validationMessage)').dart.getter.inCoreHtml;
+    _assertNavigable('change)').output.inCoreHtml;
     errorListener.assertNoErrors();
     expect(ranges, hasLength(8));
   }
@@ -5370,7 +5381,7 @@ class TestPanel {
 """);
     await _resolveSingleTemplate(dartSource);
     errorListener.assertNoErrors();
-    _assertElement('handleClick').dart.method.at('handleClick(MouseEvent');
+    _assertNavigable('handleClick').dart.method.at('handleClick(MouseEvent');
   }
 
   // ignore: non_constant_identifier_names
@@ -5504,7 +5515,7 @@ class TestPanel {
 <div (click)='handleClick($event);'></div>
 """);
     await _resolveSingleTemplate(dartSource);
-    _assertElement('handleClick').dart.method.at('handleClick(MouseEvent');
+    _assertNavigable('handleClick').dart.method.at('handleClick(MouseEvent');
     errorListener.assertNoErrors();
   }
 
@@ -5523,7 +5534,7 @@ class TestPanel {
 <div (click)='handleClick($event)'></div>
 """);
     await _resolveSingleTemplate(dartSource);
-    _assertElement('handleClick').dart.method.at('handleClick(MouseEvent');
+    _assertNavigable('handleClick').dart.method.at('handleClick(MouseEvent');
     errorListener.assertNoErrors();
   }
 
@@ -5711,7 +5722,7 @@ class TestPanel {}
 <div *deferred>Deferred content</div>
 """);
     await _resolveSingleTemplate(dartSource);
-    _assertElement('deferred>').selector.at("deferred]')");
+    _assertNavigable('deferred>').selector.at("deferred]')");
     errorListener.assertNoErrors();
   }
 
@@ -5790,8 +5801,8 @@ class TestPanel {
 """);
     await _resolveSingleTemplate(dartSource);
     expect(ranges, hasLength(2));
-    _assertElement('aaa}}').dart.getter.at('aaa; // 1');
-    _assertElement('bbb}}').dart.getter.at('bbb; // 2');
+    _assertNavigable('aaa}}').dart.getter.at('aaa; // 1');
+    _assertNavigable('bbb}}').dart.getter.at('bbb; // 2');
   }
 
   // ignore: non_constant_identifier_names
@@ -5829,7 +5840,7 @@ class TestPanel {
 <name-panel [(value)]='value'></name-panel>
 """);
     await _resolveSingleTemplate(dartSource);
-    _assertElement("value)]").input.at("value;");
+    _assertNavigable("value)]").input.at("value;");
   }
 
   // ignore: non_constant_identifier_names
@@ -5851,7 +5862,7 @@ class MyTag {
     """;
     _addHtmlSource(code);
     await _resolveSingleTemplate(dartSource);
-    _assertElement("my-prop")
+    _assertNavigable("my-prop")
         .selector
         .inFileName("test_panel.dart")
         .at("my-prop");
@@ -5872,19 +5883,19 @@ $code
     htmlSource = newSource('/test_panel.html', htmlCode);
   }
 
-  ElementAssert _assertElement(String atString,
+  NavigableAssert _assertInputElement(String atString) =>
+      _assertNavigable(atString, _isInputElement);
+
+  NavigableAssert _assertNavigable(String atString,
       [ResolvedRangeCondition condition]) {
     final resolvedRange = _findResolvedRange(atString, condition);
 
-    return new ElementAssert(dartCode, dartSource, htmlCode, htmlSource,
+    return new NavigableAssert(dartCode, dartSource, htmlCode, htmlSource,
         resolvedRange.element, resolvedRange.range.offset);
   }
 
-  ElementAssert _assertInputElement(String atString) =>
-      _assertElement(atString, _isInputElement);
-
-  ElementAssert _assertSelectorElement(String atString) =>
-      _assertElement(atString, _isSelectorName);
+  NavigableAssert _assertSelectorElement(String atString) =>
+      _assertNavigable(atString, _isSelectorName);
 
   /// Return the [ResolvedRange] that starts at the position of the give
   /// [search] and, if specified satisfies the given [condition].
