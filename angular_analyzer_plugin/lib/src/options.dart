@@ -3,6 +3,14 @@ import 'package:analyzer/src/generated/source.dart';
 import 'package:meta/meta.dart';
 import 'package:yaml/yaml.dart';
 
+/// Class representing the plugin options in `analysis_options.yaml`.
+///
+/// Not much configuration is currently supported, but users may add custom
+/// tags and events so that they can integrate with web components/polymer.
+///
+/// It is important that we can accurately hash the options, so that if users
+/// change their analysis options, the plugin will rerun its analysis instead of
+/// using out-of-date cache results.
 class AngularOptions {
   final List<String> customTagNames;
   final Map<String, CustomEvent> customEvents;
@@ -11,7 +19,9 @@ class AngularOptions {
   String _customEventsHashString;
 
   AngularOptions({this.customTagNames, this.customEvents, this.source});
+
   factory AngularOptions.defaults() => new _OptionsBuilder.empty().build();
+
   factory AngularOptions.from(Source source) =>
       new _OptionsBuilder(null, source).build();
 
@@ -52,6 +62,7 @@ class AngularOptions {
   }
 }
 
+/// A custom event allows interaction with web components/polymer.
 class CustomEvent {
   final String name;
   final String typeName;
