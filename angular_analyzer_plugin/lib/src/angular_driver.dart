@@ -478,12 +478,14 @@ class AngularDriver
 
     if (_filesToAnalyze.isNotEmpty) {
       final path = _filesToAnalyze.first;
+      await _resolveDart(path);
       _filesToAnalyze.remove(path);
       return;
     }
 
     if (_htmlFilesToAnalyze.isNotEmpty) {
       final path = _htmlFilesToAnalyze.first;
+      await _resolveHtml(path);
       _htmlFilesToAnalyze.remove(path);
       return;
     }
