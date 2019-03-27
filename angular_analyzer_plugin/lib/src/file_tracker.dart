@@ -36,7 +36,7 @@ class FileTracker {
   final _dartToDart = new _RelationshipTracker();
 
   final _dartToHtml = _RelationshipTracker();
-  final Set<String> _dartFilesWithDartTemplates = {};
+  final _dartFilesWithDartTemplates = <String>{};
 
   /// Cache the hashes of files for quicker signature calculation.
   final contentHashes = <String, _FileHash>{};
