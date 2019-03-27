@@ -93,9 +93,7 @@ class FileTracker {
   /// This is used to cache analysis results for a Dart file, and must contain
   /// hashes of all the information that contributed to that analysis.
   Future<ApiSignature> getDartSignature(String dartPath) async {
-    final signature = new ApiSignature()
-      ..addInt(salt)
-      ..addString(await _fileHasher.getUnitElementSignature(dartPath));
+    final signature = await getUnitElementSignature(dartPath);
     for (final htmlPath in getHtmlPathsAffectingDart(dartPath)) {
       signature.addBytes(_getContentHash(htmlPath));
     }
