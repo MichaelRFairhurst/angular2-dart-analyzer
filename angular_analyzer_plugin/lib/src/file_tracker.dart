@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:collection';
 
 import 'package:analyzer/src/summary/api_signature.dart';
 import 'package:angular_analyzer_plugin/src/options.dart';
@@ -36,7 +35,7 @@ class FileTracker {
   final _dartToDart = new _RelationshipTracker();
 
   final _dartToHtml = _RelationshipTracker();
-  final _dartFilesWithDartTemplates = HashSet<String>();
+  final _dartFilesWithDartTemplates = <String>{};
 
   /// Cache the hashes of files for quicker signature calculation.
   final contentHashes = <String, _FileHash>{};
@@ -239,7 +238,7 @@ class _RelationshipTracker {
       _filesReferencingFile[usesPath] ?? [];
 
   void setFileReferencesFiles(String filePath, List<String> referencesPaths) {
-    final priorRelationships = HashSet<String>();
+    final priorRelationships = <String>{};
     if (_filesReferencedByFile.containsKey(filePath)) {
       for (final referencesPath in _filesReferencedByFile[filePath]) {
         if (!referencesPaths.contains(referencesPath)) {
