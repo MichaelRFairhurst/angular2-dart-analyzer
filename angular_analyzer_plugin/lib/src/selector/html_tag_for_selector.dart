@@ -23,14 +23,20 @@ import 'dart:collection';
 /// stripping invalid suggestions at the end, potentially resulting in none.
 class HtmlTagForSelector {
   String _name;
-  Map<String, String> _attributes = {};
+  final _attributes = <String, String>{};
   bool _isValid = true;
-  Set<String> _classes = {};
+  final _classes = <String>{};
 
+  /// A tag is invalid if its constraints are unsatisfiable.
   bool get isValid => _name != null && _isValid && _classAttrValid;
 
+  /// The required tag name of this tag.
   String get name => _name;
 
+  /// Constrain the name of this tag.
+  ///
+  /// If the name is already constrained, and the new name does not match the
+  /// old, this will produce an invalid tag.
   set name(String name) {
     if (_name != null && _name != name) {
       _isValid = false;
@@ -43,26 +49,38 @@ class HtmlTagForSelector {
       ? true
       : _classes.length == 1 && _classes.first == _attributes["class"];
 
+  /// Constrain the classes of this tag by adding a required class.
   void addClass(String classname) {
     _classes.add(classname);
   }
 
   HtmlTagForSelector clone() => new HtmlTagForSelector()
     ..name = _name
-    .._attributes = (<String, String>{}..addAll(_attributes))
+    .._attributes.addAll(_attributes)
     .._isValid = _isValid
-    .._classes = new HashSet<String>.from(_classes);
+    .._classes.addAll(_classes);
 
+  /// Constrain the attribute [name] to exist, potentially with [value].
+  ///
+  /// If the attribute is already expected to exist with a different non-null
+  /// [value], then this will produce an invalid tag.
   void setAttribute(String name, {String value}) {
-    if (_attributes.containsKey(name)) {
-      if (value != null) {
-        if (_attributes[name] != null && _attributes[name] != value) {
-          _isValid = false;
-        } else {
-          _attributes[name] = value;
-        }
-      }
+    // New constraint; always add.
+    if (!_attributes.containsKey(name)) {
+      _attributes[name] = value;
+      return;
+    }
+
+    // Valueless constraint, we know there's no contradiction. Exit.
+    if (value == null) {
+      return;
+    }
+
+    // Previous constrained values must match the new value
+    if (_attributes[name] != null && _attributes[name] != value) {
+      _isValid = false;
     } else {
+      // unconstrained values get a value constraint
       _attributes[name] = value;
     }
   }
@@ -80,10 +98,7 @@ class HtmlTagForSelector {
     });
 
     if (_classes.isNotEmpty) {
-      final classesList = (<String>[]
-            ..addAll(_classes)
-            ..sort())
-          .join(' ');
+      final classesList = (_classes.toList()..sort()).join(' ');
       attrStrs.add('class="$classesList"');
     }
 
