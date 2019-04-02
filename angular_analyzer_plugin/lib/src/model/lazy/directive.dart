@@ -3,6 +3,7 @@ import 'package:analyzer/src/generated/source.dart' show Source;
 import 'package:angular_analyzer_plugin/src/model.dart' hide Directive;
 import 'package:angular_analyzer_plugin/src/model.dart' as resolved;
 import 'package:angular_analyzer_plugin/src/selector.dart';
+import 'package:angular_analyzer_plugin/src/selector/element_name_selector.dart';
 
 class Directive implements resolved.Directive {
   @override

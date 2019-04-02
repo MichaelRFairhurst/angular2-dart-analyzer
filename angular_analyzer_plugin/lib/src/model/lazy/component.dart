@@ -5,6 +5,7 @@ import 'package:angular_analyzer_plugin/src/model.dart' as resolved;
 import 'package:angular_analyzer_plugin/src/model/lazy/view.dart' as lazy;
 import 'package:angular_analyzer_plugin/src/model/syntactic/ng_content.dart';
 import 'package:angular_analyzer_plugin/src/selector.dart';
+import 'package:angular_analyzer_plugin/src/selector/element_name_selector.dart';
 
 class Component implements resolved.Component {
   @override

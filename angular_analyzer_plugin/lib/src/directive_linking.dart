@@ -11,6 +11,7 @@ import 'package:angular_analyzer_plugin/src/model/lazy/pipe.dart' as lazy;
 import 'package:angular_analyzer_plugin/src/model/syntactic/ng_content.dart';
 import 'package:angular_analyzer_plugin/src/partial_linker.dart';
 import 'package:angular_analyzer_plugin/src/selector.dart';
+import 'package:angular_analyzer_plugin/src/selector/element_name_selector.dart';
 import 'package:angular_analyzer_plugin/src/standard_components.dart';
 
 import 'summary/idl.dart';

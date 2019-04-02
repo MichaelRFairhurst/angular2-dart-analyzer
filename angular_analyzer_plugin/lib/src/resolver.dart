@@ -388,6 +388,20 @@ class AngularSubsetVisitor extends RecursiveAstVisitor<Object> {
   }
 
   @override
+  void visitSetOrMapLiteral(SetOrMapLiteral map) {
+    if (map.typeArguments != null) {
+      _reportDisallowedExpression(map, "Typed map literals",
+          visitChildren: false);
+      // Don't visit the TypeName or it may suggest exporting it, which is not
+      // possible.
+
+      map.elements2.accept(this);
+    } else {
+      super.visitSetOrMapLiteral(map);
+    }
+  }
+
+  @override
   void visitSimpleIdentifier(SimpleIdentifier id) => visitIdentifier(id);
 
   @override
