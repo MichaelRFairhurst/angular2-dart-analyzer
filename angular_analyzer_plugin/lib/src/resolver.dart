@@ -358,20 +358,6 @@ class AngularSubsetVisitor extends RecursiveAstVisitor<Object> {
   }
 
   @override
-  void visitSetOrMapLiteral(SetOrMapLiteral map) {
-    if (map.typeArguments != null) {
-      _reportDisallowedExpression(map, "Typed map literals",
-          visitChildren: false);
-      // Don't visit the TypeName or it may suggest exporting it, which is not
-      // possible.
-
-      map.elements2.accept(this);
-    } else {
-      super.visitSetOrMapLiteral(map);
-    }
-  }
-
-  @override
   void visitPostfixExpression(PostfixExpression exp) {
     _reportDisallowedExpression(exp, exp.operator.lexeme);
   }
@@ -384,6 +370,20 @@ class AngularSubsetVisitor extends RecursiveAstVisitor<Object> {
     if (exp.operator.type != TokenType.MINUS &&
         exp.operator.type != TokenType.BANG) {
       _reportDisallowedExpression(exp, exp.operator.lexeme);
+    }
+  }
+
+  @override
+  void visitSetOrMapLiteral(SetOrMapLiteral map) {
+    if (map.typeArguments != null) {
+      _reportDisallowedExpression(map, "Typed map literals",
+          visitChildren: false);
+      // Don't visit the TypeName or it may suggest exporting it, which is not
+      // possible.
+
+      map.elements2.accept(this);
+    } else {
+      super.visitSetOrMapLiteral(map);
     }
   }
 

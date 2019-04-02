@@ -24,6 +24,9 @@ import 'package:angular_analyzer_plugin/ast.dart';
 import 'package:angular_analyzer_plugin/src/completion_request.dart';
 import 'package:angular_analyzer_plugin/src/model.dart';
 import 'package:angular_analyzer_plugin/src/selector.dart';
+import 'package:angular_analyzer_plugin/src/selector/and_selector.dart';
+import 'package:angular_analyzer_plugin/src/selector/attribute_selector.dart';
+import 'package:angular_analyzer_plugin/src/selector/or_selector.dart';
 
 bool offsetContained(int offset, int start, int length) =>
     start <= offset && start + length >= offset;

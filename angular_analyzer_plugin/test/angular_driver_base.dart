@@ -9,7 +9,7 @@ import 'package:angular_analyzer_plugin/notification_manager.dart';
 import 'package:angular_analyzer_plugin/src/angular_driver.dart';
 import 'package:angular_analyzer_plugin/src/model.dart';
 import 'package:angular_analyzer_plugin/src/options.dart';
-import 'package:angular_analyzer_plugin/src/selector.dart';
+import 'package:angular_analyzer_plugin/src/selector/element_name_selector.dart';
 import 'package:angular_analyzer_plugin/src/tuple.dart';
 import 'package:mockito/mockito.dart';
 import 'package:test/test.dart';

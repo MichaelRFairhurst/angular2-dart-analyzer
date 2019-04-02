@@ -22,6 +22,7 @@ import 'package:angular_analyzer_plugin/src/model/syntactic/top_level.dart';
 import 'package:angular_analyzer_plugin/src/resolver.dart'
     show NgContentRecorder;
 import 'package:angular_analyzer_plugin/src/selector.dart';
+import 'package:angular_analyzer_plugin/src/selector/and_selector.dart';
 import 'package:angular_analyzer_plugin/src/tasks.dart';
 import 'package:angular_analyzer_plugin/src/tuple.dart';
 import 'package:angular_analyzer_plugin/src/view_extraction.dart';

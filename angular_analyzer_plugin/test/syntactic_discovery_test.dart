@@ -11,7 +11,8 @@ import 'package:angular_analyzer_plugin/src/model/syntactic/functional_directive
 import 'package:angular_analyzer_plugin/src/model/syntactic/pipe.dart';
 import 'package:angular_analyzer_plugin/src/model/syntactic/reference.dart';
 import 'package:angular_analyzer_plugin/src/model/syntactic/top_level.dart';
-import 'package:angular_analyzer_plugin/src/selector.dart';
+import 'package:angular_analyzer_plugin/src/selector/and_selector.dart';
+import 'package:angular_analyzer_plugin/src/selector/element_name_selector.dart';
 import 'package:angular_analyzer_plugin/src/syntactic_discovery.dart';
 import 'package:test/test.dart';
 import 'package:test_reflective_loader/test_reflective_loader.dart';
