@@ -8,6 +8,7 @@ import 'package:analyzer_plugin/utilities/navigation/navigation.dart';
 import 'package:angular_analyzer_plugin/src/model.dart';
 import 'package:angular_analyzer_plugin/src/navigation_request.dart';
 
+/// Collect navigation info from a template for the IDE.
 class AngularNavigation implements NavigationContributor {
   final FileContentOverlay _contentOverlay;
 
@@ -53,7 +54,10 @@ class AngularNavigation implements NavigationContributor {
     }
   }
 
-  /// A null target range indicates everything is targeted. Otherwise, intersect
+  /// Check if a source range is currently targeted.
+  ///
+  /// A null [targetRange] indicates everything is targeted. Otherwise,
+  /// intersect [toTest] with [targetRange].
   bool isTargeted(SourceRange toTest, {SourceRange targetRange}) =>
       // <a><b></b></a> or <a><b></a></b>, but not <a></a><b></b>.
       targetRange == null || targetRange.intersects(toTest);

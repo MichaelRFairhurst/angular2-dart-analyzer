@@ -92,6 +92,8 @@ class AngularDriverTestBase extends AngularTestBase {
         return mock;
       }());
 
+  /// Assert multiple errors exist with locations, code, and arguments.
+  ///
   /// For [expectedErrors], it is a List of Tuple4 (1 per error):
   ///   code segment where offset begins,
   ///   length of error highlight,

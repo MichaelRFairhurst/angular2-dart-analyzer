@@ -41,8 +41,7 @@ List<Pipe> linkPipes(List<SummarizedPipe> pipeSummaries,
   return pipes;
 }
 
-/// Link [AngularTopLevel] with the specified [Linker] from its summary &
-/// element.
+/// Link [AngularTopLevel] with the [Linker] from its summary & element.
 AngularTopLevel linkTopLevel(
     UnlinkedDartSummary unlinked, Element element, TopLevelLinker linker) {
   if (element is ClassElement) {
@@ -70,8 +69,7 @@ AngularTopLevel linkTopLevel(
   return null;
 }
 
-/// Link [AngularTopLevel]s with the specified [Linker] from a summary &
-/// compilation unit.
+/// Link [AngularTopLevel]s with the [Linker] from summary & compilation unit.
 List<AngularTopLevel> linkTopLevels(UnlinkedDartSummary unlinked,
         CompilationUnitElement compilationUnitElement, TopLevelLinker linker) =>
     unlinked.directiveSummaries.map<AngularTopLevel>((sum) {
@@ -91,8 +89,7 @@ List<AngularTopLevel> linkTopLevels(UnlinkedDartSummary unlinked,
       ..addAll(unlinked.annotatedClasses.map((sum) => linker.annotatedClass(
           sum, compilationUnitElement.getType(sum.className))));
 
-/// In order to link, we need a [DirectiveProvider] to be able to look up
-/// angular information from source paths and the Dart [Element] model.
+/// Interface to look up [AngularTopLevel]s by the dart [Element] model.
 abstract class DirectiveProvider {
   AngularTopLevel getAngularTopLevel(Element element);
   List<NgContent> getHtmlNgContent(String path);
@@ -222,8 +219,7 @@ class LazyLinker implements TopLevelLinker {
       ..classElement = classElement;
   }
 
-  /// Functional directive is not lazy it has so few capabilities, it isn't
-  /// worth lazy linking.
+  /// Functional directive has so few capabilities, it isn't worth lazy linking.
   ///
   /// The selector must be loaded eagerly so we can know when to bind it to a
   /// template. If it were lazy, this is where we would link it. However, for
@@ -234,8 +230,7 @@ class LazyLinker implements TopLevelLinker {
           SummarizedDirective dirSum, FunctionElement functionElement) =>
       _eagerLinker.functionalDirective(dirSum, functionElement);
 
-  /// Pipes likely do not need to be lazy, however, it is easy to make them
-  /// lazy because they are identified by a their name, a plain string.
+  /// It is easy to pipes lazy because they are identified by a plain string.
   @override
   Pipe pipe(SummarizedPipe pipeSum, ClassElement classElement) => new lazy.Pipe(
       pipeSum.pipeName,
@@ -244,9 +239,10 @@ class LazyLinker implements TopLevelLinker {
     ..classElement = classElement;
 }
 
-/// Common behavior between [EagerLinker] and [LazyLinker], to be used with the
-/// top-level linking methods [linkPipe], [likePipes], [linkTopLevel],
-/// and [linkTopLevels].
+/// Common behavior between [EagerLinker] and [LazyLinker].
+///
+/// To be used with the top-level linking methods [linkPipe], [likePipes],
+/// [linkTopLevel], and [linkTopLevels].
 abstract class TopLevelLinker {
   AngularAnnotatedClass annotatedClass(
       SummarizedClassAnnotations classSum, ClassElement classElement);

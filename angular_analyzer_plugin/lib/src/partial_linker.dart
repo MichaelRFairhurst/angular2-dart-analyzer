@@ -12,8 +12,7 @@ import 'package:angular_analyzer_plugin/src/standard_components.dart';
 
 import 'summary/idl.dart';
 
-/// Low-level linking functionality that does not require the dart element
-/// model.
+/// Low-level linking functionality that does not require any dart elements.
 ///
 /// Some of this produces syntactic concepts, and other parts of this generate
 /// partially resolved instances of the resolved model. Once the resolved model
@@ -52,8 +51,7 @@ class PartialFromSummaryOnly {
       prefix: pipeUse.prefix);
 }
 
-/// Generate partially resolved model instances from summary and the Dart
-/// [Element] model.
+/// Generate partially resolved models from summary and Dart [Element] model.
 ///
 /// This exists for backwards compatibility. Ideally, the resolver would be able
 /// to operate on the summaries or syntactic model directly. At the moment,
@@ -107,8 +105,7 @@ class PartialLinker extends PartialFromSummaryOnly implements TopLevelLinker {
     return directive(dirSum, classElement) as Component;
   }
 
-  /// Partially link an [AbstractClassDirective] from a summary and a
-  /// [ClassElement].
+  /// Partially link [AbstractClassDirective] from summary and [ClassElement].
   @override
   AbstractClassDirective directive(
       SummarizedDirective dirSum, ClassElement classElement) {
@@ -206,8 +203,7 @@ class PartialLinker extends PartialFromSummaryOnly implements TopLevelLinker {
     return component;
   }
 
-  /// Partially link a [FunctionalDirective] from a summary and a
-  /// [FunctionEement].
+  /// Partially link [FunctionalDirective] from summary and [FunctionEement].
   @override
   FunctionalDirective functionalDirective(
       SummarizedDirective dirSum, FunctionElement functionElement) {

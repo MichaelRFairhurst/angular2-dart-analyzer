@@ -421,7 +421,8 @@ class CounterComponent {
 
   Random random = new Random();
 
-  // ignore: non_constant_identifier_names
+  /// Check something against a [matcher], as `expect()` would, and continue.
+  ///
   /// More or less expect(), but without failing the test. Returns a [Future] so
   /// that you can chain things to do when this succeeds or fails.
   Future check(Object actual, Matcher matcher, {String reason}) {

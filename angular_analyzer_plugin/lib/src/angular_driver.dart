@@ -107,6 +107,8 @@ class AngularDriver
 
   List<String> get priorityFiles => [];
 
+  /// Set priority files (not supported).
+  ///
   /// This is implemented in order to satisfy the [AnalysisDriverGeneric]
   /// interface. Ideally, we analyze these files first. For the moment, this lets
   /// the analysis server team add this method to the interface without breaking
@@ -490,9 +492,13 @@ class AngularDriver
     return;
   }
 
-  /// Get a fully linked (warning: slow) [DirectivesResult] for the components
-  /// this Dart path, and their templates (if defined in the component directly
-  /// rather than linking to a different html file).
+  /// Get a fully resolved [DirectivesResult] for this Dart path.
+  ///
+  /// Warning: slow, resolved ASTs are not cached.
+  ///
+  /// The result will include resolved directives and components. The components
+  /// templates will be included & resolved if defined in the component directly
+  /// rather than linking to a different html file.
   Future<DirectivesResult> requestDartResult(String path) {
     final completer = new Completer<DirectivesResult>();
     _requestedDartFiles
@@ -502,9 +508,15 @@ class AngularDriver
     return completer.future;
   }
 
-  /// Get a fully linked (warning: slow) [DirectivesResult] for the templates in
-  /// this HTML path. Note that you may get an empty HTML file if dart analysis
-  /// has not finished finding all `templateUrl`s.
+  /// Get a fully resolved [DirectivesResult] for this Dart path.
+  ///
+  /// Warning: slow, resolved ASTs are not cached.
+  ///
+  /// The result will include resolved components and their resolved templates
+  /// for all components known to link to the [path] via `templateUrl`.
+  ///
+  /// Note that you may get an empty or incomplete result if dart analysis has
+  /// not finished finding all `templateUrl`s.
   Future<DirectivesResult> requestHtmlResult(String path) {
     final completer = new Completer<DirectivesResult>();
     _requestedHtmlFiles

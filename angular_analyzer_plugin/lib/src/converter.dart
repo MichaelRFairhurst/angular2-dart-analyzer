@@ -33,8 +33,7 @@ class EmbeddedDartParser {
     return str.substring(0, 1).toUpperCase() + str.substring(1);
   }
 
-  /// Scan the given [text] staring at the given [offset] and resolve all of
-  /// its embedded expressions.
+  /// Scan [text] staring at [offset] and resolve all embedded expressions.
   List<Mustache> findMustaches(String text, int fileOffset) {
     final mustaches = <Mustache>[];
     if (text == null || text.length < 2) {
@@ -146,6 +145,7 @@ class EmbeddedDartParser {
   }
 
   /// Parse the given Dart [code] that starts ot [offset].
+  ///
   /// Also removes and reports dangling closing brackets.
   List<Statement> parseDartStatements(int offset, String code) {
     final allStatements = <Statement>[];
@@ -189,8 +189,7 @@ class EmbeddedDartParser {
     return allStatements;
   }
 
-  /// Desugar a template="" or *blah="" attribute into its list of virtual
-  /// [AttributeInfo]s
+  /// Desugar a `template=""` or `*blah=""` attribute into [AttributeInfo]s.
   Tuple2<String, List<AttributeInfo>> parseTemplateVirtualAttributes(
       int offset, String code) {
     final attributes = <AttributeInfo>[];
@@ -790,6 +789,8 @@ class HtmlTreeConverter {
     return templateAttribute;
   }
 
+  /// Produce an [ElementInfo] from a open & close ast.
+  ///
   /// There are four types of "tags" in angular_ast which don't implement a
   /// common interface. But we need to generate source spans for all of them.
   /// We can do this if we have the [node] (we can use its [beginToken]) and its

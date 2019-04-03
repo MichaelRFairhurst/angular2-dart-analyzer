@@ -60,8 +60,7 @@ abstract class AbstractCompletionContributorTest
         new NgOffsetLengthContributor(),
       ];
 
-  /// Compute all the views declared in the given [dartSource], and resolve the
-  /// external template of all the views.
+  /// Resolve the external template of a view declared in the [dartSource].
   Future resolveSingleTemplate(Source dartSource) async {
     final result = await angularDriver.requestDartResult(dartSource.fullName);
     for (var d in result.directives) {
@@ -86,13 +85,6 @@ abstract class BaseCompletionContributorTest extends AngularDriverTestBase {
   int replacementOffset;
   int replacementLength;
   List<CompletionSuggestion> suggestions;
-
-  /// If `true` and `null` is specified as the suggestion's expected returnType
-  /// then the actual suggestion is expected to have a `dynamic` returnType.
-  /// Newer tests return `false` so that they can distinguish between
-  /// `dynamic` and `null`.
-  /// Eventually all tests should be converted and this getter removed.
-  bool get isNullExpectedReturnTypeConsideredDynamic => true;
 
   void addTestSource(String content) {
     expect(completionOffset, isNull, reason: 'Call addTestUnit exactly once');
@@ -303,7 +295,7 @@ abstract class BaseCompletionContributorTest extends AngularDriverTestBase {
         isDeprecated: isDeprecated);
     if (returnType != null) {
       expect(cs.returnType, returnType);
-    } else if (isNullExpectedReturnTypeConsideredDynamic) {
+    } else {
       expect(cs.returnType, 'dynamic');
     }
     final element = cs.element;
@@ -317,7 +309,7 @@ abstract class BaseCompletionContributorTest extends AngularDriverTestBase {
     expect(param[param.length - 1], equals(')'));
     if (returnType != null) {
       expect(element.returnType, returnType);
-    } else if (isNullExpectedReturnTypeConsideredDynamic) {
+    } else {
       expect(element.returnType, 'dynamic');
     }
     assertHasParameterInfo(cs);
@@ -337,10 +329,8 @@ abstract class BaseCompletionContributorTest extends AngularDriverTestBase {
         isDeprecated: isDeprecated);
     if (returnType != null) {
       expect(cs.returnType, returnType);
-    } else if (isNullExpectedReturnTypeConsideredDynamic) {
-      expect(cs.returnType, 'dynamic');
     } else {
-      expect(cs.returnType, isNull);
+      expect(cs.returnType, 'dynamic');
     }
     final element = cs.element;
     expect(element, isNotNull);
@@ -425,7 +415,7 @@ abstract class BaseCompletionContributorTest extends AngularDriverTestBase {
         csKind: kind, relevance: relevance, importUri: importUri);
     if (returnType != null) {
       expect(cs.returnType, returnType);
-    } else if (isNullExpectedReturnTypeConsideredDynamic) {
+    } else {
       expect(cs.returnType, 'dynamic');
     }
     final element = cs.element;
@@ -435,7 +425,7 @@ abstract class BaseCompletionContributorTest extends AngularDriverTestBase {
     expect(element.parameters, isNull);
     if (returnType != null) {
       expect(element.returnType, returnType);
-    } else if (isNullExpectedReturnTypeConsideredDynamic) {
+    } else {
       expect(element.returnType, 'dynamic');
     }
     assertHasNoParameterInfo(cs);
@@ -551,7 +541,7 @@ abstract class BaseCompletionContributorTest extends AngularDriverTestBase {
         csKind: kind, relevance: relevance, importUri: importUri);
     if (returnType != null) {
       expect(cs.returnType, returnType);
-    } else if (isNullExpectedReturnTypeConsideredDynamic) {
+    } else {
       expect(cs.returnType, 'dynamic');
     }
     final element = cs.element;
@@ -561,7 +551,7 @@ abstract class BaseCompletionContributorTest extends AngularDriverTestBase {
     expect(element.parameters, isNull);
     if (returnType != null) {
       expect(element.returnType, returnType);
-    } else if (isNullExpectedReturnTypeConsideredDynamic) {
+    } else {
       expect(element.returnType, 'dynamic');
     }
     assertHasNoParameterInfo(cs);

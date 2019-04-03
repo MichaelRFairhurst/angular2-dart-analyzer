@@ -34,6 +34,8 @@ bool isOnCustomTag(AttributeInfo node) {
   return parent is ElementInfo && parent.tagMatchedAsCustomTag;
 }
 
+/// The angular-plugin-specific version of analyzer's [ResolverVisitor].
+///
 /// Overrides standard [ResolverVisitor] to prevent issues with analyzing
 /// dangling angular nodes, while also allowing custom resolution of pipes. Not
 /// intended as a long-term solution.
@@ -81,6 +83,8 @@ class AngularResolverVisitor extends _IntermediateResolverVisitor {
   }
 }
 
+/// A resolve visitor that understands & handles angular scopes.
+///
 /// Probably the most important visitor to understand in how we process angular
 /// templates.
 ///
@@ -175,6 +179,8 @@ class AngularScopeVisitor extends AngularAstVisitor {
   }
 }
 
+/// Visitor to report disallowed dart expressions in a template.
+///
 /// Find nodes which are not supported in angular (such as compound assignment
 /// and function expressions etc.), as well as terms used in the template that
 /// weren't exported by the component.
@@ -233,6 +239,8 @@ class AngularSubsetVisitor extends RecursiveAstVisitor<Object> {
   void visitFunctionExpression(FunctionExpression exp) =>
       _reportDisallowedExpression(exp, "Anonymous functions");
 
+  /// Check that an identifier is valid in an angular template.
+  ///
   /// Only allow access to:
   /// * current class members
   /// * inherited class members
@@ -782,8 +790,7 @@ class InternalVariable {
   InternalVariable(this.name, this.element, this.type);
 }
 
-/// Use this visitor to find the nested scopes within the [ElementInfo]
-/// you visit.
+/// Find the nested scopes within an [ElementInfo], to iterate over them.
 class NextTemplateElementsSearch extends AngularAstVisitor {
   bool visitingRoot = true;
 
@@ -975,6 +982,8 @@ class PrepareEventScopeVisitor extends AngularScopeVisitor {
   }
 }
 
+/// Prepare AST nodes local scopes to be resolved in more detail later.
+///
 /// We have to collect all vars and their types before we can resolve the
 /// bindings, since variables can be used before they are declared. This does
 /// that.
@@ -1087,10 +1096,12 @@ class PrepareScopeVisitor extends AngularScopeVisitor {
     super.visitScopeRootTemplateElement(element);
   }
 
-  /// Provides a map for 'exportAs' string to list ofclass element.
-  /// Return type must be a class to later resolve conflicts should they exist.
-  /// This is a shortlived variable existing only in the scope of
-  /// element tag, therefore don't use [internalVariables].
+  /// Build `exportAs` type/name mappings to handle let-bindings.
+  ///
+  /// Provides a map for 'exportAs' string to list of class element. Return type
+  /// must be a class to later resolve conflicts should they exist. This is a
+  /// shortlived variable existing only in the scope of element tag, therefore
+  /// don't use [internalVariables].
   Map<String, List<InternalVariable>> _defineExportAsVariables(
       List<AbstractDirective> directives) {
     final exportAsMap = <String, List<InternalVariable>>{};
@@ -1277,12 +1288,16 @@ class PrepareScopeVisitor extends AngularScopeVisitor {
     return typeProvider.dynamicType;
   }
 
+  /// Safely look up a potentially inherited getter's return type.
+  ///
   /// Return the return type of the executable element with the given [name].
   /// May return `null` if the [type] does not define one.
   DartType _lookupGetterReturnType(InterfaceType type, String name) =>
       type.lookUpInheritedGetter(name)?.returnType;
 }
 
+/// Fully resolve a single scope in an angular template.
+///
 /// Once all the scopes for all the expressions & statements are prepared, we're
 /// ready to resolve all the expressions inside and typecheck everything.
 ///
@@ -1323,9 +1338,11 @@ class SingleScopeResolver extends AngularScopeVisitor {
     'width',
   ]);
 
-  /// Quick regex to match the spec, but doesn't handle unicode. They can start
-  /// with a dash, but if so must be followed by an alphabetic or underscore or
-  /// escaped character. Cannot start with a number.
+  /// Simple css identifier regex to validate `[style.x]` bindings.
+  ///
+  /// Doesn't handle unicode. They can start with a dash, but if so must be
+  /// followed by an alphabetic or underscore or escaped character. Cannot start
+  /// with a number.
   /// https://www.w3.org/TR/CSS21/syndata.html#value-def-identifier
   static final RegExp _cssIdentifierRegexp =
       new RegExp(r"^(-?[a-zA-Z_]|\\.)([a-zA-Z0-9\-_]|\\.)*$");
@@ -1433,9 +1450,11 @@ class SingleScopeResolver extends AngularScopeVisitor {
     super.visitTemplateAttr(templateAttr);
   }
 
-  /// Resolve input-bound values of [attributes] as strings, if they match. Note,
-  /// this does not report an error un unmatched attributes, but it will report
-  /// the range, and ensure that input bindings are string-assingable.
+  /// Resolve basic text attributes that carry any special angular meanings.
+  ///
+  /// Resolves [attributes] as strings, if they match an input. Marks navigation
+  /// and ensure that input bindings are string-assingable. Note, this does not
+  /// report an error for unmatched attributes.
   @override
   void visitTextAttr(TextAttribute attribute) {
     for (final directiveBinding in attribute.parent.boundDirectives) {
@@ -1521,8 +1540,9 @@ class SingleScopeResolver extends AngularScopeVisitor {
     return false;
   }
 
-  /// Get helpful description based on statement type to report in
-  /// OUTPUT_STATEMENT_REQUIRES_EXPRESSION_STATEMENT
+  /// Get a human-friendly name for a [Statement] type.
+  ///
+  /// Used to report [OUTPUT_STATEMENT_REQUIRES_EXPRESSION_STATEMENT].
   String _getOutputStatementErrorDescription(Statement stmt) {
     final potentialToken = stmt.beginToken.keyword.toString().toLowerCase();
     if (potentialToken != "null") {
@@ -1547,7 +1567,7 @@ class SingleScopeResolver extends AngularScopeVisitor {
     }
   }
 
-  /// Resolve attributes of type [attribute.some-attribute]="someExpr"
+  /// Resolve attributes of type `[attribute.some-attribute]="someExpr"`
   void _resolveAttributeBoundAttribute(ExpressionBoundAttribute attribute) {
     // TODO validate the type? Or against a dictionary?
     // note that the attribute name is valid by definition as it was discovered
@@ -1555,7 +1575,7 @@ class SingleScopeResolver extends AngularScopeVisitor {
     // failing tests for this)
   }
 
-  /// Resolve attributes of type [attribute.some-attribute]="someExpr"
+  /// Resolve attributes of type `[attribute.some-attribute]="someExpr"`
   void _resolveAttributeBoundAttributeIf(ExpressionBoundAttribute attribute) {
     if (attribute.parent is! ElementInfo) {
       assert(false, 'Got an attr-if bound attribute on non element! Aborting!');
@@ -1604,9 +1624,10 @@ class SingleScopeResolver extends AngularScopeVisitor {
     }
   }
 
-  /// Resolve attributes of type [class.some-class]="someBoolExpr", ensuring
-  /// the class is a valid css identifier and that the expression is of boolean
-  /// type
+  /// Resolve attributes of type `[class.some-class]="someBoolExpr"`.
+  ///
+  /// Ensure the class is a valid css identifier and that the expression is of
+  /// boolean type.
   void _resolveClassAttribute(ExpressionBoundAttribute attribute) {
     if (!_isCssIdentifier(attribute.name)) {
       errorListener.onError(new AnalysisError(
@@ -1631,7 +1652,7 @@ class SingleScopeResolver extends AngularScopeVisitor {
     }
   }
 
-  /// Resolve the given [AstNode] ([expression] or [statement]) and report errors.
+  /// Resolve the [AstNode] ([expression] or [statement]) and report errors.
   void _resolveDartAstNode(AstNode astNode, bool acceptAssignment) {
     final classElement = view.classElement;
     final library = classElement.library;
@@ -1678,7 +1699,7 @@ class SingleScopeResolver extends AngularScopeVisitor {
     }
   }
 
-  /// Resolve the Dart ExpressionStatement with the given [code] at [offset].
+  /// Resolve the Dart [ExpressionStatement] with the given [code] at [offset].
   void _resolveDartExpressionStatements(List<Statement> statements) {
     for (final statement in statements) {
       if (statement is! ExpressionStatement && statement is! EmptyStatement) {
@@ -1697,7 +1718,8 @@ class SingleScopeResolver extends AngularScopeVisitor {
   }
 
   /// Resolve input-bound values of [attributes] as expressions.
-  /// Also used by _resolveTwoWwayBoundAttributeValues.
+  ///
+  /// Also used by [_resolveTwoWwayBoundAttributeValues].
   void _resolveInputBoundAttributeValues(ExpressionBoundAttribute attribute) {
     var inputMatched = false;
 
@@ -1743,9 +1765,9 @@ class SingleScopeResolver extends AngularScopeVisitor {
     }
   }
 
-  /// Resolve attributes of type [style.color]="someExpr" and
-  /// [style.background-width.px]="someNumExpr" which bind a css style property
-  /// with optional units.
+  /// Resolve attributes of type `[style.color]="someExpr"`.
+  ///
+  /// Also handles units, ie, `[style.background-width.px]="someNumExpr"`.
   void _resolveStyleAttribute(ExpressionBoundAttribute attribute) {
     var cssPropertyName = attribute.name;
     final dotpos = attribute.name.indexOf('.');
@@ -1936,9 +1958,11 @@ class TemplateResolver {
     _resolveScope(root);
   }
 
-  /// Resolve the given [element]. This will either be a template or the root of
-  /// the template, meaning it has its own scope. We have to resolve the
-  /// outermost scopes first so that ngFor variables have types.
+  /// Fully resolve the given [element].
+  ///
+  /// This will either be a template or the root of the template, meaning it has
+  /// its own scope. We have to resolve the outermost scopes first so that ngFor
+  /// variables have types.
   ///
   /// See the comment block for [PrepareScopeVisitor] for the most detailed
   /// breakdown of what we do and why.
@@ -2001,8 +2025,7 @@ class TemplateResolver {
   }
 }
 
-/// An [AstVisitor] that records references to Dart [Element]s into
-/// the given [template].
+/// Records references to Dart [Element]s into the given [template].
 class _DartReferencesRecorder extends RecursiveAstVisitor {
   final Map<Element, AngularElement> dartToAngularMap;
   final Template template;
@@ -2021,11 +2044,13 @@ class _DartReferencesRecorder extends RecursiveAstVisitor {
   }
 }
 
-/// Workaround for "This mixin application is invalid because all of the
-/// constructors in the base class 'ResolverVisitor' have optional parameters."
-/// in the definition of [AngularResolverVisitor].
+/// Workaround for a harmless mixin application error.
 ///
 /// See https://github.com/dart-lang/sdk/issues/15101 for details
+///
+/// Suppresses "This mixin application is invalid because all of the
+/// constructors in the base class 'ResolverVisitor' have optional parameters."
+/// in the definition of [AngularResolverVisitor].
 class _IntermediateResolverVisitor extends ResolverVisitor {
   _IntermediateResolverVisitor(
       InheritanceManager2 inheritanceManager2,

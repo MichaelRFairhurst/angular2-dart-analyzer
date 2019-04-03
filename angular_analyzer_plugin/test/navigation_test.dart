@@ -35,13 +35,11 @@ class AngularNavigationTest extends AngularDriverTestBase {
   _RecordedNavigationRegion region;
   protocol.Location targetLocation;
 
-  /// Compute all the views declared in the given [dartSource], and return its
-  /// result
+  /// Compute all the views declared in [dartSource], and return its result.
   Future<DirectivesResult> resolveDart(Source dartSource) async =>
       await angularDriver.requestDartResult(dartSource.fullName);
 
-  /// Compute all the views declared in the given [dartSource], and resolve the
-  /// external template of all the views.
+  /// Resolve the external templates of the views declared in the [dartSource].
   Future<DirectivesResult> resolveLinkedHtml(Source dartSource) async {
     final result = await angularDriver.requestDartResult(dartSource.fullName);
     for (var d in result.directives) {
@@ -425,8 +423,7 @@ class TestComponent {
   }
 }
 
-/// Instances of the class [GatheringErrorListener] implement an error listener
-/// that collects all of the errors passed to it for later examination.
+/// An [AnalysisErrorListener] that collects errors for later inspection.
 class GatheringErrorListener implements AnalysisErrorListener {
   /// A list containing the errors that were collected.
   final _errors = <AnalysisError>[];

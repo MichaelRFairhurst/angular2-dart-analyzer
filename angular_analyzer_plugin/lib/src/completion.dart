@@ -31,14 +31,12 @@ import 'package:angular_analyzer_plugin/src/selector/or_selector.dart';
 bool offsetContained(int offset, int start, int length) =>
     start <= offset && start + length >= offset;
 
-/// Contributor to contribute angular entities.
+/// Computes angular autocompletions to contribute.
 class AngularCompletionContributor extends CompletionContributor {
-  /// Initialize a newly created handler to handle requests for the given
-  /// [server].
+  /// Initialize a newly created handler for requests.
   AngularCompletionContributor();
 
-  /// Return a [Future] that completes with a list of suggestions
-  /// for the given completion [request].
+  /// Asynchronously calculate the list of suggestions for the [request].
   @override
   Future<Null> computeSuggestions(
       AngularCompletionRequest request, CompletionCollector collector) async {
@@ -100,6 +98,8 @@ class LocalVariablesExtractor implements AngularAstVisitor {
   void visitTextInfo(TextInfo text) {}
 }
 
+/// Completion contributor for inherited references in the template.
+///
 /// Extension of [InheritedReferenceContributor] to allow for Dart-based
 /// completion within Angular context. Triggered in [StatementsBoundAttribute],
 /// [ExpressionsBoundAttribute], [Mustache], and [TemplateAttribute]
@@ -419,6 +419,8 @@ class NgOffsetLengthContributor extends CompletionContributor {
   }
 }
 
+/// Completion contributor for typed members in an angular context.
+///
 /// Extension of [TypeMemberContributor] to allow for Dart-based
 /// completion within Angular context. Triggered in [StatementsBoundAttribute],
 /// [ExpressionsBoundAttribute], [Mustache], and [TemplateAttribute]
@@ -732,9 +734,11 @@ class TemplateCompleter {
     }
   }
 
-  /// Goes through all the available, but not yet-bound directives
-  /// and extracts non-violating plain-text attribute-directives
-  /// and inputs (if name overlaps with attribute-directive).
+  /// Suggest attributes that will result in a bound directive.
+  ///
+  /// Goes through all the available, but not yet-bound directives and extracts
+  /// non-violating plain-text attribute-directives and inputs (if name overlaps
+  /// with attribute-directive).
   void suggestFromAvailableDirectives(
     Map<AbstractDirective, List<SelectorName>> availableDirectives,
     CompletionCollector collector, {
@@ -1188,8 +1192,11 @@ class TemplateCompleter {
   }
 }
 
-/// Used to create a shell [ResolvedUnitResult] class for usage in
-/// [TypeMemberContributor] and [InheritedReferenceContributor].
+/// An angular [ResolvedUnitResult], required by dart completion contributors.
+///
+/// [TypeMemberContributor] and [InheritedReferenceContributor] require a
+/// [ResolvedUnitResult], which the angular driver does not create for template
+/// files. This allows us to communicate with those contributors for templates.
 class _ResolveResultShell implements ResolvedUnitResult {
   @override
   LibraryElement libraryElement;

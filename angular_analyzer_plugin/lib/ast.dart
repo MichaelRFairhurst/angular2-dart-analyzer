@@ -97,9 +97,11 @@ abstract class BoundAttributeInfo extends AttributeInfo {
   String toString() => '(${super.toString()}, [$children])';
 }
 
+/// A location where a content child is bound to a template.
+///
 /// Allows us to track ranges for navigating ContentChild(ren), and detect when
 /// multiple ContentChilds are matched which is an error.
-
+///
 /// Naming here is important: "bound content child" != "content child binding."
 class ContentChildBinding {
   final AbstractDirective directive;
@@ -110,11 +112,12 @@ class ContentChildBinding {
   ContentChildBinding(this.directive, this.boundContentChild);
 }
 
-/// A binding to an [AbstractDirective], either on an [ElementInfo] or a
-/// [TemplateAttribute]. For each bound directive, there is a directive binding.
-/// Has [InputBinding]s and [OutputBinding]s which themselves indicate an
-/// [AttributeInfo] bound to an [InputElement] or [OutputElement] in the context
-/// of this [DirectiveBinding].
+/// A location where an [AbstractDirective] is bound to a template.
+///
+/// These occur on an [ElementInfo] or a [TemplateAttribute]. For each bound
+/// directive, there is a directive binding. Has [InputBinding]s and
+/// [OutputBinding]s which themselves indicate an [AttributeInfo] bound to an
+/// [InputElement] or [OutputElement] in the context of this [DirectiveBinding].
 ///
 /// Naming here is important: "bound directive" != "directive binding."
 class DirectiveBinding {
@@ -233,11 +236,16 @@ class ElementInfo extends NodeInfo implements HasDirectives {
   void accept(AngularAstVisitor visitor) => visitor.visitElementInfo(this);
 }
 
-/// `*ngFor` creates an empty text attribute, which is harmless. But so do the
-/// less harmless cases of empty `*ngIf`, and or `*ngFor="let item of"`, etc.
+/// A location in a template where a star attr was made and not bound.
+///
+/// `*deferred` creates an empty text attribute, which is harmless. But so do
+/// the less harmless cases of empty `*ngIf`, and or `*ngFor="let item of"`,
+/// etc.
 class EmptyStarBinding extends TextAttribute {
-  // is this an empty binding in the middle of the star, or is it the original
-  // prefix binding which is usually harmless to be empty?
+  /// Whether this is bound to the star attr itself, or an inner attribute.
+  ///
+  /// It is usually harmless if the star attr is not bound. However, it is
+  /// usually a problem if the inner attributes are not bound.
   bool isPrefix;
 
   EmptyStarBinding(
@@ -276,8 +284,10 @@ class ExpressionBoundAttribute extends BoundAttributeInfo {
 enum ExpressionBoundType { input, twoWay, attr, attrIf, clazz, style }
 
 /// An AngularAstNode which has directives, such as [ElementInfo] and
-/// [TemplateAttribute]. Contains an array of [DirectiveBinding]s because those
-/// contain more info than just the bound directive.
+/// [TemplateAttribute].
+///
+/// Contains an array of [DirectiveBinding]s because those contain more info
+/// than just the bound directive itself.
 abstract class HasDirectives extends AngularAstNode {
   Map<AbstractDirective, List<SelectorName>> get availableDirectives;
   List<DirectiveBinding> get boundDirectives;
@@ -285,11 +295,12 @@ abstract class HasDirectives extends AngularAstNode {
   List<OutputBinding> get boundStandardOutputs;
 }
 
-/// A binding between an [AttributeInfo] and an [InputElement].  This is used in
-/// the context of a [DirectiveBinding] because each instance of a bound
-/// directive has different input bindings. Note that inputs can be bound via
-/// bracket syntax (an [ExpressionBoundAttribute]), or via plain attribute syntax
-/// (a [TextAttribute]).
+/// A binding between an [AttributeInfo] and an [InputElement].
+///
+/// This is used in the context of a [DirectiveBinding] because each instance of
+/// a bound directive has different input bindings. Note that inputs can be
+/// bound via bracket syntax (an [ExpressionBoundAttribute]), or via plain
+/// attribute syntax (a [TextAttribute]).
 ///
 /// Naming here is important: "bound input" != "input binding."
 class InputBinding {
@@ -340,13 +351,14 @@ abstract class NodeInfo extends AngularAstNode {
   bool get isSynthetic;
 }
 
-/// A binding between an [BoundAttributeInfo] and an [OutputElement]. This is
-/// used in the context of a [DirectiveBinding] because each instance of a bound
-/// directive has different output bindings.
+/// A binding between an [BoundAttributeInfo] and an [OutputElement].
 ///
-/// Binds to an [BoundAttributeInfo] and not a [StatementsBoundAttribute] because
-/// it might be a two-way binding, and thats the greatest common subtype of
-/// statements bound and expression bound attributes.
+/// This is used in the context of a [DirectiveBinding] because each instance of
+/// a bound directive has different output bindings.
+///
+/// Binds to an [BoundAttributeInfo] and not a [StatementsBoundAttribute]
+/// because it might be a two-way binding, and thats the greatest common subtype
+/// of statements bound and expression bound attributes.
 ///
 /// Naming here is important: "bound output" != "output binding."
 class OutputBinding {

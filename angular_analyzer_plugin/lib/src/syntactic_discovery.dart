@@ -28,12 +28,14 @@ import 'package:angular_analyzer_plugin/src/selector/and_selector.dart';
 import 'package:angular_analyzer_plugin/src/tuple.dart';
 import 'package:angular_analyzer_plugin/src/view_extraction.dart';
 
+/// Code to extract an angular definition from a raw (unresolved) AST.
 class SyntacticDiscovery extends _AnnotationProcessorMixin {
   final ast.CompilationUnit _unit;
   final Source _source;
 
-  /// The class being used to create the current component, stored here instead
-  /// of being passed around everywhere.
+  /// The class being used to create the current component.
+  ///
+  /// Stored here for convenience, instead of being passed around everywhere.
   String _currentClassName;
 
   SyntacticDiscovery(this._unit, this._source) {
@@ -173,6 +175,7 @@ class SyntacticDiscovery extends _AnnotationProcessorMixin {
   }
 
   /// Returns an Angular [Pipe] for the given [node].
+  ///
   /// Returns `null` if not an Angular @Pipe annotation.
   Pipe _createPipe(ast.ClassDeclaration classDeclaration, ast.Annotation node) {
     if (isAngularAnnotation(node, 'Pipe')) {
@@ -210,12 +213,14 @@ class SyntacticDiscovery extends _AnnotationProcessorMixin {
     return null;
   }
 
-  /// Find duplicate exports. Note that unlike pipes and directives, duplicating
-  /// exports is a completely syntactic error. Lists are not expanded, so
-  /// `[foo, listContainingFoo]` is not a duplicate. And while
-  /// `[sameFoo, prefixed.sameFoo]` is dubious, it's valid dart that exports the
-  /// same reference under two names. Only `[foo, foo]` or `[p.foo, p.foo]` are
-  /// duplicates, and that can be detected as such here.
+  /// Find duplicate exports, and report them as errors.
+  ///
+  /// Note that unlike pipes and directives, duplicating exports is a completely
+  /// syntactic error. Lists are not expanded, so `[foo, listContainingFoo]` is
+  /// not a duplicate. And while `[sameFoo, prefixed.sameFoo]` is dubious, it's
+  /// valid dart that exports the same reference under two names. Only
+  /// `[foo, foo]` or `[p.foo, p.foo]` are duplicates, and that can be detected
+  /// as such here.
   void _findDuplicateExports(ListOrReference exports) {
     if (exports is! ListLiteral) {
       return;
@@ -234,8 +239,9 @@ class SyntacticDiscovery extends _AnnotationProcessorMixin {
     }
   }
 
-  /// Returns an Angular [AnnotatedClass] for to the given [node]. Returns
-  /// `null` if class does not have any angular concepts.
+  /// Returns an Angular [AnnotatedClass] for to the given [node].
+  ///
+  /// Returns `null` if class does not have any angular concepts.
   AnnotatedClass _getAnnotatedClass(ast.ClassDeclaration classDeclaration) {
     _currentClassName = classDeclaration.name.name;
     final componentNode = classDeclaration.metadata.firstWhere(
@@ -321,6 +327,7 @@ class SyntacticDiscovery extends _AnnotationProcessorMixin {
   }
 
   /// Returns an Angular [FunctionalDirective] for to the given [node].
+  ///
   /// Returns `null` if not an Angular annotation.
   FunctionalDirective _getFunctionalDirective(
       ast.FunctionDeclaration functionDeclaration) {
@@ -345,10 +352,11 @@ class SyntacticDiscovery extends _AnnotationProcessorMixin {
     return null;
   }
 
-  /// Find all fields labeled with @ContentChild and the ranges of the type
-  /// argument. We will use this to create an unlinked summary which can, at link
-  /// time, check for errors and highlight the correct range. This is all we need
-  /// from the AST itself, so all we should do here.
+  /// Parse fields labeled `@ContentChild`, noting their source ranges.
+  ///
+  /// The ranges of the type argument can be used to create an unlinked summary
+  /// which can, at link time, check for errors and highlight the correct range.
+  /// This is all we need from the AST itself, so all we should do here.
   void _parseContentChilds(
       ast.ClassDeclaration node,
       List<ContentChild> contentChildFields,
@@ -435,6 +443,8 @@ class SyntacticDiscovery extends _AnnotationProcessorMixin {
         name, SourceRange(offset, name.length));
   }
 
+  /// Try to extract an [Input] or [Output] from the member.
+  ///
   /// Create a new input or output for the given class member [node] with
   /// the given `@Input` or `@Output` [annotation], and add it to the
   /// [inputs] or [outputs] array.
@@ -629,8 +639,7 @@ class _AnnotationProcessorMixin {
     errorReporter = new ErrorReporter(errorListener, source);
   }
 
-  /// Returns `true` is the given [node] is resolved to a creation of an Angular
-  /// annotation class with the given [name].
+  /// Returns `true` if the given [node] matches the expected angular [name].
   bool isAngularAnnotation(ast.Annotation node, String name) =>
       node.name.name == name;
 }

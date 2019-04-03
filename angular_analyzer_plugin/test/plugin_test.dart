@@ -17,6 +17,8 @@ void main() {
   });
 }
 
+/// Convenience functions for assembling `analysis_options.yaml` strings.
+///
 /// Unfortunately, package:yaml doesn't support dumping to yaml. So this is
 /// what we are stuck with, for now. Put it in a base class so we can test it
 class AnalysisOptionsUtilsBase {

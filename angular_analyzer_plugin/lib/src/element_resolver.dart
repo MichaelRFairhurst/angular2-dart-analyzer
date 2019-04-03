@@ -20,8 +20,7 @@ import 'package:angular_analyzer_plugin/src/model/lazy/directive.dart' as lazy;
 import 'package:angular_analyzer_plugin/src/model/lazy/pipe.dart' as lazy;
 import 'package:angular_analyzer_plugin/src/standard_components.dart';
 
-/// Resolve the "true" type of an `@Input()` or `@Output()` binding against a
-/// context class.
+/// Resolve the best type of an `@Input()`/`@Output()` for a class context.
 ///
 /// This handles for instance the case of where a component is generic and its
 /// inputs must be instantiated to bounds. It also handles the case where a
@@ -73,8 +72,7 @@ class BindingTypeResolver {
     return _typeProvider.dynamicType;
   }
 
-  /// For an `@Input()` on some [setter] of type `void Function(T)`, get the
-  /// type `T`.
+  /// On some `@Input()` [setter] of type `void Function(T)`, get the type `T`.
   DartType getSetterType(PropertyAccessorElement setter) {
     if (setter != null) {
       // ignore: parameter_assignments
@@ -102,8 +100,7 @@ class BindingTypeResolver {
   }
 }
 
-/// Fully resolve the partially resolved instances of the resolved model against
-/// the dart element model.
+/// Resolve the partial instances of the resolved model against dart elements.
 ///
 /// Note that due to backwards compatibility, this takes a partially resolved
 /// model. That partial resolution occurs in [PartialLinker]. Ideally, linking
@@ -278,6 +275,7 @@ class ResolvePartialModel {
   }
 
   /// Walk the given [value] and add directives into [directives].
+  ///
   /// Return `true` if success, or `false` the [value] has items that don't
   /// correspond to a directive.
   void _addDirectivesForDartObject(List<AbstractDirective> directives,
@@ -320,6 +318,7 @@ class ResolvePartialModel {
   }
 
   /// Walk the given [value] and add directives into [directives].
+  ///
   /// Return `true` if success, or `false` the [value] has items that don't
   /// correspond to a directive.
   void _addPipesForDartObject(
@@ -492,6 +491,8 @@ class ResolvePartialModel {
     return export;
   }
 
+  /// Get a constant [field] value off of an Object, including inheritance.
+  ///
   /// ConstantValue.getField() doesn't look up the inheritance tree. Rather than
   /// hardcoding the inheritance tree in our code, look up the inheritance tree
   /// until either it ends, or we find a "selector" field.
@@ -524,7 +525,7 @@ class ResolvePartialModel {
               TokenType.PERIOD, export.span.offset + export.prefix.length),
           _getSimpleIdentifier(export, offset: export.prefix.length + 1));
 
-  /// See [_getFieldWithInheritance]
+  /// See [_getFieldWithInheritance].
   DartType _getReadWithInheritance(DartObject value) {
     final constantVal = _getFieldWithInheritance(value, 'read');
     if (constantVal.isNull) {
@@ -534,7 +535,7 @@ class ResolvePartialModel {
     return constantVal.toTypeValue();
   }
 
-  /// See [_getFieldWithInheritance]
+  /// See [_getFieldWithInheritance].
   DartObject _getSelectorWithInheritance(DartObject value) =>
       _getFieldWithInheritance(value, 'selector');
 
@@ -543,6 +544,8 @@ class ResolvePartialModel {
       astFactory.simpleIdentifier(new StringToken(TokenType.IDENTIFIER,
           export.identifier, export.span.offset + offset));
 
+  /// Check an export's prefix is well-formed.
+  ///
   /// Only report false for known non-import-prefix prefixes, the rest get
   /// flagged by the dart analyzer already.
   bool _hasWrongTypeOfPrefix(ExportedIdentifier export, LibraryScope scope) {
