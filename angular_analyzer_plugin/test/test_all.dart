@@ -5,7 +5,6 @@ import 'ast_test.dart' as ast_test;
 import 'completion_contributor_test.dart' as completion_contributor_test;
 import 'file_tracker_test.dart' as file_tracker_test;
 import 'navigation_test.dart' as navigation_test;
-import 'occurrences_test.dart' as occurrences_test;
 import 'offsetting_constant_evaluator_test.dart'
     as offsetting_constant_evaluator_test;
 import 'plugin_test.dart' as plugin_test;
@@ -24,7 +23,6 @@ void main() {
     ast_test.main();
     offsetting_constant_evaluator_test.main();
     navigation_test.main();
-    occurrences_test.main();
     completion_contributor_test.main();
     file_tracker_test.main();
     syntactic_discovery.main();
