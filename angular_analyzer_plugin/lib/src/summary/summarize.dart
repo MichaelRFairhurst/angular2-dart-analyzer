@@ -224,5 +224,6 @@ List<Reference> toReferenceList(ListOrReference listOrReference) {
   } else if (listOrReference == null) {
     return [];
   }
-  throw 'unreachable';
+  assert(false, 'unreachable');
+  return [];
 }

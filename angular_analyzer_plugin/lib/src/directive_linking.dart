@@ -4,7 +4,6 @@ import 'package:analyzer/src/generated/source.dart' show Source;
 import 'package:angular_analyzer_plugin/src/element_resolver.dart';
 import 'package:angular_analyzer_plugin/src/ignoring_error_listener.dart';
 import 'package:angular_analyzer_plugin/src/model.dart';
-import 'package:angular_analyzer_plugin/src/model.dart';
 import 'package:angular_analyzer_plugin/src/model/lazy/component.dart' as lazy;
 import 'package:angular_analyzer_plugin/src/model/lazy/directive.dart' as lazy;
 import 'package:angular_analyzer_plugin/src/model/lazy/pipe.dart' as lazy;

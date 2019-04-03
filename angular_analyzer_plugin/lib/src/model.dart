@@ -127,6 +127,7 @@ abstract class AngularElement implements Navigable {
   int get nameOffset;
 
   /// Return the [Source] of this element.
+  @override
   Source get source;
 }
 

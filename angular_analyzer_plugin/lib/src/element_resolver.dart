@@ -1,5 +1,5 @@
 import 'package:analyzer/dart/ast/ast.dart'
-    show SimpleIdentifier, PrefixedIdentifier, Identifier, Annotation;
+    show SimpleIdentifier, PrefixedIdentifier, Identifier;
 import 'package:analyzer/dart/ast/standard_ast_factory.dart';
 import 'package:analyzer/dart/ast/token.dart';
 import 'package:analyzer/dart/constant/value.dart';
@@ -11,7 +11,7 @@ import 'package:analyzer/src/dart/resolver/scope.dart';
 import 'package:analyzer/src/generated/constant.dart';
 import 'package:analyzer/src/generated/engine.dart';
 import 'package:analyzer/src/generated/resolver.dart' show TypeProvider;
-import 'package:analyzer/src/generated/source.dart' show SourceRange, Source;
+import 'package:analyzer/src/generated/source.dart' show SourceRange;
 import 'package:angular_analyzer_plugin/errors.dart';
 import 'package:angular_analyzer_plugin/src/directive_linking.dart';
 import 'package:angular_analyzer_plugin/src/model.dart';
@@ -178,10 +178,8 @@ class ResolvePartialModel {
   AbstractClassDirective directive(AbstractClassDirective directive) {
     // NOTE: Require the Exact type TemplateRef because that's what the
     // injector does.
-    directive.looksLikeTemplate = (directive as AbstractClassDirective)
-        .classElement
-        .constructors
-        .any((constructor) => constructor.parameters
+    directive.looksLikeTemplate = directive.classElement.constructors.any(
+        (constructor) => constructor.parameters
             .any((param) => param.type == _standardAngular.templateRef.type));
 
     final classElement = directive.classElement;

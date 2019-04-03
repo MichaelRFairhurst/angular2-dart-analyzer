@@ -514,11 +514,6 @@ class AngularDriver
     return completer.future;
   }
 
-  String _getHtmlKey(String htmlPath) {
-    final key = _fileTracker.getHtmlSignature(htmlPath);
-    return '$key.ngresolved';
-  }
-
   Source _getSource(String path) =>
       _resourceProvider.getFile(path).createSource();
 
