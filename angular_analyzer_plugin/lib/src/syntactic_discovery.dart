@@ -3,6 +3,8 @@ import 'dart:collection';
 import 'package:analyzer/dart/ast/ast.dart' as ast;
 import 'package:analyzer/error/error.dart';
 import 'package:analyzer/error/listener.dart';
+import 'package:analyzer/src/dart/ast/utilities.dart' as utils;
+import 'package:analyzer/src/generated/engine.dart';
 import 'package:analyzer/src/generated/source.dart';
 import 'package:angular_analyzer_plugin/errors.dart';
 import 'package:angular_analyzer_plugin/src/converter.dart';
@@ -18,17 +20,15 @@ import 'package:angular_analyzer_plugin/src/model/syntactic/output.dart';
 import 'package:angular_analyzer_plugin/src/model/syntactic/pipe.dart';
 import 'package:angular_analyzer_plugin/src/model/syntactic/reference.dart';
 import 'package:angular_analyzer_plugin/src/model/syntactic/top_level.dart';
+import 'package:angular_analyzer_plugin/src/offsetting_constant_evaluator.dart';
 import 'package:angular_analyzer_plugin/src/resolver.dart'
     show NgContentRecorder;
 import 'package:angular_analyzer_plugin/src/selector.dart';
 import 'package:angular_analyzer_plugin/src/selector/and_selector.dart';
-import 'package:angular_analyzer_plugin/src/tasks.dart';
 import 'package:angular_analyzer_plugin/src/tuple.dart';
 import 'package:angular_analyzer_plugin/src/view_extraction.dart';
 
-import 'tasks.dart';
-
-class SyntacticDiscovery extends AnnotationProcessorMixin {
+class SyntacticDiscovery extends _AnnotationProcessorMixin {
   final ast.CompilationUnit _unit;
   final Source _source;
 
@@ -505,8 +505,7 @@ class SyntacticDiscovery extends AnnotationProcessorMixin {
     }
   }
 
-  /// Collect inputs and outputs for all class members with `@Input`
-  /// or `@Output` annotations.
+  /// Collect inputs and outputs for all class members.
   void _parseMemberInputsAndOutputs(
       ast.ClassDeclaration node, List<Input> inputs, List<Output> outputs) {
     for (final member in node.members) {
@@ -554,4 +553,84 @@ class SyntacticDiscovery extends AnnotationProcessorMixin {
 
     return null;
   }
+}
+
+/// Helper for processing Angular annotations.
+class _AnnotationProcessorMixin {
+  var errorListener = new RecordingErrorListener();
+  ErrorReporter errorReporter;
+
+  /// The evaluator of constant values, such as annotation arguments.
+  final utils.ConstantEvaluator _constantEvaluator =
+      new utils.ConstantEvaluator();
+
+  /// Returns the [String] value of the given [expression].
+  ///
+  /// If [expression] does not have a [String] value, reports an error
+  /// and returns `null`.
+  OffsettingConstantEvaluator calculateStringWithOffsets(
+      ast.Expression expression) {
+    if (expression != null) {
+      final evaluator = new OffsettingConstantEvaluator();
+      evaluator.value = expression.accept(evaluator);
+
+      if (!evaluator.offsetsAreValid) {
+        errorReporter.reportErrorForNode(
+            AngularHintCode.OFFSETS_CANNOT_BE_CREATED,
+            evaluator.lastUnoffsettableNode);
+      } else if (evaluator.value is! String &&
+          evaluator.value != utils.ConstantEvaluator.NOT_A_CONSTANT) {
+        errorReporter.reportErrorForNode(
+            AngularWarningCode.STRING_VALUE_EXPECTED, expression);
+      }
+      return evaluator;
+    }
+    return null;
+  }
+
+  /// Returns the [String] value of the given [expression].
+  ///
+  /// If [expression] does not have a [String] value, reports an error
+  /// and returns `null`.
+  String getExpressionString(ast.Expression expression) {
+    if (expression != null) {
+      // ignore: omit_local_variable_types
+      final Object value = expression.accept(_constantEvaluator);
+      if (value is String) {
+        return value;
+      }
+      errorReporter.reportErrorForNode(
+          AngularWarningCode.STRING_VALUE_EXPECTED, expression);
+    }
+    return null;
+  }
+
+  /// Returns the value of the argument with the given [name].
+  ///
+  /// Returns `null` if not found.
+  ast.Expression getNamedArgument(ast.Annotation node, String name) {
+    if (node.arguments != null) {
+      final arguments = node.arguments.arguments;
+      for (var argument in arguments) {
+        if (argument is ast.NamedExpression &&
+            argument.name != null &&
+            argument.name.label != null &&
+            argument.name.label.name == name) {
+          return argument.expression;
+        }
+      }
+    }
+    return null;
+  }
+
+  /// Initialize the processor working in the given [target].
+  void initAnnotationProcessor(Source source) {
+    assert(errorReporter == null);
+    errorReporter = new ErrorReporter(errorListener, source);
+  }
+
+  /// Returns `true` is the given [node] is resolved to a creation of an Angular
+  /// annotation class with the given [name].
+  bool isAngularAnnotation(ast.Annotation node, String name) =>
+      node.name.name == name;
 }
