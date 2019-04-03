@@ -2,12 +2,11 @@ import 'package:angular_analyzer_plugin/src/model.dart';
 import 'package:angular_analyzer_plugin/src/selector/element_name_selector.dart';
 import 'package:angular_analyzer_plugin/src/selector/element_view.dart';
 import 'package:angular_analyzer_plugin/src/selector/html_tag_for_selector.dart';
-import 'package:angular_analyzer_plugin/src/selector/selector.dart';
 import 'package:angular_analyzer_plugin/src/selector/match.dart';
 import 'package:angular_analyzer_plugin/src/selector/name.dart';
+import 'package:angular_analyzer_plugin/src/selector/selector.dart';
 
-/// The [Selector] that matches elements that have an attribute with any name,
-/// and with contents that match the given regex.
+/// The [Selector] that matches any attributes contents against the given regex.
 class AttributeValueRegexSelector extends Selector {
   final SelectorName regexpElement;
   final RegExp regexp;
