@@ -26,7 +26,6 @@ import 'package:angular_analyzer_plugin/src/completion.dart';
 import 'package:angular_analyzer_plugin/src/completion_request.dart';
 import 'package:angular_analyzer_plugin/src/navigation.dart';
 import 'package:angular_analyzer_plugin/src/navigation_request.dart';
-import 'package:angular_analyzer_plugin/src/notification_manager.dart';
 import 'package:angular_analyzer_plugin/src/options.dart';
 import 'package:meta/meta.dart';
 
