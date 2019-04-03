@@ -138,15 +138,13 @@ class AngularAnalyzerPlugin extends ServerPlugin
         offset, path, resourceProvider, templates, standardHtml);
   }
 
-  /// Return a list containing the navigation contributors that should be used to
-  /// create navigation information when used in the context of the given
-  /// analysis [driver].
+  /// Return the navigation contributors for click-through support.
   @override
   List<NavigationContributor> getNavigationContributors(String path) =>
       [new AngularNavigation(angularDriverForPath(path).contentOverlay)];
 
-  /// Return the navigation request that should be passed to the contributors
-  /// returned from [getNavigationContributors].
+  /// Build a navigation request to be passed to the result of
+  /// [getNavigationContributors].
   @override
   Future<NavigationRequest> getNavigationRequest(
       plugin.AnalysisGetNavigationParams parameters) async {
@@ -169,8 +167,9 @@ class AngularAnalyzerPlugin extends ServerPlugin
     return new AngularOptions.defaults();
   }
 
-  /// The method that is called when an error has occurred in the analysis
-  /// server. This method will not be invoked under normal conditions.
+  /// Handle any errors that may occur in the analysis server.
+  ///
+  /// This method will not be invoked under normal conditions.
   @override
   void onError(Object exception, StackTrace stackTrace) {
     print('Communication Exception: $exception\n$stackTrace');
@@ -205,7 +204,7 @@ class AngularAnalyzerPlugin extends ServerPlugin
     });
   }
 
-  /// Send notifications for errors for this result
+  /// Send notifications for errors for this result.
   void _handleResultErrors(DirectivesResult result, AngularDriver driver) {
     final converter = new AnalyzerConverter();
     final lineInfo =
@@ -220,7 +219,7 @@ class AngularAnalyzerPlugin extends ServerPlugin
             .toNotification());
   }
 
-  /// Send notifications for navigation for this result
+  /// Send notifications for navigation for this result.
   void _handleResultNavigation(DirectivesResult result, AngularDriver driver,
       {@required bool isHtml}) {
     final collector = new NavigationCollectorImpl();

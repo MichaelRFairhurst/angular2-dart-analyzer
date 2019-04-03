@@ -5897,14 +5897,15 @@ $code
   NavigableAssert _assertSelectorElement(String atString) =>
       _assertNavigable(atString, _isSelectorName);
 
-  /// Return the [ResolvedRange] that starts at the position of the give
-  /// [search] and, if specified satisfies the given [condition].
+  /// Return the [ResolvedRange] that starts at the position of [search].
+  ///
+  /// If [condition] is specified, return the first [ResolvedRange] that
+  /// satisfies it.
   ResolvedRange _findResolvedRange(String search,
           [ResolvedRangeCondition condition]) =>
       getResolvedRangeAtString(htmlCode, ranges, search, condition);
 
-  /// Compute all the views declared in the given [dartSource], and resolve the
-  /// external template of the last one.
+  /// Compute the last external template of the views declared in [dartSource].
   Future _resolveSingleTemplate(Source dartSource) async {
     final result = await angularDriver.requestDartResult(dartSource.fullName);
     bool finder(AbstractDirective d) =>

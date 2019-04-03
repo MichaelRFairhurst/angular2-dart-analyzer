@@ -11,9 +11,9 @@ import 'package:angular_analyzer_plugin/src/selector/class_selector.dart';
 import 'package:angular_analyzer_plugin/src/selector/contains_selector.dart';
 import 'package:angular_analyzer_plugin/src/selector/element_name_selector.dart';
 import 'package:angular_analyzer_plugin/src/selector/html_tag_for_selector.dart';
+import 'package:angular_analyzer_plugin/src/selector/name.dart';
 import 'package:angular_analyzer_plugin/src/selector/not_selector.dart';
 import 'package:angular_analyzer_plugin/src/selector/or_selector.dart';
-import 'package:angular_analyzer_plugin/src/selector/name.dart';
 import 'package:mockito/mockito.dart';
 import 'package:test/test.dart';
 import 'package:test_reflective_loader/test_reflective_loader.dart';
@@ -1463,6 +1463,8 @@ class SuggestTagsTest {
     expect(suggestions.first.toString(), equals('<null attr="value"'));
   }
 
+  /// Call [refineTagSuggestions] on [selector] without losing invalid tags.
+  ///
   /// [refineTagSuggestions] filters out invalid tags, but those are important
   /// for us to test sometimes. This will do the same thing, but keep invalid
   /// suggestions so we can inspect them.

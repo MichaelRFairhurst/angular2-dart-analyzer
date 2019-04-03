@@ -12,6 +12,7 @@ typedef void CaptureAspectFn<T>(
     Map<String, T> aspectMap, PropertyAccessorElement accessor);
 
 class BuildStandardHtmlComponentsVisitor extends RecursiveAstVisitor {
+  // https://github.com/dart-lang/angular2/blob/8220ba3a693aff51eed33cd1ec9542bde9017423/lib/src/compiler/schema/dom_element_schema_registry.dart#L199
   static const Map<String, String> specialElementClasses =
       const <String, String>{
     "AudioElement": 'audio',
@@ -37,7 +38,6 @@ class BuildStandardHtmlComponentsVisitor extends RecursiveAstVisitor {
 
   final Map<String, InputElement> attributes;
 
-  // https://github.com/dart-lang/angular2/blob/8220ba3a693aff51eed33cd1ec9542bde9017423/lib/src/compiler/schema/dom_element_schema_registry.dart#L199
   final Source source;
 
   final SecuritySchema securitySchema;
@@ -47,7 +47,8 @@ class BuildStandardHtmlComponentsVisitor extends RecursiveAstVisitor {
   BuildStandardHtmlComponentsVisitor(this.components, this.events,
       this.attributes, this.source, this.securitySchema);
 
-  /// dart:html is missing an annotation to fix this casing. Compensate.
+  /// Custom `dart:html` fixup for special names.
+  ///
   /// TODO(mfairhurst) remove this fix once dart:html is fixed
   String fixName(String name) => name == 'innerHtml' ? 'innerHTML' : name;
 
@@ -374,9 +375,11 @@ class StandardHtml {
 
   final ClassElement htmlElementClass;
 
-  /// In attributes, there can be multiple strings that point to the
-  /// same [InputElement] generated from [alternativeInputs] (below).
-  /// This will provide a static source of unique [InputElement]s.
+  /// Attributes as a Set to remove duplicates.
+  ///
+  /// In attributes, there can be multiple strings that point to the same
+  /// [InputElement] generated from [alternativeInputs] (below). This will
+  /// provide a static source of unique [InputElement]s.
   final Set<InputElement> uniqueAttributeElements;
 
   StandardHtml(this.components, this.attributes, this.standardEvents,

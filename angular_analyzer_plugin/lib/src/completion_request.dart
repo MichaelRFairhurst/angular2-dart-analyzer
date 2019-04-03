@@ -18,11 +18,31 @@ class AngularCompletionRequest extends CompletionRequest {
   final StandardHtml standardHtml;
   final String path;
 
-  // These values are guaranteed to be unique (if they exist) for the
-  // given completion request. As a result, lazy-calculate these fields.
+  /// The targeted dart node, if the user is autocompleting a dart expression.
+  ///
+  /// Guaranteed to be unique (if it exists) for the given completion request.
+  /// Therefore, lazy-calculate these fields.
   AstNode _dartSnippet;
+
+  /// The targeted angular node, if the user is autocompleting html.
+  ///
+  /// Guaranteed to be unique (if it exists) for the given completion request.
+  /// Therefore, lazy-calculate these fields.
   AngularAstNode _angularTarget;
+
+  /// The dart [CompletionTarget] if the user is autocompleting dart.
+  ///
+  /// This is required by the dart completion contributors.
+  ///
+  /// Guaranteed to be unique (if it exists) for the given completion request.
+  /// Therefore, lazy-calculate these fields.
   CompletionTarget _completionTarget;
+
+  /// Flag checking if autocompletion targets have been calculated.
+  ///
+  /// Used to know if [_completionTarget], [_dartSnippet], and/or
+  /// [_angularTarget] have been calculated. None that the lookup may fail and
+  /// those fields may be left null, but calculation will not re-occur.
   var _entryPointCalculated = false;
 
   @override
@@ -102,6 +122,8 @@ class _CompletionTargetExtractor implements AngularAstVisitor {
 
   _CompletionTargetExtractor(this.offset);
 
+  /// Explore the tree looking for the completion target, recursively.
+  ///
   /// Check if the [node] contains a [child] node which contains the completion
   /// [offset]. If so, visit the [child] which likely will call this again.
   /// Otherwise, mark [node] as the [target].
