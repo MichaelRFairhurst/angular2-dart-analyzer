@@ -1,7 +1,5 @@
 import 'package:analyzer/error/error.dart';
 import 'package:analyzer/src/generated/source.dart' show SourceRange;
-import 'package:analyzer/src/summary/api_signature.dart';
-import 'package:angular_analyzer_plugin/src/angular_driver.dart';
 import 'package:angular_analyzer_plugin/src/model/syntactic/annotated_class.dart';
 import 'package:angular_analyzer_plugin/src/model/syntactic/component.dart';
 import 'package:angular_analyzer_plugin/src/model/syntactic/directive.dart';
@@ -12,7 +10,6 @@ import 'package:angular_analyzer_plugin/src/model/syntactic/pipe.dart';
 import 'package:angular_analyzer_plugin/src/model/syntactic/reference.dart';
 import 'package:angular_analyzer_plugin/src/model/syntactic/top_level.dart';
 import 'package:angular_analyzer_plugin/src/summary/format.dart';
-import 'package:angular_analyzer_plugin/src/summary/idl.dart';
 
 SummarizedClassAnnotationsBuilder summarizeAnnotatedClass(
     AnnotatedClass clazz) {

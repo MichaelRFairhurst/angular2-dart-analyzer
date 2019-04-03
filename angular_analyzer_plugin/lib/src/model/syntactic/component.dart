@@ -1,6 +1,5 @@
 import 'package:analyzer/src/generated/source.dart' show Source;
 import 'package:analyzer/src/generated/source.dart' show Source, SourceRange;
-import 'package:angular_analyzer_plugin/src/model/navigable.dart';
 import 'package:angular_analyzer_plugin/src/model/syntactic/content_child.dart';
 import 'package:angular_analyzer_plugin/src/model/syntactic/directive.dart';
 import 'package:angular_analyzer_plugin/src/model/syntactic/input.dart';
