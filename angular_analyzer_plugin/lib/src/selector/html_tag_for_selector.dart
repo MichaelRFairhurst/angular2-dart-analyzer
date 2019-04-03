@@ -1,5 +1,3 @@
-import 'dart:collection';
-
 /// A constraint system for suggesting full HTML tags from a [Selector].
 ///
 /// Where possible it is good to be able to suggest a fully completed html tag
