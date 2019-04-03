@@ -1,6 +1,5 @@
 import 'package:angular_analyzer_plugin/src/selector/parse_error.dart';
 import 'package:angular_analyzer_plugin/src/selector/regex.dart' as regex;
-import 'package:angular_analyzer_plugin/src/strings.dart';
 
 /// A token from tokenizing CSS via regex.
 class Token {
@@ -84,7 +83,7 @@ class Tokenizer with ReportParseErrors {
     return Token(TokenType.Value, lexeme, null, null);
   }
 
-  /// Try to pull another token off the stream, and report tokenization errors.
+  //Try to pull another token off the stream, and report tokenization errors.
   Token advance() {
     if (!_matches.moveNext()) {
       _currentMatch = null;
@@ -96,7 +95,7 @@ class Tokenizer with ReportParseErrors {
 
     // no content should be skipped
     final skipStr = str.substring(lastOffset, _currentMatch.start);
-    if (!isBlank(skipStr)) {
+    if (!_isBlank(skipStr)) {
       unexpected(skipStr, lastOffset + fileOffset);
     }
     lastOffset = _currentMatch.end;
@@ -113,6 +112,9 @@ class Tokenizer with ReportParseErrors {
 
     return current = null;
   }
+
+  /// Checks if [str] is `null`, empty or is whitespace.
+  bool _isBlank(String str) => (str ?? '').trim().isEmpty;
 }
 
 /// Various types of tokens that may be tokenized.

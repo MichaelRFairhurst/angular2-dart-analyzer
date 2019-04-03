@@ -13,7 +13,6 @@ import 'package:angular_analyzer_plugin/ast.dart';
 import 'package:angular_analyzer_plugin/errors.dart';
 import 'package:angular_analyzer_plugin/src/ignoring_error_listener.dart';
 import 'package:angular_analyzer_plugin/src/ng_expr_parser.dart';
-import 'package:angular_analyzer_plugin/src/strings.dart';
 import 'package:angular_analyzer_plugin/src/tuple.dart';
 import 'package:angular_ast/angular_ast.dart';
 import 'package:meta/meta.dart';
@@ -25,6 +24,14 @@ class EmbeddedDartParser {
 
   EmbeddedDartParser(
       this.templateSource, this.errorListener, this.errorReporter);
+
+  String capitalize(String str) {
+    if (str == null || str.isEmpty) {
+      return str;
+    }
+    // ignore: prefer_interpolation_to_compose_strings
+    return str.substring(0, 1).toUpperCase() + str.substring(1);
+  }
 
   /// Scan the given [text] staring at the given [offset] and resolve all of
   /// its embedded expressions.
