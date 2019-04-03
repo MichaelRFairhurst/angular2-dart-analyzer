@@ -3,7 +3,6 @@ import 'dart:collection';
 import 'package:analyzer/dart/ast/ast.dart' as ast;
 import 'package:analyzer/error/error.dart';
 import 'package:analyzer/error/listener.dart';
-import 'package:analyzer/src/generated/engine.dart';
 import 'package:analyzer/src/generated/source.dart';
 import 'package:angular_analyzer_plugin/errors.dart';
 import 'package:angular_analyzer_plugin/src/converter.dart';

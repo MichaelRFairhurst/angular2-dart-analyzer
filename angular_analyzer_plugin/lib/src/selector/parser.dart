@@ -13,7 +13,6 @@ import 'package:angular_analyzer_plugin/src/selector/or_selector.dart';
 import 'package:angular_analyzer_plugin/src/selector/parse_error.dart';
 import 'package:angular_analyzer_plugin/src/selector/selector.dart';
 import 'package:angular_analyzer_plugin/src/selector/tokenizer.dart';
-import 'package:meta/meta.dart';
 
 /// A parser for CSS [Selector]s.
 class SelectorParser with ReportParseErrors {

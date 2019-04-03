@@ -1,16 +1,10 @@
 import 'dart:collection';
 
-import 'package:analyzer/dart/ast/ast.dart' as ast;
-import 'package:analyzer/dart/element/element.dart';
 import 'package:analyzer/error/error.dart';
-import 'package:analyzer/src/generated/engine.dart';
 import 'package:analyzer/src/generated/source.dart';
 import 'package:angular_analyzer_plugin/errors.dart';
 import 'package:angular_analyzer_plugin/src/model.dart';
-import 'package:angular_analyzer_plugin/src/standard_components.dart';
 import 'package:angular_ast/angular_ast.dart' as ng_ast;
-
-import 'tasks.dart';
 
 void setIgnoredErrors(Template template, List<ng_ast.TemplateAst> asts) {
   if (asts == null || asts.isEmpty) {

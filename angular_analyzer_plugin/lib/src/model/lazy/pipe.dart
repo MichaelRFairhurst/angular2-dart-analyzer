@@ -1,11 +1,6 @@
 import 'package:analyzer/dart/element/element.dart';
 import 'package:analyzer/dart/element/type.dart';
-import 'package:analyzer/src/generated/source.dart' show Source;
-import 'package:angular_analyzer_plugin/src/model.dart' hide Pipe;
 import 'package:angular_analyzer_plugin/src/model.dart' as resolved;
-import 'package:angular_analyzer_plugin/src/model/lazy/view.dart' as lazy;
-import 'package:angular_analyzer_plugin/src/model/syntactic/ng_content.dart';
-import 'package:angular_analyzer_plugin/src/selector.dart';
 
 class Pipe implements resolved.Pipe {
   @override

@@ -1,25 +1,10 @@
-import 'package:analyzer/dart/ast/ast.dart'
-    show SimpleIdentifier, PrefixedIdentifier, Identifier, Annotation;
-import 'package:analyzer/dart/ast/standard_ast_factory.dart';
-import 'package:analyzer/dart/ast/token.dart';
-import 'package:analyzer/dart/constant/value.dart';
 import 'package:analyzer/dart/element/element.dart';
-import 'package:analyzer/dart/element/type.dart';
 import 'package:analyzer/error/listener.dart';
-import 'package:analyzer/src/dart/ast/token.dart';
-import 'package:analyzer/src/dart/resolver/scope.dart';
-import 'package:analyzer/src/generated/constant.dart';
-import 'package:analyzer/src/generated/engine.dart';
-import 'package:analyzer/src/generated/resolver.dart' show TypeProvider;
 import 'package:analyzer/src/generated/source.dart' show SourceRange, Source;
 import 'package:angular_analyzer_plugin/errors.dart';
 import 'package:angular_analyzer_plugin/src/directive_linking.dart';
 import 'package:angular_analyzer_plugin/src/element_resolver.dart';
-import 'package:angular_analyzer_plugin/src/ignoring_error_listener.dart';
 import 'package:angular_analyzer_plugin/src/model.dart';
-import 'package:angular_analyzer_plugin/src/model/lazy/component.dart' as lazy;
-import 'package:angular_analyzer_plugin/src/model/lazy/directive.dart' as lazy;
-import 'package:angular_analyzer_plugin/src/model/lazy/pipe.dart' as lazy;
 import 'package:angular_analyzer_plugin/src/model/syntactic/ng_content.dart';
 import 'package:angular_analyzer_plugin/src/selector.dart';
 import 'package:angular_analyzer_plugin/src/selector/element_name_selector.dart';

@@ -14,16 +14,11 @@ import 'package:analyzer/src/generated/resolver.dart' show TypeProvider;
 import 'package:analyzer/src/generated/source.dart' show SourceRange, Source;
 import 'package:angular_analyzer_plugin/errors.dart';
 import 'package:angular_analyzer_plugin/src/directive_linking.dart';
-import 'package:angular_analyzer_plugin/src/ignoring_error_listener.dart';
 import 'package:angular_analyzer_plugin/src/model.dart';
 import 'package:angular_analyzer_plugin/src/model/lazy/component.dart' as lazy;
 import 'package:angular_analyzer_plugin/src/model/lazy/directive.dart' as lazy;
 import 'package:angular_analyzer_plugin/src/model/lazy/pipe.dart' as lazy;
-import 'package:angular_analyzer_plugin/src/model/syntactic/ng_content.dart';
-import 'package:angular_analyzer_plugin/src/selector.dart';
 import 'package:angular_analyzer_plugin/src/standard_components.dart';
-
-import 'summary/idl.dart';
 
 /// Resolve the "true" type of an `@Input()` or `@Output()` binding against a
 /// context class.
