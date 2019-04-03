@@ -28,7 +28,8 @@ class Directive implements resolved.Directive {
 
   @override
   set contentChildFields(List<ContentChildField> _contentChildFields) {
-    throw 'why';
+    throw UnsupportedError(
+        'lazy directives should not change [contentChildFields]');
   }
 
   @override
@@ -40,7 +41,8 @@ class Directive implements resolved.Directive {
 
   @override
   set contentChildrenFields(List<ContentChildField> _contentChildrenFields) {
-    throw 'why';
+    throw UnsupportedError(
+        'lazy directives should not change [contentChildrenFields]');
   }
 
   @override
@@ -69,7 +71,8 @@ class Directive implements resolved.Directive {
 
   @override
   set looksLikeTemplate(bool _looksLikeTemplate) {
-    throw 'why';
+    throw UnsupportedError(
+        'lazy directives should not change [looksLikeTemplate]');
   }
 
   @override
@@ -82,7 +85,5 @@ class Directive implements resolved.Directive {
   bool operator ==(Object other) =>
       other is Component && other.source == source && other.name == name;
 
-  resolved.Directive load() {
-    return _linkedDirective ??= linkFn();
-  }
+  resolved.Directive load() => _linkedDirective ??= linkFn();
 }

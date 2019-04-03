@@ -28,7 +28,8 @@ class Pipe implements resolved.Pipe {
 
   @override
   set optionalArgumentTypes(List<DartType> _optionalArgumentTypes) {
-    throw 'not supported';
+    throw UnsupportedError(
+        'lazy directives should not change [optionalArgumentTypes]');
   }
 
   @override
@@ -36,7 +37,8 @@ class Pipe implements resolved.Pipe {
 
   @override
   set requiredArgumentType(DartType _requiredArgumentType) {
-    throw 'not supported';
+    throw UnsupportedError(
+        'lazy directives should not change [requiredArgumentType]');
   }
 
   @override
@@ -44,14 +46,13 @@ class Pipe implements resolved.Pipe {
 
   @override
   set transformReturnType(DartType _transformReturnType) {
-    throw 'not supported';
+    throw UnsupportedError(
+        'lazy directives should not change [transformReturnType]');
   }
 
   @override
   bool operator ==(Object other) =>
       other is Pipe && other.classElement == classElement;
 
-  resolved.Pipe load() {
-    return _linkedPipe ??= linkFn();
-  }
+  resolved.Pipe load() => _linkedPipe ??= linkFn();
 }

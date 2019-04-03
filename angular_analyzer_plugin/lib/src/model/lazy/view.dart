@@ -1,7 +1,5 @@
 import 'package:analyzer/dart/ast/ast.dart' show Annotation;
 import 'package:analyzer/dart/element/element.dart';
-import 'package:analyzer/dart/element/element.dart';
-import 'package:analyzer/src/generated/source.dart' show SourceRange, Source;
 import 'package:analyzer/src/generated/source.dart' show SourceRange, Source;
 import 'package:angular_analyzer_plugin/src/model.dart' hide View;
 import 'package:angular_analyzer_plugin/src/model.dart' as resolved;

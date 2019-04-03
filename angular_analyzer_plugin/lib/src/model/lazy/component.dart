@@ -38,7 +38,8 @@ class Component implements resolved.Component {
 
   @override
   set contentChildFields(List<ContentChildField> _contentChildFields) {
-    throw 'why';
+    throw UnsupportedError(
+        'lazy components should not change [contentChildFields]');
   }
 
   @override
@@ -50,7 +51,8 @@ class Component implements resolved.Component {
 
   @override
   set contentChildrenFields(List<ContentChildField> _contentChildrenFields) {
-    throw 'why';
+    throw UnsupportedError(
+        'lazy components should not change [contentChildrenFields]');
   }
 
   @override
@@ -82,7 +84,8 @@ class Component implements resolved.Component {
 
   @override
   set looksLikeTemplate(bool _looksLikeTemplate) {
-    throw 'why';
+    throw UnsupportedError(
+        'lazy components should not change [looksLikeTemplate]');
   }
 
   @override
@@ -99,7 +102,5 @@ class Component implements resolved.Component {
   bool operator ==(Object other) =>
       other is Component && other.source == source && other.name == name;
 
-  resolved.Component load() {
-    return _linkedComponent ??= linkFn();
-  }
+  resolved.Component load() => _linkedComponent ??= linkFn();
 }
