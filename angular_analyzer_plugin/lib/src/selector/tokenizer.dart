@@ -32,9 +32,8 @@ class Tokenizer with ReportParseErrors {
   /// The offset of [str] in the file, for error reporting.
   final int fileOffset;
 
-  @override
-
   /// The selector itself, for error reporting.
+  @override
   final String str;
 
   /// The latest token produced by calling [advance].

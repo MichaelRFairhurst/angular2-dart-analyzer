@@ -25,17 +25,14 @@ abstract class AttributeSelectorBase extends Selector {
 
   @override
   SelectorMatch match(ElementView element, Template template) {
-    SourceRange attributeSpan;
-    String attributeValue;
-
     // Different selectors may find attributes differently
     final matchedName = findAttribute(element);
     if (matchedName == null) {
       return SelectorMatch.NoMatch;
     }
 
-    attributeSpan = element.attributeNameSpans[matchedName];
-    attributeValue = element.attributes[matchedName];
+    final attributeSpan = element.attributeNameSpans[matchedName];
+    final attributeValue = element.attributes[matchedName];
 
     if (attributeSpan == null) {
       return SelectorMatch.NoMatch;

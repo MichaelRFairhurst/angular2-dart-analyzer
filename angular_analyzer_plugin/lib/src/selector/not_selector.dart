@@ -6,7 +6,7 @@ import 'package:angular_analyzer_plugin/src/selector/selector.dart';
 import 'package:angular_analyzer_plugin/src/selector/match.dart';
 import 'package:angular_analyzer_plugin/src/selector/name.dart';
 
-/// The [Selector] that confirms the inner [Selector] condition does NOT match
+/// The [Selector] that confirms the inner [Selector] condition does NOT match.
 class NotSelector extends Selector {
   final Selector condition;
 
