@@ -21,8 +21,6 @@ class NgExprParser extends Parser {
   NgExprParser(Source source, AnalysisErrorListener errorListener)
       : super.withoutFasta(source, errorListener);
 
-  Token get _currentToken => super.currentToken;
-
   /// Override the bitwise or operator to parse pipes instead
   @override
   Expression parseBitwiseOrExpression() => parsePipeExpression();
@@ -37,20 +35,19 @@ class NgExprParser extends Parser {
   ///     bitwiseOrExpression ::=
   ///         bitwiseXorExpression ('|' pipeName [: arg]*)*
   Expression parsePipeExpression() {
-    Expression expression;
     Token beforePipeToken;
-    expression = parseBitwiseXorExpression();
-    while (_currentToken.type == TokenType.BAR) {
-      beforePipeToken ??= _currentToken.previous;
+    var expression = parseBitwiseXorExpression();
+    while (currentToken.type == TokenType.BAR) {
+      beforePipeToken ??= currentToken.previous;
       getAndAdvance();
       final pipeEntities = parsePipeExpressionEntities();
       final asToken = new KeywordToken(Keyword.AS, 0);
       final dynamicIdToken = new SyntheticStringToken(TokenType.IDENTIFIER,
-          "dynamic", _currentToken.offset - "dynamic".length);
+          "dynamic", currentToken.offset - "dynamic".length);
 
       beforePipeToken.setNext(asToken);
       asToken.setNext(dynamicIdToken);
-      dynamicIdToken.setNext(_currentToken);
+      dynamicIdToken.setNext(currentToken);
 
       final dynamicIdentifier = astFactory.simpleIdentifier(dynamicIdToken);
 
@@ -75,7 +72,7 @@ class NgExprParser extends Parser {
   _PipeEntities parsePipeExpressionEntities() {
     final identifier = parseSimpleIdentifier();
     final expressions = <Expression>[];
-    while (_currentToken.type == TokenType.COLON) {
+    while (currentToken.type == TokenType.COLON) {
       getAndAdvance();
       expressions.add(parseExpression2());
     }
