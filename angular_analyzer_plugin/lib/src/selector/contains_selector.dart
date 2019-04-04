@@ -20,7 +20,7 @@ class ContainsSelector extends Selector {
 
   /// Not yet supported.
   ///
-  /// TODO(129973082) check against actual text contents so we know which
+  /// TODO(b/129973082) check against actual text contents so we know which
   /// `:contains` directives were used (for when we want to advise removal of
   /// unused directives).
   ///
