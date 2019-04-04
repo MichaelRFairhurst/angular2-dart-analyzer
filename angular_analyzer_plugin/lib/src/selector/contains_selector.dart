@@ -2,11 +2,11 @@ import 'package:angular_analyzer_plugin/src/model.dart';
 import 'package:angular_analyzer_plugin/src/selector/element_name_selector.dart';
 import 'package:angular_analyzer_plugin/src/selector/element_view.dart';
 import 'package:angular_analyzer_plugin/src/selector/html_tag_for_selector.dart';
-import 'package:angular_analyzer_plugin/src/selector/selector.dart';
 import 'package:angular_analyzer_plugin/src/selector/match.dart';
 import 'package:angular_analyzer_plugin/src/selector/name.dart';
+import 'package:angular_analyzer_plugin/src/selector/selector.dart';
 
-/// The [Selector] that checks a TextNode for contents by a regex
+/// The [Selector] that checks a TextNode for contents by a regex.
 class ContainsSelector extends Selector {
   final String regex;
 
@@ -20,9 +20,9 @@ class ContainsSelector extends Selector {
 
   /// Not yet supported.
   ///
-  /// TODO check against actual text contents so we know which :contains
-  /// directives were used (for when we want to advise removal of unused
-  /// directives).
+  /// TODO(129973082) check against actual text contents so we know which
+  /// `:contains` directives were used (for when we want to advise removal of
+  /// unused directives).
   ///
   /// We could also highlight the matching region in the text node with a color
   /// so users know it was applied.
