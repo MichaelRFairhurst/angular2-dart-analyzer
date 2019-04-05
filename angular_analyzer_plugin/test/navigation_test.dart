@@ -171,6 +171,24 @@ class TextPanel {}
   }
 
   // ignore: non_constant_identifier_names
+  Future test_dart_view_templateUrl_notForTemplateOnly() async {
+    code = r'''
+import 'package:angular/src/core/metadata.dart';
+
+@Component(selector: 'text-panel', templateUrl: 'test.html')
+class TextPanel {}
+''';
+    final dartSource = newSource('/test.dart', code);
+    newSource('/test.html', ''); // empty template HTML file.
+    final result = await resolveLinkedHtml(dartSource);
+    new AngularNavigation(angularDriver.contentOverlay).computeNavigation(
+        new AngularNavigationRequest(null, null, null, result), collector,
+        templatesOnly: true);
+    // no resolved ranges.
+    expect(regions, isEmpty);
+  }
+
+  // ignore: non_constant_identifier_names
   Future test_html_templates() async {
     final dartCode = r'''
 import 'package:angular/src/core/metadata.dart';
