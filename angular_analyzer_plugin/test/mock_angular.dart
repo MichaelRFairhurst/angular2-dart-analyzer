@@ -2,18 +2,7 @@
 // for details. All rights reserved. Use of this source code is governed by a
 // BSD-style license that can be found in the LICENSE file.
 
-void addAngularSources(Function(String, [String]) newSource,
-    {bool includeQueryList: false}) {
-  newSource('/angular2/angular2.dart', r'''
-library angular2;
-
-export 'package:angular/angular.dart';
-''');
-  newSource('/angular2/security.dart', r'''
-library angular2.security;
-
-export 'package:angular/security.dart';
-''');
+void addAngularSources(Function(String, [String]) newSource) {
   newSource('/angular/angular.dart', r'''
 library angular;
 
@@ -27,9 +16,7 @@ export 'src/core/change_detection.dart';
 library angular.security;
 export 'src/security/dom_sanitization_service.dart';
 ''');
-  newSource(
-      '/angular/src/core/metadata.dart',
-      r'''
+  newSource('/angular/src/core/metadata.dart', r'''
 import 'dart:async';
 
 abstract class Directive {
@@ -119,13 +106,6 @@ class DependencyMetadata {
 
 class TemplateRef {}
 class ElementRef {}
-''' +
-          (includeQueryList
-              ? r'''
-class QueryList<T> implements Iterable<T> {}
-'''
-              : '') +
-          r'''
 class ViewContainerRef {}
 class PipeTransform {}
 ''');
