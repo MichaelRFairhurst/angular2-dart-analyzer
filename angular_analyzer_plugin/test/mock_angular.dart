@@ -3,16 +3,6 @@
 // BSD-style license that can be found in the LICENSE file.
 
 void addAngularSources(Function(String, [String]) newSource) {
-  newSource('/angular2/angular2.dart', r'''
-library angular2;
-
-export 'package:angular/angular.dart';
-''');
-  newSource('/angular2/security.dart', r'''
-library angular2.security;
-
-export 'package:angular/security.dart';
-''');
   newSource('/angular/angular.dart', r'''
 library angular;
 
