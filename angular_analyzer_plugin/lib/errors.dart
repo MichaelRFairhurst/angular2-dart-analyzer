@@ -1,5 +1,3 @@
-import 'dart:collection';
-
 import 'package:analyzer/error/error.dart';
 import 'package:angular_ast/angular_ast.dart';
 
