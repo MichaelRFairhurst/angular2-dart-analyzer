@@ -22,7 +22,8 @@ class SelectorParser with ReportParseErrors {
   @override
   final String str;
   final Source source;
-  SelectorParser(this.source, this.fileOffset, this.str);
+  SelectorParser(this.source, this.fileOffset, this.str)
+      : tokenizer = new Tokenizer(str, fileOffset);
 
   /// Try to parse a [Selector], throwing [SelectorParseError] on error.
   ///
@@ -31,7 +32,6 @@ class SelectorParser with ReportParseErrors {
     if (str == null) {
       return null;
     }
-    tokenizer = new Tokenizer(str, fileOffset);
     final selector = _parseNested();
 
     // Report dangling end tokens
@@ -46,9 +46,56 @@ class SelectorParser with ReportParseErrors {
 
   Selector _andSelectors(List<Selector> selectors) {
     if (selectors.length == 1) {
-      return selectors[0];
+      return selectors.single;
     }
     return new AndSelector(selectors);
+  }
+
+  Selector _parseAttributeSelector() {
+    final nameOffset = tokenizer.current.offset + '['.length;
+    final operator = tokenizer.currentOperator;
+    final value = tokenizer.currentValue;
+
+    if (operator != null && value.lexeme.isEmpty) {
+      expected('a value after ${operator.lexeme}',
+          actual: ']', offset: tokenizer.current.endOffset - 1);
+    }
+
+    final name = tokenizer.current.lexeme;
+    tokenizer.advance();
+
+    return _tryParseAttributeValueRegexSelector(
+            name, nameOffset, operator?.lexeme, value) ??
+        _tryParseAttributeContainsSelector(
+            name, nameOffset, operator?.lexeme, value) ??
+        _tryParseAttributeStartsWithSelector(
+            name, nameOffset, operator?.lexeme, value) ??
+        new AttributeSelector(
+            new SelectorName(
+                name, SourceRange(nameOffset, name.length), source),
+            value?.lexeme);
+  }
+
+  ClassSelector _parseClassSelector() {
+    final nameOffset = tokenizer.current.offset + 1;
+    final name = tokenizer.current.lexeme;
+    tokenizer.advance();
+    return new ClassSelector(new SelectorName(
+        name, new SourceRange(nameOffset, name.length), source));
+  }
+
+  ContainsSelector _parseContainsSelector() {
+    final containsString = tokenizer.currentContainsString.lexeme;
+    tokenizer.advance();
+    return new ContainsSelector(containsString);
+  }
+
+  ElementNameSelector _parseElementNameSelector() {
+    final nameOffset = tokenizer.current.offset;
+    final name = tokenizer.current.lexeme;
+    tokenizer.advance();
+    return new ElementNameSelector(new SelectorName(
+        name, new SourceRange(nameOffset, name.length), source));
   }
 
   Selector _parseNested() {
@@ -59,82 +106,25 @@ class SelectorParser with ReportParseErrors {
         break;
       }
 
-      if (tokenizer.current.type == TokenType.NotStart) {
+      if (tokenizer.current.type == TokenType.Comma) {
+        // [selectors] is the lhs of the OR. [_parseOrSelector] will parse the
+        // rhs, so return its result without continuing the loop.
+        return _parseOrSelector(selectors);
+      } else if (tokenizer.current.type == TokenType.NotStart) {
         selectors.add(_parseNotSelector());
       } else if (tokenizer.current.type == TokenType.Tag) {
-        final nameOffset = tokenizer.current.offset;
-        final name = tokenizer.current.lexeme;
-        selectors.add(new ElementNameSelector(new SelectorName(
-            name, new SourceRange(nameOffset, name.length), source)));
-        tokenizer.advance();
+        selectors.add(_parseElementNameSelector());
       } else if (tokenizer.current.type == TokenType.Class) {
-        final nameOffset = tokenizer.current.offset + 1;
-        final name = tokenizer.current.lexeme;
-        selectors.add(new ClassSelector(new SelectorName(
-            name, new SourceRange(nameOffset, name.length), source)));
-        tokenizer.advance();
+        selectors.add(_parseClassSelector());
       } else if (tokenizer.current.type == TokenType.Attribute) {
-        final nameOffset = tokenizer.current.offset + '['.length;
-        final operator = tokenizer.currentOperator;
-        final value = tokenizer.currentValue;
-
-        if (operator != null && value.lexeme.isEmpty) {
-          expected('a value after ${operator.lexeme}',
-              actual: ']', offset: tokenizer.current.endOffset - 1);
-        }
-
-        var name = tokenizer.current.lexeme;
-        tokenizer.advance();
-
-        if (name == '*' &&
-            value != null &&
-            value.lexeme.startsWith('/') &&
-            value.lexeme.endsWith('/')) {
-          if (operator?.lexeme != '=') {
-            unexpected(operator.lexeme, nameOffset + name.length);
-          }
-          final valueOffset = nameOffset + name.length + '='.length;
-          final regex = value.lexeme.substring(1, value.lexeme.length - 1);
-          selectors.add(new AttributeValueRegexSelector(new SelectorName(
-              regex, new SourceRange(valueOffset, regex.length), source)));
-          continue;
-        } else if (operator?.lexeme == '*=') {
-          name = name.replaceAll('*', '');
-          selectors.add(new AttributeContainsSelector(
-              new SelectorName(
-                  name, new SourceRange(nameOffset, name.length), source),
-              value.lexeme));
-          continue;
-        } else if (operator?.lexeme == '^=') {
-          selectors.add(new AttributeStartsWithSelector(
-              new SelectorName(
-                  name, new SourceRange(nameOffset, name.length), source),
-              value.lexeme));
-          continue;
-        }
-
-        selectors.add(new AttributeSelector(
-            new SelectorName(
-                name, SourceRange(nameOffset, name.length), source),
-            value?.lexeme));
-      } else if (tokenizer.current.type == TokenType.Comma) {
-        tokenizer.advance();
-        final rhs = _parseNested();
-        if (rhs is OrSelector) {
-          // flatten "a, b, c, d" from (a, (b, (c, d))) into (a, b, c, d)
-          return new OrSelector(
-              <Selector>[_andSelectors(selectors)]..addAll(rhs.selectors));
-        } else {
-          return new OrSelector(<Selector>[_andSelectors(selectors), rhs]);
-        }
+        selectors.add(_parseAttributeSelector());
       } else if (tokenizer.current.type == TokenType.Contains) {
-        selectors
-            .add(new ContainsSelector(tokenizer.currentContainsString.lexeme));
-        tokenizer.advance();
+        selectors.add(_parseContainsSelector());
       } else {
         break;
       }
     }
+
     // final result
     return _andSelectors(selectors);
   }
@@ -148,5 +138,57 @@ class SelectorParser with ReportParseErrors {
     }
     tokenizer.advance();
     return new NotSelector(condition);
+  }
+
+  OrSelector _parseOrSelector(List<Selector> selectors) {
+    tokenizer.advance();
+    final rhs = _parseNested();
+    if (rhs is OrSelector) {
+      // flatten "a, b, c, d" from (a, (b, (c, d))) into (a, b, c, d)
+      return new OrSelector(
+          <Selector>[_andSelectors(selectors)]..addAll(rhs.selectors));
+    }
+
+    return new OrSelector(<Selector>[_andSelectors(selectors), rhs]);
+  }
+
+  AttributeContainsSelector _tryParseAttributeContainsSelector(
+      String originalName, int nameOffset, String operator, Token value) {
+    if (operator == '*=') {
+      final name = originalName.replaceAll('*', '');
+      return new AttributeContainsSelector(
+          new SelectorName(
+              name, new SourceRange(nameOffset, name.length), source),
+          value.lexeme);
+    }
+    return null;
+  }
+
+  AttributeStartsWithSelector _tryParseAttributeStartsWithSelector(
+      String name, int nameOffset, String operator, Token value) {
+    if (operator == '^=') {
+      return new AttributeStartsWithSelector(
+          new SelectorName(
+              name, new SourceRange(nameOffset, name.length), source),
+          value.lexeme);
+    }
+    return null;
+  }
+
+  AttributeValueRegexSelector _tryParseAttributeValueRegexSelector(
+      String name, int nameOffset, String operator, Token value) {
+    if (name == '*' &&
+        value != null &&
+        value.lexeme.startsWith('/') &&
+        value.lexeme.endsWith('/')) {
+      if (operator != '=') {
+        unexpected(operator, nameOffset + name.length);
+      }
+      final valueOffset = nameOffset + name.length + '='.length;
+      final regex = value.lexeme.substring(1, value.lexeme.length - 1);
+      return new AttributeValueRegexSelector(new SelectorName(
+          regex, new SourceRange(valueOffset, regex.length), source));
+    }
+    return null;
   }
 }
