@@ -74,21 +74,26 @@ const _angularWarningCodeValues = const <AngularWarningCode>[
 
 /// The lazy initialized map from [AngularWarningCode.uniqueName] to the
 /// [AngularWarningCode] instance.
-HashMap<String, ErrorCode> _uniqueNameToCodeMap;
+Map<String, ErrorCode> _uniqueNameToCodeMap;
 
 /// Return the [AngularWarningCode] with the given [uniqueName], or `null` if
 /// not found.
 ErrorCode angularWarningCodeByUniqueName(String uniqueName) {
   if (_uniqueNameToCodeMap == null) {
-    _uniqueNameToCodeMap = new HashMap<String, ErrorCode>();
-    for (final angularCode in _angularWarningCodeValues) {
-      _uniqueNameToCodeMap[angularCode.uniqueName] = angularCode;
-    }
-    for (final angularAstCode in angularAstWarningCodes) {
-      _uniqueNameToCodeMap[angularAstCode.uniqueName] = angularAstCode;
-    }
+    _generateErrorCodeMap();
   }
   return _uniqueNameToCodeMap[uniqueName];
+}
+
+/// Map [_angularWarningCodeValues] by error id into [_uniqueNameToCodeMap].
+void _generateErrorCodeMap() {
+  _uniqueNameToCodeMap = {};
+  for (final angularCode in _angularWarningCodeValues) {
+    _uniqueNameToCodeMap[angularCode.uniqueName] = angularCode;
+  }
+  for (final angularAstCode in angularAstWarningCodes) {
+    _uniqueNameToCodeMap[angularAstCode.uniqueName] = angularAstCode;
+  }
 }
 
 class AngularHintCode extends AngularWarningCode {
