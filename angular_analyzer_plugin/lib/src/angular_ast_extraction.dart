@@ -15,16 +15,16 @@ void setIgnoredErrors(Template template, List<ng_ast.TemplateAst> asts) {
       continue;
     } else if (ast is ng_ast.CommentAst) {
       var text = ast.value.trim();
-      if (text.startsWith("@ngIgnoreErrors")) {
-        text = text.substring("@ngIgnoreErrors".length);
-        // Per spec: optional color
-        if (text.startsWith(":")) {
+      if (text.startsWith('@ngIgnoreErrors')) {
+        text = text.substring('@ngIgnoreErrors'.length);
+        // Per spec: optional colon
+        if (text.startsWith(':')) {
           text = text.substring(1);
         }
         // Per spec: optional commas
         final delim = !text.contains(',') ? ' ' : ',';
-        template.ignoredErrors.addAll(new HashSet.from(
-            text.split(delim).map((c) => c.trim().toUpperCase())));
+        template.ignoredErrors.addAll(
+            text.split(delim).map((c) => c.trim().toUpperCase()).toSet());
       }
     } else {
       return;
