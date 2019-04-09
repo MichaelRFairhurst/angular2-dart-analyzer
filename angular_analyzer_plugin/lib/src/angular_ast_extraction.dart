@@ -1,5 +1,3 @@
-import 'dart:collection';
-
 import 'package:analyzer/error/error.dart';
 import 'package:analyzer/src/generated/source.dart';
 import 'package:angular_analyzer_plugin/src/model.dart';
