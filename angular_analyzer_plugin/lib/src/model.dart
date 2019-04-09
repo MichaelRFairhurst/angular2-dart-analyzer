@@ -556,7 +556,7 @@ class Pipe {
   List<dart.DartType> optionalArgumentTypes = <dart.DartType>[];
 
   Pipe(this.pipeName, this.pipeNameOffset, this.classElement,
-      {this.isPure: true});
+      {this.isPure = true});
 }
 
 class PipeReference {
@@ -564,7 +564,7 @@ class PipeReference {
   final String identifier;
   final SourceRange span;
 
-  PipeReference(this.identifier, this.span, {this.prefix: ''});
+  PipeReference(this.identifier, this.span, {this.prefix = ''});
 }
 
 /// A pair of an [SourceRange] and the referenced [AngularElement].
@@ -698,7 +698,7 @@ class View {
 
   View(this.classElement, this.component, this.directives, this.pipes,
       {this.templateText,
-      this.templateOffset: 0,
+      this.templateOffset = 0,
       this.templateUriSource,
       this.templateUrlRange,
       this.annotation,
