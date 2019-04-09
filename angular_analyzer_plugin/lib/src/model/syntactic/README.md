@@ -64,9 +64,10 @@ O(n).
 
 ## References (in `reference.dart`)
 
-A particular subtlety that's important is that there are two types of directives
-in the syntactic model. One is where a directive is declared, defined in
-`directive.dart`, and type is where a directive is referenced:
+A particular subtlety that's important is that there are two classes
+representing directives in the syntactic model. One is where a directive is
+declared, defined in `directive.dart`, and type is where a directive is
+referenced:
 
 ```dart
 @Directive(
@@ -87,7 +88,7 @@ class MyComponent { ...
 ```
 
 There are also `pipe.dart`'s `Pipe`, which can be referenced in this way, and
-`Export`s which are always `Reference`s (to Dart terms, there's no corresponding
+exports which are always `Reference`s (to Dart terms, there's no corresponding
 Angular declaration).
 
 References also have an interesting quirk in that they may at times be list
