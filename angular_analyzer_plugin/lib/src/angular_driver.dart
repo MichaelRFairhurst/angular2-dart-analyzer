@@ -40,7 +40,7 @@ import 'package:angular_analyzer_plugin/src/summary/format.dart';
 import 'package:angular_analyzer_plugin/src/summary/idl.dart';
 import 'package:angular_analyzer_plugin/src/summary/summarize.dart';
 import 'package:angular_analyzer_plugin/src/syntactic_discovery.dart';
-import 'package:angular_analyzer_plugin/src/view_extraction.dart';
+import 'package:angular_analyzer_plugin/src/angular_ast_extraction.dart';
 import 'package:crypto/crypto.dart';
 
 class AngularDriver

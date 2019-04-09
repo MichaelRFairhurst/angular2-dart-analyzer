@@ -2,10 +2,10 @@ import 'dart:collection';
 
 import 'package:analyzer/error/error.dart';
 import 'package:analyzer/src/generated/source.dart';
-import 'package:angular_analyzer_plugin/errors.dart';
 import 'package:angular_analyzer_plugin/src/model.dart';
 import 'package:angular_ast/angular_ast.dart' as ng_ast;
 
+/// Look for `<!-- @ngIgnoredErrors -->` and set the codes on [template].
 void setIgnoredErrors(Template template, List<ng_ast.TemplateAst> asts) {
   if (asts == null || asts.isEmpty) {
     return;
@@ -32,15 +32,8 @@ void setIgnoredErrors(Template template, List<ng_ast.TemplateAst> asts) {
   }
 }
 
+/// Parse an angular AST and store the errors during parse.
 class TemplateParser {
-  //Todo(Max): remove errorMap after new ast implemented
-  static const errorMap = const {
-    ng_ast.NgParserWarningCode.UNTERMINATED_MUSTACHE:
-        AngularWarningCode.UNTERMINATED_MUSTACHE,
-    ng_ast.NgParserWarningCode.UNOPENED_MUSTACHE:
-        AngularWarningCode.UNOPENED_MUSTACHE,
-  };
-
   List<ng_ast.StandaloneTemplateAst> rawAst;
   final parseErrors = <AnalysisError>[];
 
@@ -64,7 +57,7 @@ class TemplateParser {
           source,
           e.offset,
           e.length,
-          errorMap[e.errorCode] ?? e.errorCode,
+          e.errorCode,
         ));
       }
     }
