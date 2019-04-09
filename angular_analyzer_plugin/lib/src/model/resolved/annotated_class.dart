@@ -12,7 +12,7 @@ import 'package:meta/meta.dart';
 ///
 /// Might be a directive, or a component, or neither. It might simply have
 /// annotated @Inputs, @Outputs() intended to be inherited.
-abstract class AnnotatedClass extends TopLevel {
+class AnnotatedClass extends TopLevel {
   /// The [ClassElement] this annotation is associated with.
   final dart.ClassElement classElement;
 

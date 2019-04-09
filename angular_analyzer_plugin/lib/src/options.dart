@@ -121,7 +121,9 @@ class _OptionsBuilder {
   _OptionsBuilder.empty() : source = null;
 
   AngularOptions build() => new AngularOptions(
-      customTagNames: customTagNames, customEvents: customEvents);
+      customTagNames: customTagNames,
+      customEvents: customEvents,
+      source: source);
 
   T getOption<T>(String key, bool validator(input)) {
     if (angularOptions != null && validator(angularOptions[key])) {

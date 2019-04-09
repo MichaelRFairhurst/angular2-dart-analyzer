@@ -68,7 +68,7 @@ class Component extends Directive {
   Map<String, List<DirectiveBase>> _elementTagsInfo;
 
   /// The [Template] of this component.
-  final Template template;
+  Template _template;
 
   @override
   final bool isHtml;
@@ -78,6 +78,10 @@ class Component extends Directive {
 
   /// List of exported identifiers in this component's template.
   final List<Export> exports;
+
+  /// List of `@Attribute() foo` arguments in this component's ctor.
+  @override
+  final List<NavigableString> attributes;
 
   Component(dart.ClassElement classElement,
       {@required NavigableString exportAs,
@@ -96,7 +100,7 @@ class Component extends Directive {
       @required this.isHtml,
       @required List<ContentChild> contentChildFields,
       @required List<ContentChild> contentChildrenFields,
-      @required this.template})
+      @required this.attributes})
       : super(classElement,
             exportAs: exportAs,
             inputs: inputs,
@@ -125,6 +129,13 @@ class Component extends Directive {
   /// The source that contains this view.
   @override
   Source get source => classElement.source;
+
+  Template get template => _template;
+
+  set template(Template template) {
+    assert(_template == null, 'template cannot be changed');
+    _template = template;
+  }
 
   /// The source that contains this template, [source] or [templateUrlSource].
   Source get templateSource => templateUrlSource ?? source;

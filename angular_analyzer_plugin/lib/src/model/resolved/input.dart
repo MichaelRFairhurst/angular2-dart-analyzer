@@ -1,10 +1,12 @@
 import 'package:analyzer/dart/ast/ast.dart' as dart;
 import 'package:analyzer/dart/element/element.dart' as dart;
 import 'package:analyzer/dart/element/type.dart' as dart;
-import 'package:analyzer/src/generated/source.dart' show SourceRange;
+import 'package:analyzer/src/generated/source.dart' show SourceRange, Source;
+import 'package:angular_analyzer_plugin/src/model/navigable.dart';
 import 'package:angular_analyzer_plugin/src/model/syntactic/input.dart'
     as syntactic;
 import 'package:angular_analyzer_plugin/src/standard_components.dart';
+import 'package:meta/meta.dart';
 
 /// The resolved model for an Angular input.
 ///
@@ -17,7 +19,7 @@ import 'package:angular_analyzer_plugin/src/standard_components.dart';
 /// expected by the setter, the setter backing the input, and some internal
 /// angular concepts like security info and a workaround for dart:html with
 /// native html inputs.
-class Input extends syntactic.Input {
+class Input extends syntactic.Input implements Navigable {
   /// The setter element that backs the input.
   final dart.PropertyAccessorElement setter;
 
@@ -42,15 +44,31 @@ class Input extends syntactic.Input {
   /// assignment error.
   final SecurityContext securityContext;
 
-  Input(String name, int nameOffset, int nameLength,
-      dart.PropertyAccessorElement setter, this.setterType,
-      {this.originalName, this.securityContext})
+  Input(
+      {@required String name,
+      @required SourceRange nameRange,
+      @required dart.PropertyAccessorElement setter,
+      @required this.setterType,
+      this.originalName,
+      this.securityContext})
       : setter = setter,
         super(
             name: name,
-            nameRange: SourceRange(nameOffset, nameLength),
-            setterName: setter.name,
-            setterRange: SourceRange(setter.nameOffset, setter.nameLength));
+            nameRange: nameRange,
+            setterName: setter?.name,
+            setterRange: setter == null
+                ? null
+                : SourceRange(setter.nameOffset, setter.nameLength));
+
+  @override
+  SourceRange get navigationRange => nameRange;
+
+  @override
+  Source get source => setter?.source;
+
+  @override
+  bool operator ==(Object other) =>
+      other is Input && other.setter == setter && other.name == name;
 
   @override
   String toString() => 'Input($name, $setter)';

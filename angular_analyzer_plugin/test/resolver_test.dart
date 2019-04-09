@@ -6,6 +6,7 @@ import 'package:analyzer/src/generated/source.dart';
 import 'package:angular_analyzer_plugin/ast.dart';
 import 'package:angular_analyzer_plugin/errors.dart';
 import 'package:angular_analyzer_plugin/src/model.dart';
+import 'package:angular_analyzer_plugin/src/model/navigable.dart';
 import 'package:angular_analyzer_plugin/src/selector.dart';
 import 'package:angular_analyzer_plugin/src/tuple.dart';
 import 'package:angular_ast/angular_ast.dart';
@@ -22,10 +23,9 @@ void main() {
   });
 }
 
-void assertPropertyElement(AngularElement element,
-    {nameMatcher, sourceMatcher}) {
-  expect(element, const TypeMatcher<InputElement>());
-  final inputElement = element;
+void assertPropertyElement(Navigable element, {nameMatcher, sourceMatcher}) {
+  expect(element, const TypeMatcher<Input>());
+  final inputElement = element as Input;
   if (nameMatcher != null) {
     expect(inputElement.name, nameMatcher);
   }
@@ -59,7 +59,7 @@ class TemplateResolverTest extends AngularDriverTestBase {
   Source dartSource;
   Source htmlSource;
 
-  List<AbstractDirective> directives;
+  List<DirectiveBase> directives;
 
   Template template;
   List<ResolvedRange> ranges;
@@ -2701,10 +2701,7 @@ class FoobarDirective {
         .selector
         .string('ngForOf')
         .inFileName('ng_for.dart');
-    _assertInputElement("ngForOf]")
-        .input
-        .name('ngForOf')
-        .inFileName('ng_for.dart');
+    _assertInput("ngForOf]").name('ngForOf').inFileName('ng_for.dart');
     _assertNavigable("items'").dart.getter.at('items = []');
     _assertNavigable("i='index").local.declaration.type('int');
     _assertNavigable("item").local.at('item [');
@@ -3041,10 +3038,7 @@ class TestPanel {
         .selector
         .string('ngForOf')
         .inFileName('ng_for.dart');
-    _assertInputElement("of items")
-        .input
-        .name('ngForOf')
-        .inFileName('ng_for.dart');
+    _assertInput("of items").name('ngForOf').inFileName('ng_for.dart');
     _assertNavigable("items;").dart.getter.at('items = []');
     _assertNavigable("i = index").local.declaration.type('int');
     _assertNavigable("i}}").local.at('i = index');
@@ -3100,10 +3094,7 @@ class TestPanel {
         .selector
         .string('ngForOf')
         .inFileName('ng_for.dart');
-    _assertInputElement("of items")
-        .input
-        .name('ngForOf')
-        .inFileName('ng_for.dart');
+    _assertInput("of items").name('ngForOf').inFileName('ng_for.dart');
     _assertNavigable("items;").dart.getter.at('items = []');
     _assertNavigable("i = index").local.declaration.type('int');
     _assertNavigable("i}}").local.at('i = index');
@@ -3133,10 +3124,7 @@ class TestPanel {
         .selector
         .string('ngForOf')
         .inFileName('ng_for.dart');
-    _assertInputElement("of = items,")
-        .input
-        .name('ngForOf')
-        .inFileName('ng_for.dart');
+    _assertInput("of = items,").name('ngForOf').inFileName('ng_for.dart');
     _assertNavigable("items,").dart.getter.at('items = []');
     _assertNavigable("i=index").local.declaration.type('int');
     _assertNavigable("i}}").local.at('i=index');
@@ -3166,10 +3154,7 @@ class TestPanel {
         .selector
         .string('ngForOf')
         .inFileName('ng_for.dart');
-    _assertInputElement("ngForOf]")
-        .input
-        .name('ngForOf')
-        .inFileName('ng_for.dart');
+    _assertInput("ngForOf]").name('ngForOf').inFileName('ng_for.dart');
     _assertNavigable("items'").dart.getter.at('items = []');
     _assertNavigable("i='index").local.declaration.type('int');
     _assertNavigable("i}}").local.at("i='index");
@@ -3286,7 +3271,7 @@ class TestPanel {
     await _resolveSingleTemplate(dartSource);
     errorListener.assertNoErrors();
     _assertSelectorElement("ngIf=").selector.inFileName('ng_if.dart');
-    _assertInputElement("ngIf=").input.inFileName('ng_if.dart');
+    _assertInput("ngIf=").inFileName('ng_if.dart');
     _assertNavigable("text.").dart.getter.at('text; // 1');
     _assertNavigable("length != 0").dart.getter;
   }
@@ -3323,7 +3308,7 @@ class TestPanel {
     await _resolveSingleTemplate(dartSource);
     errorListener.assertNoErrors();
     _assertSelectorElement("ngIf text").selector.inFileName('ng_if.dart');
-    _assertInputElement("ngIf text").input.inFileName('ng_if.dart');
+    _assertInput("ngIf text").inFileName('ng_if.dart');
     _assertNavigable("text.").dart.getter.at('text; // 1');
     _assertNavigable("length != 0").dart.getter;
   }
@@ -3342,7 +3327,7 @@ class TestPanel {
 """);
     await _resolveSingleTemplate(dartSource);
     _assertSelectorElement("ngIf]").selector.inFileName('ng_if.dart');
-    _assertInputElement("ngIf]").input.inFileName('ng_if.dart');
+    _assertInput("ngIf]").inFileName('ng_if.dart');
     _assertNavigable("text.").dart.getter.at('text; // 1');
     _assertNavigable("length != 0").dart.getter;
   }
@@ -5144,7 +5129,7 @@ class TestPanel {
     """;
     _addHtmlSource(code);
     await _resolveSingleTemplate(dartSource);
-    expect(template.view.component.ngContents, hasLength(0));
+    expect(template.component.ngContents, hasLength(0));
     assertErrorInCodeAtPosition(
         AngularWarningCode.CANNOT_PARSE_SELECTOR, code, "\"\"");
   }
@@ -5185,8 +5170,8 @@ class TestPanel {
     """;
     _addHtmlSource(code);
     await _resolveSingleTemplate(dartSource);
-    expect(template.view.component.ngContents, hasLength(1));
-    expect(template.view.component.ngContents.first.selector, isNull);
+    expect(template.component.ngContents, hasLength(1));
+    expect(template.component.ngContents.first.selector, isNull);
   }
 
   // ignore: non_constant_identifier_names
@@ -5203,7 +5188,7 @@ class TestPanel {
     """;
     _addHtmlSource(code);
     await _resolveSingleTemplate(dartSource);
-    expect(template.view.component.ngContents, hasLength(0));
+    expect(template.component.ngContents, hasLength(0));
     assertErrorInCodeAtPosition(
         AngularWarningCode.CANNOT_PARSE_SELECTOR, code, "select");
   }
@@ -5222,7 +5207,7 @@ class TestPanel {
     """;
     _addHtmlSource(code);
     await _resolveSingleTemplate(dartSource);
-    expect(template.view.component.ngContents, hasLength(0));
+    expect(template.component.ngContents, hasLength(0));
     assertErrorInCodeAtPosition(
         AngularWarningCode.CANNOT_PARSE_SELECTOR, code, "+");
   }
@@ -5241,7 +5226,7 @@ class TestPanel {
     """;
     _addHtmlSource(code);
     await _resolveSingleTemplate(dartSource);
-    expect(template.view.component.ngContents, hasLength(1));
+    expect(template.component.ngContents, hasLength(1));
   }
 
   // ignore: non_constant_identifier_names
@@ -5884,15 +5869,15 @@ $code
     htmlSource = newSource('/test_panel.html', htmlCode);
   }
 
-  NavigableAssert _assertInputElement(String atString) =>
-      _assertNavigable(atString, _isInputElement);
+  AngularElementAssert _assertInput(String atString) =>
+      _assertNavigable(atString, _isInputElement).input;
 
   NavigableAssert _assertNavigable(String atString,
       [ResolvedRangeCondition condition]) {
     final resolvedRange = _findResolvedRange(atString, condition);
 
     return new NavigableAssert(dartCode, dartSource, htmlCode, htmlSource,
-        resolvedRange.element, resolvedRange.range.offset);
+        resolvedRange.navigable, resolvedRange.range.offset);
   }
 
   NavigableAssert _assertSelectorElement(String atString) =>
@@ -5909,25 +5894,24 @@ $code
   /// Compute the last external template of the views declared in [dartSource].
   Future _resolveSingleTemplate(Source dartSource) async {
     final result = await angularDriver.requestDartResult(dartSource.fullName);
-    bool finder(AbstractDirective d) =>
-        d is Component && d.view.templateUriSource != null;
+    bool finder(DirectiveBase d) =>
+        d is Component && d.templateUrlSource != null;
 
     fillErrorListener(result.errors);
     errorListener.assertNoErrors();
     directives = result.directives;
     final directive = result.directives.singleWhere(finder);
-    final htmlPath = (directive as Component).view.templateUriSource.fullName;
+    final htmlPath = (directive as Component).templateUrlSource.fullName;
     final result2 = await angularDriver.requestHtmlResult(htmlPath);
     fillErrorListener(result2.errors);
-    final view = (result2.directives.singleWhere(finder) as Component).view;
+    template = (result2.directives.singleWhere(finder) as Component).template;
 
-    template = view.template;
     ranges = template.ranges;
   }
 
   static bool _isInputElement(ResolvedRange region) =>
-      region.element is InputElement;
+      region.navigable is Input;
 
   static bool _isSelectorName(ResolvedRange region) =>
-      region.element is SelectorName;
+      region.navigable is SelectorName;
 }

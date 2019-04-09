@@ -214,7 +214,7 @@ class AngularDriver
   }
 
   @override
-  AngularTopLevel getAngularTopLevel(Element element) {
+  TopLevel getAngularTopLevel(Element element) {
     final path = element.source.fullName;
     final summary = _getUnlinkedAngularTopLevels(path);
     final linker = new LazyLinker(standardAngular, standardHtml, this);
@@ -229,16 +229,13 @@ class AngularDriver
     return key;
   }
 
-  Future<OutputElement> getCustomOutputElement(
+  Future<Output> getCustomOutputElement(
       CustomEvent event, DartType dynamicType) async {
-    OutputElement defaultOutput() => new OutputElement(
-        event.name,
-        event.nameOffset,
-        event.name.length,
-        options.source,
-        null,
-        null,
-        dynamicType);
+    Output defaultOutput() => new MissingOutput(
+        name: event.name,
+        nameRange: new SourceRange(event.nameOffset, event.name.length),
+        source: options.source,
+        eventType: dynamicType);
 
     final typePath =
         event.typePath ?? (event.typeName != null ? 'dart:core' : null);
@@ -264,12 +261,18 @@ class AngularDriver
         type = type.instantiate(
             type.typeParameters.map((p) => p.bound ?? dynamicType).toList());
       }
-      return new OutputElement(event.name, event.nameOffset, event.name.length,
-          options.source, null, null, type);
+      return new MissingOutput(
+          name: event.name,
+          nameRange: SourceRange(event.nameOffset, event.name.length),
+          source: options.source,
+          eventType: type);
     }
     if (typeElement is TypeDefiningElement) {
-      return new OutputElement(event.name, event.nameOffset, event.name.length,
-          options.source, null, null, typeElement.type);
+      return new MissingOutput(
+          name: event.name,
+          nameRange: SourceRange(event.nameOffset, event.name.length),
+          source: options.source,
+          eventType: typeElement.type);
     }
 
     return defaultOutput();
@@ -362,9 +365,9 @@ class AngularDriver
       final securitySchema = (await getStandardAngular()).securitySchema;
 
       final components = <String, Component>{};
-      final standardEvents = <String, OutputElement>{};
-      final customEvents = <String, OutputElement>{};
-      final attributes = <String, InputElement>{};
+      final standardEvents = <String, Output>{};
+      final customEvents = <String, Output>{};
+      final attributes = <String, Input>{};
       result.unit.accept(new BuildStandardHtmlComponentsVisitor(
           components, standardEvents, attributes, source, securitySchema));
 
@@ -402,12 +405,11 @@ class AngularDriver
     }
     for (var directive in directives) {
       if (directive is Component) {
-        final view = directive.view;
         final match = isDartFile
-            ? view.source.toString() == filePath
-            : view.templateUriSource?.fullName == filePath;
-        if (match && view.template != null) {
-          templates.add(view.template);
+            ? directive.source.toString() == filePath
+            : directive.templateUrlSource?.fullName == filePath;
+        if (match && directive.template != null) {
+          templates.add(directive.template);
         }
       }
     }
@@ -617,30 +619,30 @@ class AngularDriver
 
     final htmlViews = <String>[];
     final usesDart = <String>[];
-    final fullyResolvedDirectives = <AbstractDirective>[];
+    final fullyResolvedDirectives = <DirectiveBase>[];
 
     var hasDartTemplate = false;
     for (final directive in directives) {
       if (directive is Component) {
-        final view = directive.view;
-        if ((view?.templateText ?? '') != '') {
+        if ((directive.templateText ?? '') != '') {
           hasDartTemplate = true;
           final tplErrorListener = new RecordingErrorListener();
           final errorReporter = new ErrorReporter(tplErrorListener, source);
-          final template = new Template(view);
-          view.template = template;
 
           final tplParser = new TemplateParser()
-            ..parse(view.templateText, source, offset: view.templateOffset);
+            ..parse(directive.templateText, source,
+                offset: directive.templateTextRange.offset);
 
           final document = tplParser.rawAst;
           final parser =
               new EmbeddedDartParser(source, tplErrorListener, errorReporter);
 
-          template.ast = new HtmlTreeConverter(parser, source, tplErrorListener)
-              .convertFromAstList(tplParser.rawAst);
-          template.ast.accept(new NgContentRecorder(
-              directive.ngContents, source, errorReporter));
+          final ast = new HtmlTreeConverter(parser, source, tplErrorListener)
+              .convertFromAstList(tplParser.rawAst)
+                ..accept(new NgContentRecorder(
+                    directive.ngContents, source, errorReporter));
+          final template = new Template(directive, ast);
+          directive.template = template;
           setIgnoredErrors(template, document);
           new TemplateResolver(
                   context.typeProvider,
@@ -655,16 +657,16 @@ class AngularDriver
               .resolve(template);
           errors
             ..addAll(tplParser.parseErrors.where(
-                (e) => !view.template.ignoredErrors.contains(e.errorCode.name)))
-            ..addAll(tplErrorListener.errors.where((e) =>
-                !view.template.ignoredErrors.contains(e.errorCode.name)));
+                (e) => !template.ignoredErrors.contains(e.errorCode.name)))
+            ..addAll(tplErrorListener.errors.where(
+                (e) => !template.ignoredErrors.contains(e.errorCode.name)));
           fullyResolvedDirectives.add(directive);
-        } else if (view?.templateUriSource != null) {
-          _htmlFilesToAnalyze.add(view.templateUriSource.fullName);
-          htmlViews.add(view.templateUriSource.fullName);
+        } else if (directive.templateUrlSource != null) {
+          _htmlFilesToAnalyze.add(directive.templateUrlSource.fullName);
+          htmlViews.add(directive.templateUrlSource.fullName);
         }
 
-        for (final subDirective in (view?.directives ?? <Null>[])) {
+        for (final subDirective in (directive.directives ?? <Null>[])) {
           usesDart.add(subDirective.source.fullName);
         }
       }
@@ -753,16 +755,13 @@ class AngularDriver
 
     final errors = <AnalysisError>[];
 
-    final fullyResolvedDirectives = <AbstractDirective>[];
+    final fullyResolvedDirectives = <DirectiveBase>[];
 
     for (final directive in directives) {
       if (directive is Component) {
-        final view = directive.view;
-        if (view.templateUriSource?.fullName == htmlPath) {
+        if (directive.templateUrlSource?.fullName == htmlPath) {
           final tplErrorListener = new RecordingErrorListener();
           final errorReporter = new ErrorReporter(tplErrorListener, dartSource);
-          final template = new Template(view);
-          view.template = template;
 
           final tplParser = new TemplateParser()
             ..parse(htmlContent, htmlSource);
@@ -771,11 +770,13 @@ class AngularDriver
           final parser = new EmbeddedDartParser(
               htmlSource, tplErrorListener, errorReporter);
 
-          template.ast =
+          final ast =
               new HtmlTreeConverter(parser, htmlSource, tplErrorListener)
-                  .convertFromAstList(tplParser.rawAst);
-          template.ast.accept(new NgContentRecorder(
-              directive.ngContents, dartSource, errorReporter));
+                  .convertFromAstList(tplParser.rawAst)
+                    ..accept(new NgContentRecorder(
+                        directive.ngContents, dartSource, errorReporter));
+          final template = new Template(directive, ast);
+          directive.template = template;
           setIgnoredErrors(template, document);
           new TemplateResolver(
                   context.typeProvider,
@@ -790,7 +791,7 @@ class AngularDriver
               .resolve(template);
 
           bool rightErrorType(AnalysisError e) =>
-              !view.template.ignoredErrors.contains(e.errorCode.name);
+              !template.ignoredErrors.contains(e.errorCode.name);
           String shorten(String filename) {
             final index = filename.lastIndexOf('.');
             return index == -1 ? filename : filename.substring(0, index);
@@ -798,11 +799,11 @@ class AngularDriver
 
           errors.addAll(tplParser.parseErrors.where(rightErrorType));
 
-          if (shorten(view.source.fullName) !=
-              shorten(view.templateSource.fullName)) {
+          if (shorten(directive.source.fullName) !=
+              shorten(directive.templateSource.fullName)) {
             errors.addAll(tplErrorListener.errors.where(rightErrorType).map(
                 (e) => new FromFilePrefixedError(
-                    view.source, directive.classElement.name, e)));
+                    directive.source, directive.classElement.name, e)));
           } else {
             errors.addAll(tplErrorListener.errors.where(rightErrorType));
           }
@@ -819,14 +820,14 @@ class AngularDriver
 
 class DirectivesResult {
   final String filename;
-  final List<AngularTopLevel> angularTopLevels;
-  final List<AbstractDirective> fullyResolvedDirectives = [];
+  final List<TopLevel> angularTopLevels;
+  final List<DirectiveBase> fullyResolvedDirectives = [];
   List<AnalysisError> errors;
   List<Pipe> pipes;
   bool cacheResult;
   DirectivesResult(
       this.filename, this.angularTopLevels, this.pipes, this.errors,
-      {List<AbstractDirective> fullyResolvedDirectives: const []})
+      {List<DirectiveBase> fullyResolvedDirectives: const []})
       : cacheResult = false {
     // Use `addAll` instead of initializing it to `const []` when not specified,
     // so that the result is not const and we can add to it, while still being
@@ -837,10 +838,10 @@ class DirectivesResult {
   DirectivesResult.fromCache(this.filename, this.errors)
       : angularTopLevels = const [],
         cacheResult = true;
-  List<AngularAnnotatedClass> get angularAnnotatedClasses =>
-      new List<AngularAnnotatedClass>.from(
-          angularTopLevels.where((c) => c is AngularAnnotatedClass));
+  List<AnnotatedClass> get angularAnnotatedClasses =>
+      new List<AnnotatedClass>.from(
+          angularTopLevels.where((c) => c is AnnotatedClass));
 
-  List<AbstractDirective> get directives => new List<AbstractDirective>.from(
-      angularTopLevels.where((c) => c is AbstractDirective));
+  List<DirectiveBase> get directives => new List<DirectiveBase>.from(
+      angularTopLevels.where((c) => c is DirectiveBase));
 }

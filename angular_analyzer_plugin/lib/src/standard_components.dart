@@ -7,6 +7,7 @@ import 'package:analyzer/src/generated/source.dart';
 import 'package:angular_analyzer_plugin/src/model.dart';
 import 'package:angular_analyzer_plugin/src/selector.dart';
 import 'package:angular_analyzer_plugin/src/selector/element_name_selector.dart';
+import 'package:meta/meta.dart';
 
 typedef void CaptureAspectFn<T>(
     Map<String, T> aspectMap, PropertyAccessorElement accessor);
@@ -34,9 +35,9 @@ class BuildStandardHtmlComponentsVisitor extends RecursiveAstVisitor {
     'focusout': 'FocusEvent',
   };
   final Map<String, Component> components;
-  final Map<String, OutputElement> events;
+  final Map<String, Output> events;
 
-  final Map<String, InputElement> attributes;
+  final Map<String, Input> attributes;
 
   final Source source;
 
@@ -89,8 +90,8 @@ class BuildStandardHtmlComponentsVisitor extends RecursiveAstVisitor {
     missingOutputs.forEach((name, type) {
       final namespace = unit.declaredElement.library.publicNamespace;
       final eventClass = namespace.get(type) as ClassElement;
-      events[name] = new OutputElement(name, null, null,
-          unit.declaredElement.source, null, null, eventClass.type);
+      events[name] = new MissingOutput(
+          name: name, eventType: eventClass.type, source: unit.element.source);
     });
   }
 
@@ -144,29 +145,42 @@ class BuildStandardHtmlComponentsVisitor extends RecursiveAstVisitor {
   Component _buildComponent(String tag, int tagOffset) {
     final inputElements = _buildInputs(tagname: tag);
     final outputElements = _buildOutputs(false);
-    return new Component(classElement,
-        inputs: inputElements,
-        outputs: outputElements,
-        selector: new ElementNameSelector(new SelectorName(
-            tag, new SourceRange(tagOffset, tag.length), source)),
-        isHtml: true);
+    return new Component(
+      classElement,
+      inputs: inputElements,
+      outputs: outputElements,
+      selector: new ElementNameSelector(new SelectorName(
+          tag, new SourceRange(tagOffset, tag.length), source)),
+      isHtml: true,
+      looksLikeTemplate: false,
+      templateUrlRange: null,
+      ngContents: const [],
+      pipes: <Pipe>[],
+      templateText: null,
+      templateTextRange: null,
+      templateUrlSource: null,
+      directives: const [],
+      exports: const [],
+      exportAs: null,
+      contentChildrenFields: const [],
+      contentChildFields: const [],
+      attributes: const [],
+    );
   }
 
-  List<InputElement> _buildInputs({String tagname}) =>
+  List<Input> _buildInputs({String tagname}) =>
       _captureAspects((inputMap, accessor) {
         final name = fixName(accessor.displayName);
         final prettyName = alternativeInputs[name];
         final originalName = prettyName == null ? null : name;
         if (!inputMap.containsKey(name)) {
           if (accessor.isSetter) {
-            inputMap[name] = new InputElement(
-                prettyName ?? name,
-                accessor.nameOffset,
-                accessor.nameLength,
-                accessor.source,
-                accessor,
-                new SourceRange(accessor.nameOffset, accessor.nameLength),
-                accessor.variable.type,
+            inputMap[name] = new Input(
+                name: prettyName ?? name,
+                setter: accessor,
+                nameRange:
+                    new SourceRange(accessor.nameOffset, accessor.nameLength),
+                setterType: accessor.variable.type,
                 originalName: originalName,
                 securityContext: tagname == null
                     ? securitySchema.lookupGlobal(name)
@@ -175,7 +189,7 @@ class BuildStandardHtmlComponentsVisitor extends RecursiveAstVisitor {
         }
       }, tagname == null); // Either grabbing HtmlElement attrs or skipping them
 
-  List<OutputElement> _buildOutputs(bool globalOutputs) =>
+  List<Output> _buildOutputs(bool globalOutputs) =>
       _captureAspects((outputMap, accessor) {
         final domName = accessor.name.toLowerCase();
         if (domName == null) {
@@ -195,14 +209,12 @@ class BuildStandardHtmlComponentsVisitor extends RecursiveAstVisitor {
               // so might not be necessary.
               if (returnType.element.name == 'ElementStream') {
                 eventType = returnType.typeArguments[0]; // may be null
-                outputMap[name] = new OutputElement(
-                    name,
-                    accessor.nameOffset,
-                    accessor.nameLength,
-                    accessor.source,
-                    accessor,
-                    null,
-                    eventType);
+                outputMap[name] = new Output(
+                    name: name,
+                    getter: accessor,
+                    eventType: eventType,
+                    nameRange:
+                        SourceRange(accessor.nameOffset, accessor.nameLength));
               }
             }
           }
@@ -232,6 +244,23 @@ class BuildStandardHtmlComponentsVisitor extends RecursiveAstVisitor {
     addAspects(classElement.type);
     return aspectMap.values.toList();
   }
+}
+
+/// Define a "missing" output, which defines a [source] without a [getter].
+class MissingOutput extends Output {
+  @override
+  final Source source;
+
+  MissingOutput(
+      {@required String name,
+      @required this.source,
+      @required DartType eventType,
+      SourceRange nameRange})
+      : super(
+            name: name,
+            nameRange: nameRange,
+            getter: null,
+            eventType: eventType);
 }
 
 class SecurityContext {
@@ -367,9 +396,9 @@ class StandardAngular {
 
 class StandardHtml {
   final Map<String, Component> components;
-  final Map<String, InputElement> attributes;
-  final Map<String, OutputElement> standardEvents;
-  final Map<String, OutputElement> customEvents;
+  final Map<String, Input> attributes;
+  final Map<String, Output> standardEvents;
+  final Map<String, Output> customEvents;
 
   final ClassElement elementClass;
 
@@ -378,14 +407,14 @@ class StandardHtml {
   /// Attributes as a Set to remove duplicates.
   ///
   /// In attributes, there can be multiple strings that point to the same
-  /// [InputElement] generated from [alternativeInputs] (below). This will
-  /// provide a static source of unique [InputElement]s.
-  final Set<InputElement> uniqueAttributeElements;
+  /// [Input] generated from [alternativeInputs] (below). This will
+  /// provide a static source of unique [Input]s.
+  final Set<Input> uniqueAttributeElements;
 
   StandardHtml(this.components, this.attributes, this.standardEvents,
       this.customEvents, this.elementClass, this.htmlElementClass)
       : uniqueAttributeElements = new Set.from(attributes.values);
 
-  Map<String, OutputElement> get events =>
-      new Map<String, OutputElement>.from(standardEvents)..addAll(customEvents);
+  Map<String, Output> get events =>
+      new Map<String, Output>.from(standardEvents)..addAll(customEvents);
 }

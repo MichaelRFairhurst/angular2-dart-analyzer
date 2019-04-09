@@ -9,7 +9,7 @@ import 'package:test/test.dart';
 // ignore_for_file: deprecated_member_use
 
 class AngularElementAssert extends _AbstractElementAssert {
-  final AngularElement element;
+  final Navigable element;
 
   AngularElementAssert(this.element, Source source) : super(source);
 
@@ -19,7 +19,7 @@ class AngularElementAssert extends _AbstractElementAssert {
   }
 
   AngularElementAssert at(String search) {
-    _at(element.nameOffset, search);
+    _at(element.navigationRange.offset, search);
     return this;
   }
 
@@ -31,7 +31,8 @@ class AngularElementAssert extends _AbstractElementAssert {
   }
 
   AngularElementAssert name(String expectedName) {
-    expect(element.name, expectedName);
+    expect(element, const isInstanceOf<NavigableString>());
+    expect((element as NavigableString).string, expectedName);
     return this;
   }
 }
@@ -73,6 +74,18 @@ class DartElementAssert extends _AbstractElementAssert {
   }
 }
 
+class InputAssert extends AngularElementAssert {
+  final Input input;
+
+  InputAssert(this.input, Source source) : super(input, source);
+
+  @override
+  InputAssert name(String expectedName) {
+    expect(input.name, expectedName);
+    return this;
+  }
+}
+
 class LocalVariableAssert extends _AbstractElementAssert {
   final LocalVariable variable;
   final int _referenceOffset;
@@ -82,12 +95,12 @@ class LocalVariableAssert extends _AbstractElementAssert {
       : super(htmlSource, htmlCode);
 
   LocalVariableAssert get declaration {
-    expect(variable.nameOffset, _referenceOffset);
+    expect(variable.navigationRange.offset, _referenceOffset);
     return this;
   }
 
   LocalVariableAssert at(String search) {
-    _at(variable.nameOffset, search);
+    _at(variable.navigationRange.offset, search);
     return this;
   }
 
@@ -109,8 +122,8 @@ class NavigableAssert extends _AbstractElementAssert {
       this._htmlSource, this.element, this._referenceOffset);
 
   AngularElementAssert get angular {
-    expect(element, const isInstanceOf<AngularElement>());
-    return new AngularElementAssert(element as AngularElement, _dartSource);
+    expect(element, isNot(const isInstanceOf<DartElement>()));
+    return new AngularElementAssert(element, _dartSource);
   }
 
   DartElementAssert get dart {
@@ -120,8 +133,8 @@ class NavigableAssert extends _AbstractElementAssert {
   }
 
   AngularElementAssert get input {
-    expect(element, const isInstanceOf<InputElement>());
-    return new AngularElementAssert(element as InputElement, _dartSource);
+    expect(element, const isInstanceOf<Input>());
+    return new InputAssert(element as Input, _dartSource);
   }
 
   LocalVariableAssert get local {
@@ -131,8 +144,8 @@ class NavigableAssert extends _AbstractElementAssert {
   }
 
   AngularElementAssert get output {
-    expect(element, const isInstanceOf<OutputElement>());
-    return new AngularElementAssert(element as OutputElement, _dartSource);
+    expect(element, const isInstanceOf<Output>());
+    return new AngularElementAssert(element as Output, _dartSource);
   }
 
   SelectorNameAssert get selector {

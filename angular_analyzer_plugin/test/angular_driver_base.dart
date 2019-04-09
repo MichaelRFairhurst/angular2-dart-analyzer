@@ -19,21 +19,21 @@ import 'angular_base.dart';
 void assertComponentReference(
     ResolvedRange resolvedRange, Component component) {
   final selector = component.selector as ElementNameSelector;
-  final element = resolvedRange.element;
+  final element = resolvedRange.navigable;
   expect(element, selector.nameElement);
   expect(resolvedRange.range.length, selector.nameElement.string.length);
 }
 
 PropertyAccessorElement assertGetter(ResolvedRange resolvedRange) {
-  final element =
-      (resolvedRange.element as DartElement).element as PropertyAccessorElement;
+  final element = (resolvedRange.navigable as DartElement).element
+      as PropertyAccessorElement;
   expect(element.isGetter, isTrue);
   return element;
 }
 
 void assertPropertyReference(
-    ResolvedRange resolvedRange, AbstractDirective directive, String name) {
-  final element = resolvedRange.element;
+    ResolvedRange resolvedRange, DirectiveBase directive, String name) {
+  final element = resolvedRange.navigable;
   for (final input in directive.inputs) {
     if (input.name == name) {
       expect(element, input);
@@ -43,12 +43,12 @@ void assertPropertyReference(
   fail('Expected input "$name", but $element found.');
 }
 
-Component getComponentByName(List<AbstractDirective> directives, String name) =>
+Component getComponentByName(List<DirectiveBase> directives, String name) =>
     getDirectiveByName(directives, name) as Component;
 
-AbstractDirective getDirectiveByName(
-        List<AbstractDirective> directives, String name) =>
-    directives.firstWhere((directive) => directive.name == name, orElse: () {
+Directive getDirectiveByName(List<DirectiveBase> directives, String name) =>
+    directives.whereType<Directive>().firstWhere(
+        (directive) => directive.classElement.name == name, orElse: () {
       fail('DirectiveMetadata with the class "$name" was not found.');
     });
 
@@ -66,11 +66,6 @@ ResolvedRange getResolvedRangeAtString(
         'ResolvedRange at $offset of $str was not found in [\n${ranges.join('\n')}]');
   });
 }
-
-View getViewByClassName(List<View> views, String className) =>
-    views.firstWhere((view) => view.classElement.name == className, orElse: () {
-      fail('View with the class "$className" was not found.');
-    });
 
 typedef bool ResolvedRangeCondition(ResolvedRange range);
 

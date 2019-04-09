@@ -1,22 +1,17 @@
 import 'package:analyzer/dart/element/element.dart';
+import 'package:analyzer/source/source_range.dart';
 import 'package:analyzer/src/generated/source.dart' show Source;
 import 'package:angular_analyzer_plugin/src/model.dart' hide Component;
 import 'package:angular_analyzer_plugin/src/model.dart' as resolved;
-import 'package:angular_analyzer_plugin/src/model/lazy/view.dart' as lazy;
+import 'package:angular_analyzer_plugin/src/model/navigable.dart';
 import 'package:angular_analyzer_plugin/src/model/syntactic/ng_content.dart';
 import 'package:angular_analyzer_plugin/src/selector.dart';
-import 'package:angular_analyzer_plugin/src/selector/element_name_selector.dart';
 
 class Component implements resolved.Component {
   @override
   final Selector selector;
-  @override
-  final String name;
 
   resolved.Component Function() linkFn;
-
-  @override
-  View view;
 
   @override
   ClassElement classElement;
@@ -25,54 +20,32 @@ class Component implements resolved.Component {
 
   List<NgContent> _inlineNgContents;
 
-  Component(this.selector, this.name, Source source, this._inlineNgContents,
-      this.linkFn) {
-    view = new lazy.View(this);
-  }
+  Component(this.selector, Source source, this._inlineNgContents, this.linkFn);
 
   @override
-  List<AngularElement> get attributes => load().attributes;
+  List<NavigableString> get attributes => load().attributes;
 
   @override
-  List<ContentChildField> get contentChildFields => load().contentChildFields;
+  List<ContentChild> get contentChildFields => load().contentChildFields;
 
   @override
-  set contentChildFields(List<ContentChildField> _contentChildFields) {
-    throw UnsupportedError(
-        'lazy components should not change [contentChildFields]');
-  }
+  List<ContentChild> get contentChildrenFields => load().contentChildrenFields;
 
   @override
-  List<ContentChild> get contentChildren => load().contentChildren;
+  List<DirectiveBase> get directives => load().directives;
 
   @override
-  List<ContentChildField> get contentChildrenFields =>
-      load().contentChildrenFields;
+  Map<String, List<DirectiveBase>> get elementTagsInfo =>
+      load().elementTagsInfo;
 
   @override
-  set contentChildrenFields(List<ContentChildField> _contentChildrenFields) {
-    throw UnsupportedError(
-        'lazy components should not change [contentChildrenFields]');
-  }
+  NavigableString get exportAs => load().exportAs;
 
   @override
-  List<ContentChild> get contentChilds => load().contentChilds;
+  List<Export> get exports => load().exports;
 
   @override
-  List<ElementNameSelector> get elementTags {
-    final elementTags = <ElementNameSelector>[];
-    selector.recordElementNameSelectors(elementTags);
-    return elementTags;
-  }
-
-  @override
-  AngularElement get exportAs => load().exportAs;
-
-  @override
-  List<ExportedIdentifier> get exports => load().exports;
-
-  @override
-  List<InputElement> get inputs => load().inputs;
+  List<Input> get inputs => load().inputs;
 
   @override
   bool get isHtml => load().isHtml;
@@ -83,24 +56,46 @@ class Component implements resolved.Component {
   bool get looksLikeTemplate => load().looksLikeTemplate;
 
   @override
-  set looksLikeTemplate(bool _looksLikeTemplate) {
-    throw UnsupportedError(
-        'lazy components should not change [looksLikeTemplate]');
-  }
-
-  @override
   List<NgContent> get ngContents =>
       _inlineNgContents == null ? load().ngContents : _inlineNgContents;
 
   @override
-  List<OutputElement> get outputs => load().outputs;
+  List<Output> get outputs => load().outputs;
+
+  @override
+  List<Pipe> get pipes => load().pipes;
 
   @override
   Source get source => classElement.source;
 
   @override
+  Template get template => load().template;
+
+  @override
+  set template(Template template) {
+    load().template = template;
+  }
+
+  @override
+  Source get templateSource => load().templateSource;
+
+  @override
+  String get templateText => load().templateText;
+
+  @override
+  SourceRange get templateTextRange => load().templateTextRange;
+
+  @override
+  SourceRange get templateUrlRange => load().templateUrlRange;
+
+  @override
+  Source get templateUrlSource => load().templateUrlSource;
+
+  @override
   bool operator ==(Object other) =>
-      other is Component && other.source == source && other.name == name;
+      other is Component &&
+      other.source == source &&
+      other.classElement == classElement;
 
   resolved.Component load() => _linkedComponent ??= linkFn();
 }

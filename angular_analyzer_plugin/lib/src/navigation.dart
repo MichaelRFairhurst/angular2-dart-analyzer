@@ -32,22 +32,20 @@ class AngularNavigation implements NavigationContributor {
         ? new SourceRange(offset, length)
         : null;
     final directives = result.directives;
-    final views = directives
-        .map((d) => d is Component ? d.view : null)
-        .where((v) => v != null);
+    final components = directives.whereType<Component>();
 
     if (!templatesOnly) {
       // special dart navigable regions
       for (final directive in directives) {
         _addDirectiveRegions(collector, directive, span);
       }
-      for (final view in views) {
-        _addViewRegions(collector, view, span);
+      for (final component in components) {
+        _addComponentRegions(collector, component, span);
       }
     }
 
     final resolvedTemplates = result.fullyResolvedDirectives
-        .map((d) => d is Component ? d.view?.template : null)
+        .map((d) => d is Component ? d.template : null)
         .where((v) => v != null);
     for (final template in resolvedTemplates) {
       _addTemplateRegions(collector, template, span);
@@ -62,8 +60,21 @@ class AngularNavigation implements NavigationContributor {
       // <a><b></b></a> or <a><b></a></b>, but not <a></a><b></b>.
       targetRange == null || targetRange.intersects(toTest);
 
+  void _addComponentRegions(NavigationCollector collector, Component component,
+      SourceRange targetRange) {
+    if (component.templateUrlSource != null &&
+        isTargeted(component.templateUrlRange, targetRange: targetRange)) {
+      collector.addRegion(
+          component.templateUrlRange.offset,
+          component.templateUrlRange.length,
+          protocol.ElementKind.UNKNOWN,
+          new protocol.Location(
+              component.templateUrlSource.fullName, 0, 0, 1, 1));
+    }
+  }
+
   void _addDirectiveRegions(NavigationCollector collector,
-      AbstractDirective directive, SourceRange targetRange) {
+      DirectiveBase directive, SourceRange targetRange) {
     for (final input in directive.inputs) {
       if (!isTargeted(input.setterRange, targetRange: targetRange)) {
         continue;
@@ -80,8 +91,8 @@ class AngularNavigation implements NavigationContributor {
 
       final offsetLineLocation = lineInfo.getLocation(setter.nameOffset);
       collector.addRegion(
-          input.setterRange.offset,
-          input.setterRange.length,
+          input.setterRange?.offset,
+          input.setterRange?.length,
           new protocol.AnalyzerConverter().convertElementKind(setter.kind),
           new protocol.Location(
               setter.source.fullName,
@@ -100,9 +111,9 @@ class AngularNavigation implements NavigationContributor {
       }
 
       final offset = resolvedRange.range.offset;
-      final element = resolvedRange.element;
+      final element = resolvedRange.navigable;
 
-      if (element.navigationRange.offset == null) {
+      if (element.navigationRange?.offset == null) {
         continue;
       }
 
@@ -125,18 +136,6 @@ class AngularNavigation implements NavigationContributor {
               element.navigationRange.length,
               offsetLineLocation.lineNumber,
               offsetLineLocation.columnNumber));
-    }
-  }
-
-  void _addViewRegions(
-      NavigationCollector collector, View view, SourceRange targetRange) {
-    if (view.templateUriSource != null &&
-        isTargeted(view.templateUrlRange, targetRange: targetRange)) {
-      collector.addRegion(
-          view.templateUrlRange.offset,
-          view.templateUrlRange.length,
-          protocol.ElementKind.UNKNOWN,
-          new protocol.Location(view.templateUriSource.fullName, 0, 0, 1, 1));
     }
   }
 }

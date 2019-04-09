@@ -23,9 +23,11 @@ import 'package:analyzer_plugin/utilities/completion/type_member_contributor.dar
 import 'package:angular_analyzer_plugin/ast.dart';
 import 'package:angular_analyzer_plugin/src/completion_request.dart';
 import 'package:angular_analyzer_plugin/src/model.dart';
+import 'package:angular_analyzer_plugin/src/model/navigable.dart';
 import 'package:angular_analyzer_plugin/src/selector.dart';
 import 'package:angular_analyzer_plugin/src/selector/and_selector.dart';
 import 'package:angular_analyzer_plugin/src/selector/attribute_selector.dart';
+import 'package:angular_analyzer_plugin/src/selector/element_name_selector.dart';
 import 'package:angular_analyzer_plugin/src/selector/or_selector.dart';
 
 bool offsetContained(int offset, int start, int length) =>
@@ -108,34 +110,35 @@ class NgInheritedReferenceContributor extends CompletionContributor {
   final InheritedReferenceContributor _inheritedReferenceContributor =
       new InheritedReferenceContributor();
 
-  void addExportedPrefixSuggestions(CompletionCollector collector, View view) {
-    if (view.exports == null) {
+  void addExportedPrefixSuggestions(
+      CompletionCollector collector, Component component) {
+    if (component.exports == null) {
       return;
     }
 
-    view.exports
+    component.exports
         .map((export) => export.prefix)
         .where((prefix) => prefix != '')
         .toSet()
         .map((prefix) => _addExportedPrefixSuggestion(
-            prefix, _getPrefixedImport(view.classElement.library, prefix)))
+            prefix, _getPrefixedImport(component.classElement.library, prefix)))
         .forEach(collector.addSuggestion);
   }
 
   void addExportSuggestions(
-      CompletionCollector collector, View view, OpType optype,
+      CompletionCollector collector, Component component, OpType optype,
       {String prefix}) {
     if (prefix == null) {
       collector.addSuggestion(_addExportedClassSuggestion(
-          new ExportedIdentifier(view.classElement.name, null,
-              element: view.classElement),
-          view.classElement.type,
+          new Export(
+              component.classElement.name, null, null, component.classElement),
+          component.classElement.type,
           ElementKind.CLASS,
           optype,
           relevance: DART_RELEVANCE_DEFAULT));
     }
 
-    final exports = view.exports;
+    final exports = component.exports;
     if (exports == null) {
       return;
     }
@@ -183,8 +186,8 @@ class NgInheritedReferenceContributor extends CompletionContributor {
     final templates = request.templates;
 
     for (final template in templates) {
-      final context = template.view.component.classElement.enclosingElement
-          .enclosingElement.context;
+      final context = template
+          .component.classElement.enclosingElement.enclosingElement.context;
       final typeProvider = context.typeProvider;
       final typeSystem = context.typeSystem;
       final dartSnippet = request.dartSnippet;
@@ -195,7 +198,7 @@ class NgInheritedReferenceContributor extends CompletionContributor {
 
         final optype =
             defineOpType(completionTarget, request.offset, dartSnippet);
-        final classElement = template.view.classElement;
+        final classElement = template.component.classElement;
         final libraryElement = classElement.library;
 
         final dartResolveResult = new _ResolveResultShell(request.path,
@@ -222,7 +225,7 @@ class NgInheritedReferenceContributor extends CompletionContributor {
             );
           }
 
-          addExportedPrefixSuggestions(collector, template.view);
+          addExportedPrefixSuggestions(collector, template.component);
         }
 
         {
@@ -231,10 +234,10 @@ class NgInheritedReferenceContributor extends CompletionContributor {
           if (entity is SimpleIdentifier &&
               containingNode is PrefixedIdentifier &&
               entity == containingNode?.identifier) {
-            addExportSuggestions(collector, template.view, optype,
+            addExportSuggestions(collector, template.component, optype,
                 prefix: containingNode.prefix.name);
           } else {
-            addExportSuggestions(collector, template.view, optype);
+            addExportSuggestions(collector, template.component, optype);
           }
         }
       }
@@ -262,15 +265,15 @@ class NgInheritedReferenceContributor extends CompletionContributor {
     return optype;
   }
 
-  CompletionSuggestion _addExportedClassSuggestion(ExportedIdentifier export,
-          DartType typeName, ElementKind elemKind, OpType optype,
+  CompletionSuggestion _addExportedClassSuggestion(
+          Export export, DartType typeName, ElementKind elemKind, OpType optype,
           {int relevance: DART_RELEVANCE_DEFAULT, bool withPrefix: true}) =>
       _createExportSuggestion(
           export, relevance, typeName, _createExportElement(export, elemKind),
           withPrefix: withPrefix);
 
-  CompletionSuggestion _addExportedFunctionSuggestion(ExportedIdentifier export,
-      DartType typeName, ElementKind elemKind, OpType optype,
+  CompletionSuggestion _addExportedFunctionSuggestion(
+      Export export, DartType typeName, ElementKind elemKind, OpType optype,
       {int relevance: DART_RELEVANCE_DEFAULT, bool withPrefix: true}) {
     final element = export.element as FunctionElement;
     // ignore: parameter_assignments
@@ -293,8 +296,8 @@ class NgInheritedReferenceContributor extends CompletionContributor {
           element.parameters.any((param) => param.name != null);
   }
 
-  CompletionSuggestion _addExportedGetterSuggestion(ExportedIdentifier export,
-      DartType typeName, ElementKind elemKind, OpType optype,
+  CompletionSuggestion _addExportedGetterSuggestion(
+      Export export, DartType typeName, ElementKind elemKind, OpType optype,
       {int relevance: DART_RELEVANCE_DEFAULT, bool withPrefix: true}) {
     final element = export.element as PropertyAccessorElement;
     // ignore: parameter_assignments
@@ -340,8 +343,8 @@ class NgInheritedReferenceContributor extends CompletionContributor {
           defaultRelevance, prefix, prefix.length, 0, false, false,
           element: element);
 
-  Element _createExportElement(ExportedIdentifier export, ElementKind kind) {
-    final name = export.identifier;
+  Element _createExportElement(Export export, ElementKind kind) {
+    final name = export.name;
     final location = new Location(export.element.source.fullName,
         export.element.nameOffset, export.element.nameLength, 0, 0);
     final flags = Element.makeFlags();
@@ -361,12 +364,12 @@ class NgInheritedReferenceContributor extends CompletionContributor {
         parameters: '($parameterString)');
   }
 
-  CompletionSuggestion _createExportSuggestion(ExportedIdentifier export,
-      int defaultRelevance, DartType type, Element element,
+  CompletionSuggestion _createExportSuggestion(
+      Export export, int defaultRelevance, DartType type, Element element,
       {bool withPrefix: true}) {
-    final completion = export.prefix.isEmpty || !withPrefix
-        ? export.identifier
-        : '${export.prefix}.${export.identifier}';
+    final completion = (export.prefix ?? '').isEmpty || !withPrefix
+        ? export.name
+        : '${export.prefix}.${export.name}';
     return new CompletionSuggestion(CompletionSuggestionKind.INVOCATION,
         defaultRelevance, completion, completion.length, 0, false, false,
         element: element);
@@ -375,8 +378,8 @@ class NgInheritedReferenceContributor extends CompletionContributor {
   Element _createLocalElement(
       LocalVariable localVar, ElementKind kind, DartType type) {
     final name = localVar.name;
-    final location = new Location(localVar.source.fullName, localVar.nameOffset,
-        localVar.nameLength, 0, 0);
+    final location = new Location(localVar.source.fullName,
+        localVar.navigationRange.offset, localVar.navigationRange.length, 0, 0);
     final flags = Element.makeFlags();
     return new Element(kind, name, flags,
         location: location, returnType: type.toString());
@@ -435,12 +438,12 @@ class NgTypeMemberContributor extends CompletionContributor {
     final templates = request.templates;
 
     for (final template in templates) {
-      final typeProvider = template.view.component.classElement.enclosingElement
+      final typeProvider = template.component.classElement.enclosingElement
           .enclosingElement.context.typeProvider;
       final dartSnippet = request.dartSnippet;
 
       if (dartSnippet != null) {
-        final classElement = template.view.classElement;
+        final classElement = template.component.classElement;
         final libraryElement = classElement.library;
 
         final dartResolveResult = new _ResolveResultShell(request.path,
@@ -542,10 +545,10 @@ class TemplateCompleter {
     AngularCompletionRequest request,
     CompletionCollector collector,
     Template template,
-    List<OutputElement> standardHtmlEvents,
-    Set<InputElement> standardHtmlAttributes,
+    List<Output> standardHtmlEvents,
+    Set<Input> standardHtmlAttributes,
   ) async {
-    final typeProvider = template.view.component.classElement.enclosingElement
+    final typeProvider = template.component.classElement.enclosingElement
         .enclosingElement.context.typeProvider;
     final dartSnippet = request.dartSnippet;
     final target = request.angularTarget;
@@ -714,10 +717,10 @@ class TemplateCompleter {
           .map((b) => b.boundOutput)).toSet();
 
       final availableInputs =
-          new HashSet<InputElement>.from(directive.boundDirective.inputs)
+          new HashSet<Input>.from(directive.boundDirective.inputs)
               .difference(usedInputs);
       final availableOutputs =
-          new HashSet<OutputElement>.from(directive.boundDirective.outputs)
+          new HashSet<Output>.from(directive.boundDirective.outputs)
               .difference(usedOutputs);
       for (final input in availableInputs) {
         final inputName = input.name;
@@ -740,7 +743,7 @@ class TemplateCompleter {
   /// non-violating plain-text attribute-directives and inputs (if name overlaps
   /// with attribute-directive).
   void suggestFromAvailableDirectives(
-    Map<AbstractDirective, List<SelectorName>> availableDirectives,
+    Map<DirectiveBase, List<SelectorName>> availableDirectives,
     CompletionCollector collector, {
     bool suggestInputs: false,
     bool suggestBananas: false,
@@ -748,7 +751,7 @@ class TemplateCompleter {
   }) {
     availableDirectives.forEach((directive, selectors) {
       final attributeSelectors = <String, SelectorName>{};
-      final validInputs = <InputElement>[];
+      final validInputs = <Input>[];
 
       for (final attribute in selectors) {
         attributeSelectors[attribute.string] = attribute;
@@ -773,10 +776,8 @@ class TemplateCompleter {
               _createBananaElement(input, ElementKind.SETTER)));
         }
         if (suggestInputs) {
-          collector.addSuggestion(_createInputSuggestion(
-              input,
-              DART_RELEVANCE_DEFAULT,
-              _createInputElement(input, ElementKind.SETTER)));
+          collector.addSuggestion(_createInputSuggestion(input,
+              DART_RELEVANCE_DEFAULT, _createInput(input, ElementKind.SETTER)));
         }
       }
 
@@ -795,7 +796,7 @@ class TemplateCompleter {
   }
 
   void suggestHtmlTags(Template template, CompletionCollector collector) {
-    final elementTagMap = template.view.elementTagsInfo;
+    final elementTagMap = template.component.elementTagsInfo;
     for (final elementTagName in elementTagMap.keys) {
       final currentSuggestion = _createHtmlTagSuggestion(
           '<$elementTagName',
@@ -813,7 +814,7 @@ class TemplateCompleter {
   void suggestInputs(
     List<DirectiveBinding> directives,
     CompletionCollector collector,
-    Set<InputElement> standardHtmlAttributes,
+    Set<Input> standardHtmlAttributes,
     List<InputBinding> boundStandardAttributes,
     TypeProvider typeProvider, {
     ExpressionBoundAttribute currentAttr,
@@ -840,16 +841,14 @@ class TemplateCompleter {
                 relevance,
                 _createPlainAttributeElement(
                   input.name,
-                  input.nameOffset,
+                  input.nameRange.offset,
                   input.source.fullName,
                   ElementKind.SETTER,
                 )));
           }
         }
-        collector.addSuggestion(_createInputSuggestion(
-            input,
-            DART_RELEVANCE_DEFAULT,
-            _createInputElement(input, ElementKind.SETTER)));
+        collector.addSuggestion(_createInputSuggestion(input,
+            DART_RELEVANCE_DEFAULT, _createInput(input, ElementKind.SETTER)));
       }
     }
 
@@ -872,16 +871,14 @@ class TemplateCompleter {
               relevance,
               _createPlainAttributeElement(
                 input.name,
-                input.nameOffset,
+                input.nameRange.offset,
                 input.source.fullName,
                 ElementKind.SETTER,
               )));
         }
       }
-      collector.addSuggestion(_createInputSuggestion(
-          input,
-          DART_RELEVANCE_DEFAULT - 2,
-          _createInputElement(input, ElementKind.SETTER)));
+      collector.addSuggestion(_createInputSuggestion(input,
+          DART_RELEVANCE_DEFAULT - 2, _createInput(input, ElementKind.SETTER)));
     }
   }
 
@@ -914,7 +911,7 @@ class TemplateCompleter {
             templateAttr.prefix,
             input,
             DART_RELEVANCE_DEFAULT,
-            _createInputElement(input, ElementKind.SETTER)));
+            _createInput(input, ElementKind.SETTER)));
       }
     }
   }
@@ -922,7 +919,7 @@ class TemplateCompleter {
   void suggestOutputs(
       List<DirectiveBinding> directives,
       CompletionCollector collector,
-      List<OutputElement> standardHtmlEvents,
+      List<Output> standardHtmlEvents,
       List<OutputBinding> boundStandardOutputs,
       {BoundAttributeInfo currentAttr}) {
     for (final directive in directives) {
@@ -966,8 +963,8 @@ class TemplateCompleter {
     final seen = new HashSet<String>();
     for (final directive in directives) {
       final exportAs = directive.boundDirective.exportAs;
-      if (exportAs != null && exportAs.name.isNotEmpty) {
-        final exportAsName = exportAs.name;
+      if (exportAs != null && exportAs.string.isNotEmpty) {
+        final exportAsName = exportAs.string;
         if (!seen.contains(exportAsName)) {
           seen.add(exportAsName);
           collector.addSuggestion(_createRefValueSuggestion(
@@ -980,7 +977,7 @@ class TemplateCompleter {
   }
 
   void suggestStarAttrs(Template template, CompletionCollector collector) {
-    template.view.directives.where((d) => d.looksLikeTemplate).forEach(
+    template.component.directives.where((d) => d.looksLikeTemplate).forEach(
         (directive) =>
             suggestStarAttrsForSelector(directive.selector, collector));
   }
@@ -1019,10 +1016,6 @@ class TemplateCompleter {
       }
 
       final component = directive as Component;
-      final view = component?.view;
-      if (view == null) {
-        continue;
-      }
 
       for (final ngContent in component.ngContents) {
         if (ngContent.selector == null) {
@@ -1031,7 +1024,7 @@ class TemplateCompleter {
 
         final tags = ngContent.selector.suggestTags();
         for (final tag in tags) {
-          final location = new Location(view.templateSource.fullName,
+          final location = new Location(component.templateSource.fullName,
               ngContent.sourceRange.offset, ngContent.sourceRange.length, 0, 0);
           collector.addSuggestion(_createHtmlTagSuggestion(
               tag.toString(),
@@ -1043,26 +1036,28 @@ class TemplateCompleter {
     }
   }
 
-  Element _createBananaElement(InputElement inputElement, ElementKind kind) {
-    final name = '[(${inputElement.name})]';
-    final location = new Location(inputElement.source.fullName,
-        inputElement.nameOffset, inputElement.nameLength, 0, 0);
+  Element _createBananaElement(Input input, ElementKind kind) {
+    final name = '[(${input.name})]';
+    final location = new Location(input.source.fullName, input.nameRange.offset,
+        input.nameRange.length, 0, 0);
     final flags = Element.makeFlags();
     return new Element(kind, name, flags,
-        location: location, returnType: inputElement.setterType.toString());
+        location: location, returnType: input.setterType.toString());
   }
 
   CompletionSuggestion _createBananaSuggestion(
-      InputElement inputElement, int defaultRelevance, Element element) {
-    final completion = '[(${inputElement.name})]';
+      Input input, int defaultRelevance, Element element) {
+    final completion = '[(${input.name})]';
     return new CompletionSuggestion(CompletionSuggestionKind.INVOCATION,
         defaultRelevance, completion, completion.length, 0, false, false,
-        element: element, returnType: inputElement.setterType.toString());
+        element: element, returnType: input.setterType.toString());
   }
 
   Element _createHtmlTagElement(
-      String elementTagName, AbstractDirective directive, ElementKind kind) {
-    final selector = directive.elementTags.firstWhere(
+      String elementTagName, DirectiveBase directive, ElementKind kind) {
+    final elementTags = <ElementNameSelector>[];
+    directive.selector.recordElementNameSelectors(elementTags);
+    final selector = elementTags.firstWhere(
         (currSelector) => currSelector.toString() == elementTagName);
     final offset = selector.nameElement.navigationRange.offset;
     final length = selector.nameElement.navigationRange.length;
@@ -1093,18 +1088,18 @@ class TemplateCompleter {
     return new Element(kind, elementTagName, flags, location: location);
   }
 
-  Element _createInputElement(InputElement inputElement, ElementKind kind) {
-    final name = '[${inputElement.name}]';
-    final location = new Location(inputElement.source.fullName,
-        inputElement.nameOffset, inputElement.nameLength, 0, 0);
+  Element _createInput(Input input, ElementKind kind) {
+    final name = '[${input.name}]';
+    final location = new Location(input.source.fullName, input.nameRange.offset,
+        input.nameRange.length, 0, 0);
     final flags = Element.makeFlags(
         isAbstract: false, isDeprecated: false, isPrivate: false);
     return new Element(kind, name, flags, location: location);
   }
 
-  CompletionSuggestion _createInputInTemplateSuggestion(String prefix,
-      InputElement inputElement, int defaultRelevance, Element element) {
-    final capitalized = inputElement.name.substring(prefix.length);
+  CompletionSuggestion _createInputInTemplateSuggestion(
+      String prefix, Input input, int defaultRelevance, Element element) {
+    final capitalized = input.name.substring(prefix.length);
     final firstLetter = capitalized.substring(0, 1).toLowerCase();
     final remaining = capitalized.substring(1);
     final completion = '$firstLetter$remaining:';
@@ -1114,30 +1109,33 @@ class TemplateCompleter {
   }
 
   CompletionSuggestion _createInputSuggestion(
-      InputElement inputElement, int defaultRelevance, Element element) {
-    final completion = '[${inputElement.name}]';
+      Input input, int defaultRelevance, Element element) {
+    final completion = '[${input.name}]';
     return new CompletionSuggestion(CompletionSuggestionKind.INVOCATION,
         defaultRelevance, completion, completion.length, 0, false, false,
         element: element);
   }
 
-  Element _createOutputElement(OutputElement outputElement, ElementKind kind) {
-    final name = '(${outputElement.name})';
+  Element _createOutputElement(Output output, ElementKind kind) {
+    final name = '(${output.name})';
     // Note: We use `?? 0` below because focusin/out don't have ranges but we
     // still want to suggest them.
-    final location = new Location(outputElement.source.fullName,
-        outputElement.nameOffset ?? 0, outputElement.nameLength ?? 0, 0, 0);
+    if (output.source == null) {
+      print(output.name);
+    }
+    final location = new Location(output.source?.fullName,
+        output.nameRange?.offset ?? 0, output.nameRange?.length ?? 0, 0, 0);
     final flags = Element.makeFlags();
     return new Element(kind, name, flags,
-        location: location, returnType: outputElement.eventType.toString());
+        location: location, returnType: output.eventType.toString());
   }
 
   CompletionSuggestion _createOutputSuggestion(
-      OutputElement outputElement, int defaultRelevance, Element element) {
-    final completion = '(${outputElement.name})';
+      Output output, int defaultRelevance, Element element) {
+    final completion = '(${output.name})';
     return new CompletionSuggestion(CompletionSuggestionKind.INVOCATION,
         defaultRelevance, completion, completion.length, 0, false, false,
-        element: element, returnType: outputElement.eventType.toString());
+        element: element, returnType: output.eventType.toString());
   }
 
   Element _createPlainAttributeElement(
@@ -1155,17 +1153,17 @@ class TemplateCompleter {
           defaultRelevance, completion, completion.length, 0, false, false,
           element: element);
 
-  Element _createRefValueElement(AngularElement exportAs, ElementKind kind) {
-    final name = exportAs.name;
-    final location = new Location(exportAs.source.fullName, exportAs.nameOffset,
-        exportAs.nameLength, 0, 0);
+  Element _createRefValueElement(NavigableString exportAs, ElementKind kind) {
+    final name = exportAs.string;
+    final location = new Location(exportAs.source.fullName,
+        exportAs.navigationRange.offset, exportAs.navigationRange.length, 0, 0);
     final flags = Element.makeFlags();
     return new Element(kind, name, flags, location: location);
   }
 
   CompletionSuggestion _createRefValueSuggestion(
-      AngularElement exportAs, int defaultRelevance, Element element) {
-    final completion = exportAs.name;
+      NavigableString exportAs, int defaultRelevance, Element element) {
+    final completion = exportAs.string;
     return new CompletionSuggestion(CompletionSuggestionKind.INVOCATION,
         defaultRelevance, completion, completion.length, 0, false, false,
         element: element);

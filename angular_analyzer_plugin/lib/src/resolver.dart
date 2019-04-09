@@ -17,6 +17,7 @@ import 'package:analyzer/src/generated/source.dart';
 import 'package:angular_analyzer_plugin/ast.dart';
 import 'package:angular_analyzer_plugin/errors.dart';
 import 'package:angular_analyzer_plugin/src/model.dart';
+import 'package:angular_analyzer_plugin/src/model/navigable.dart';
 import 'package:angular_analyzer_plugin/src/model/resolved/content_child.dart'
     as resolved;
 import 'package:angular_analyzer_plugin/src/model/syntactic/ng_content.dart';
@@ -292,10 +293,6 @@ class AngularSubsetVisitor extends RecursiveAstVisitor<Object> {
       // Named parameters always allowed
       return;
     }
-    if (element is AngularElement) {
-      // Variables local to the template
-      return;
-    }
     if (id is SimpleIdentifier &&
         (element is PropertyInducingElement ||
             element is PropertyAccessorElement) &&
@@ -308,7 +305,7 @@ class AngularSubsetVisitor extends RecursiveAstVisitor<Object> {
     if (id is PrefixedIdentifier) {
       if (owningComponent.exports.any((export) =>
           export.prefix == id.prefix.name &&
-          id.identifier.name == export.identifier)) {
+          id.identifier.name == export.name)) {
         // Correct reference to exported prefix identifier
         return;
       }
@@ -318,14 +315,14 @@ class AngularSubsetVisitor extends RecursiveAstVisitor<Object> {
         if (target is SimpleIdentifier &&
             target.staticElement is PrefixElement &&
             owningComponent.exports.any((export) =>
-                export.prefix == target.name && export.identifier == id.name)) {
+                export.prefix == target.name && export.name == id.name)) {
           // Invocation of a top-level function behind a prefix, which is stored
           // as a [MethodInvocation].
           return;
         }
       }
-      if (owningComponent.exports.any(
-          (export) => export.prefix == '' && id.name == export.identifier)) {
+      if (owningComponent.exports
+          .any((export) => export.prefix == '' && id.name == export.name)) {
         // Correct reference to exported simple identifier
         return;
       }
@@ -554,14 +551,16 @@ class DartVariableManager {
     // add a new local variable
     final localVariable = new LocalVariableElementImpl(name, offset);
     localVariable.name.length;
-    localVariable.type = type;
+    localVariable
+      ..type = type
+      ..enclosingElement = htmlMethodElement;
 
     return localVariable;
   }
 }
 
 class DirectiveResolver extends AngularAstVisitor {
-  final List<AbstractDirective> allDirectives;
+  final List<DirectiveBase> allDirectives;
   final Source templateSource;
   final Template template;
   final AnalysisErrorListener errorListener;
@@ -584,7 +583,7 @@ class DirectiveResolver extends AngularAstVisitor {
 
   void recordContentChildren(ElementInfo element) {
     for (final binding in outerBindings) {
-      for (var contentChild in binding.boundDirective.contentChilds) {
+      for (var contentChild in binding.boundDirective.contentChildFields) {
         // an already matched ContentChild shouldn't look inside that match
         if (binding.contentChildBindings[contentChild]?.boundElements
                 ?.any(outerElements.contains) ==
@@ -592,12 +591,11 @@ class DirectiveResolver extends AngularAstVisitor {
           continue;
         }
 
-        if (contentChild.query
-            .match(element, _standardAngular, _standardHtml, _errorReporter)) {
-          binding.contentChildBindings.putIfAbsent(
-              contentChild,
-              () => new ContentChildBinding(
-                  binding.boundDirective, contentChild));
+        if (contentChild.query.accept(new MatchContentChildQueryVisitor(
+            element, _standardAngular, _standardHtml, _errorReporter))) {
+          final boundDirective = binding.boundDirective as Directive;
+          binding.contentChildBindings.putIfAbsent(contentChild,
+              () => new ContentChildBinding(boundDirective, contentChild));
 
           if (binding
               .contentChildBindings[contentChild].boundElements.isNotEmpty) {
@@ -605,7 +603,7 @@ class DirectiveResolver extends AngularAstVisitor {
                 AngularWarningCode.SINGULAR_CHILD_QUERY_MATCHED_MULTIPLE_TIMES,
                 element.offset,
                 element.length,
-                [binding.boundDirective.name, contentChild.field.fieldName]);
+                [boundDirective.classElement.name, contentChild.fieldName]);
           }
           binding.contentChildBindings[contentChild].boundElements.add(element);
 
@@ -615,9 +613,10 @@ class DirectiveResolver extends AngularAstVisitor {
         }
       }
 
-      for (var contentChildren in binding.boundDirective.contentChildren) {
-        if (contentChildren.query
-            .match(element, _standardAngular, _standardHtml, _errorReporter)) {
+      for (var contentChildren
+          in binding.boundDirective.contentChildrenFields) {
+        if (contentChildren.query.accept(new MatchContentChildQueryVisitor(
+            element, _standardAngular, _standardHtml, _errorReporter))) {
           binding.contentChildrenBindings.putIfAbsent(
               contentChildren,
               () => new ContentChildBinding(
@@ -642,7 +641,7 @@ class DirectiveResolver extends AngularAstVisitor {
 
     final elementView =
         new ElementViewImpl(element.attributes, element: element);
-    final unmatchedDirectives = <AbstractDirective>[];
+    final unmatchedDirectives = <DirectiveBase>[];
 
     final containingDirectivesCount = outerBindings.length;
     for (final directive in allDirectives) {
@@ -655,8 +654,8 @@ class DirectiveResolver extends AngularAstVisitor {
         }
 
         // optimization: only add the bindings that care about content child
-        if (directive.contentChilds.isNotEmpty ||
-            directive.contentChildren.isNotEmpty) {
+        if (directive.contentChildFields.isNotEmpty ||
+            directive.contentChildrenFields.isNotEmpty) {
           outerBindings.add(binding);
         }
 
@@ -664,12 +663,13 @@ class DirectiveResolver extends AngularAstVisitor {
         // we *know* they require a template.
         if (directive.looksLikeTemplate &&
             !element.isTemplate &&
-            directive.name != "NgIf" &&
-            directive.name != "NgFor") {
+            directive is Directive &&
+            directive.classElement.name != "NgIf" &&
+            directive.classElement.name != "NgFor") {
           _reportErrorForRange(
               element.openingSpan,
               AngularWarningCode.CUSTOM_DIRECTIVE_MAY_REQUIRE_TEMPLATE,
-              [directive.name]);
+              [directive.classElement.name]);
         }
       } else {
         unmatchedDirectives.add(directive);
@@ -677,7 +677,7 @@ class DirectiveResolver extends AngularAstVisitor {
     }
 
     for (final directive in unmatchedDirectives) {
-      if (directive is AbstractDirective &&
+      if (directive is DirectiveBase &&
           directive.selector.availableTo(elementView) &&
           !directive.looksLikeTemplate) {
         element.availableDirectives[directive] =
@@ -797,10 +797,10 @@ class ElementViewImpl implements ElementView {
   }
 }
 
-/// A variable defined by a [AbstractDirective].
+/// A variable defined by a [DirectiveBase].
 class InternalVariable {
   final String name;
-  final AngularElement element;
+  final Navigable element;
   final DartType type;
 
   InternalVariable(this.name, this.element, this.type);
@@ -856,7 +856,7 @@ class MatchContentChildQueryVisitor
     if (attr.value != "" && attr.value != null) {
       final possibleDirectives = new List<Directive>.from(element.directives
           .where((d) =>
-              d.exportAs.name == attr.value &&
+              d.exportAs.string == attr.value &&
               d is Directive)); // No [FunctionalDirective]s/not [DirectiveBase]
       if (possibleDirectives.isEmpty || possibleDirectives.length > 1) {
         // Don't validate based on an invalid state (that's reported as such).
@@ -1007,11 +1007,11 @@ class NgContentRecorder extends AngularScopeVisitor {
 }
 
 class PrepareEventScopeVisitor extends AngularScopeVisitor {
-  List<AbstractDirective> directives;
+  List<DirectiveBase> directives;
   final Template template;
   final Source templateSource;
   final Map<String, LocalVariable> localVariables;
-  final Map<String, OutputElement> standardHtmlEvents;
+  final Map<String, Output> standardHtmlEvents;
   final TypeProvider typeProvider;
   final DartVariableManager dartVariableManager;
   final AnalysisErrorListener errorListener;
@@ -1084,8 +1084,7 @@ class PrepareEventScopeVisitor extends AngularScopeVisitor {
     attr.localVariables = new HashMap.from(localVariables);
     final localVariableElement =
         dartVariableManager.newLocalVariableElement(-1, r'$event', eventType);
-    final localVariable = new LocalVariable(
-        r'$event', -1, 6, templateSource, localVariableElement);
+    final localVariable = new LocalVariable(r'$event', localVariableElement);
     attr.localVariables[r'$event'] = localVariable;
   }
 
@@ -1217,12 +1216,12 @@ class PrepareScopeVisitor extends AngularScopeVisitor {
   /// shortlived variable existing only in the scope of element tag, therefore
   /// don't use [internalVariables].
   Map<String, List<InternalVariable>> _defineExportAsVariables(
-      List<AbstractDirective> directives) {
+      List<DirectiveBase> directives) {
     final exportAsMap = <String, List<InternalVariable>>{};
     for (final directive in directives) {
       final exportAs = directive.exportAs;
-      if (exportAs != null && directive is AbstractClassDirective) {
-        final name = exportAs.name;
+      if (exportAs != null && directive is Directive) {
+        final name = exportAs.string;
         final type = directive.classElement.type;
         exportAsMap.putIfAbsent(name, () => <InternalVariable>[]);
         exportAsMap[name].add(new InternalVariable(name, exportAs, type));
@@ -1266,8 +1265,8 @@ class PrepareScopeVisitor extends AngularScopeVisitor {
 
         final localVariableElement =
             dartVariableManager.newLocalVariableElement(-1, name, type);
-        final localVariable = new LocalVariable(
-            name, offset, name.length, templateSource, localVariableElement);
+        final localVariable = new LocalVariable(name, localVariableElement,
+            localRange: SourceRange(offset, name.length));
         localVariables[name] = localVariable;
         template.addRange(
           new SourceRange(offset, name.length),
@@ -1278,12 +1277,11 @@ class PrepareScopeVisitor extends AngularScopeVisitor {
   }
 
   void _defineNgForVariables(
-      List<AttributeInfo> attributes, AbstractDirective directive) {
+      List<AttributeInfo> attributes, DirectiveBase directive) {
     // TODO(scheglov) Once Angular has a way to describe variables, reimplement
     // https://github.com/angular/angular/issues/4850
-    if (directive.name == 'NgFor') {
-      final dartElem =
-          new DartElement((directive as AbstractClassDirective).classElement);
+    if (directive is Directive && directive.classElement.name == 'NgFor') {
+      final dartElem = new DartElement(directive.classElement);
       internalVariables['index'] =
           new InternalVariable('index', dartElem, typeProvider.intType);
       internalVariables['even'] =
@@ -1308,7 +1306,7 @@ class PrepareScopeVisitor extends AngularScopeVisitor {
 
   /// Define reference variables [localVariables] for `#name` attributes.
   void _defineReferenceVariablesForAttributes(
-      List<AbstractDirective> directives,
+      List<DirectiveBase> directives,
       List<AttributeInfo> attributes,
       Map<String, List<InternalVariable>> exportAsMap) {
     for (final attribute in attributes) {
@@ -1328,7 +1326,7 @@ class PrepareScopeVisitor extends AngularScopeVisitor {
 
         // maybe an internal variable reference
         var type = typeProvider.dynamicType;
-        AngularElement angularElement;
+        Navigable angularElement;
 
         if (refValue == null) {
           // Find the corresponding Component to assign reference to.
@@ -1377,11 +1375,12 @@ class PrepareScopeVisitor extends AngularScopeVisitor {
 
         final localVariableElement =
             dartVariableManager.newLocalVariableElement(offset, name, type);
-        final localVariable = new LocalVariable(
-            name, offset, name.length, templateSource, localVariableElement);
+        final localVariable = new LocalVariable(name, localVariableElement,
+            localRange: SourceRange(offset, name.length));
         localVariables[name] = localVariable;
         template.addRange(
-          new SourceRange(localVariable.nameOffset, localVariable.name.length),
+          new SourceRange(localVariable.navigationRange.offset,
+              localVariable.navigationRange.length),
           localVariable,
         );
       }
@@ -1460,10 +1459,10 @@ class SingleScopeResolver extends AngularScopeVisitor {
   /// https://www.w3.org/TR/CSS21/syndata.html#value-def-identifier
   static final RegExp _cssIdentifierRegexp =
       new RegExp(r"^(-?[a-zA-Z_]|\\.)([a-zA-Z0-9\-_]|\\.)*$");
-  final Map<String, InputElement> standardHtmlAttributes;
+  final Map<String, Input> standardHtmlAttributes;
   final List<Pipe> pipes;
-  List<AbstractDirective> directives;
-  View view;
+  List<DirectiveBase> directives;
+  Component component;
   Template template;
   Source templateSource;
   TypeProvider typeProvider;
@@ -1479,7 +1478,7 @@ class SingleScopeResolver extends AngularScopeVisitor {
   SingleScopeResolver(
       this.standardHtmlAttributes,
       this.pipes,
-      this.view,
+      this.component,
       this.template,
       this.templateSource,
       this.typeProvider,
@@ -1506,7 +1505,8 @@ class SingleScopeResolver extends AngularScopeVisitor {
     if (binding.parent.boundDirectives
         .map((binding) => binding.boundDirective)
         // TODO enable this again for all directives, not just NgIf
-        .where((directive) => directive.name == "NgIf")
+        .where((directive) =>
+            directive is Directive && directive.classElement.name == "NgIf")
         .any((directive) =>
             directive.inputs.any((input) => input.name == binding.name))) {
       errorListener.onError(new AnalysisError(
@@ -1609,7 +1609,7 @@ class SingleScopeResolver extends AngularScopeVisitor {
       }
 
       for (final elem in directiveBinding.boundDirective.attributes) {
-        if (elem.name == attribute.name) {
+        if (elem.string == attribute.name) {
           final range =
               new SourceRange(attribute.nameOffset, attribute.name.length);
           template.addRange(range, elem);
@@ -1722,8 +1722,10 @@ class SingleScopeResolver extends AngularScopeVisitor {
     final range = new SourceRange(attribute.nameOffset, attribute.name.length);
     template.addRange(
         range,
-        new AngularElementImpl('attr.${attribute.name}',
-            matchingAttr.nameOffset, matchingAttr.name.length, templateSource));
+        new NavigableString(
+            'attr.${attribute.name}',
+            new SourceRange(matchingAttr.nameOffset, matchingAttr.name.length),
+            templateSource));
 
     // Ensure the if condition was a boolean.
     if (attribute.expression != null &&
@@ -1768,7 +1770,7 @@ class SingleScopeResolver extends AngularScopeVisitor {
 
   /// Resolve the [AstNode] ([expression] or [statement]) and report errors.
   void _resolveDartAstNode(AstNode astNode, bool acceptAssignment) {
-    final classElement = view.classElement;
+    final classElement = component.classElement;
     final library = classElement.library;
     {
       final visitor = new LocalElementBuilder.forDanglingExpression();
@@ -1776,7 +1778,7 @@ class SingleScopeResolver extends AngularScopeVisitor {
     }
     {
       final visitor = new TypeResolverVisitor(
-          library, view.source, typeProvider, errorListener);
+          library, component.source, typeProvider, errorListener);
       astNode.accept(visitor);
     }
     final inheritanceManager2 = new InheritanceManager2(typeSystem);
@@ -1802,7 +1804,7 @@ class SingleScopeResolver extends AngularScopeVisitor {
     final angularSubsetChecker = new AngularSubsetVisitor(
         errorReporter: errorReporter,
         acceptAssignment: acceptAssignment,
-        owningComponent: view.component);
+        owningComponent: component);
     astNode.accept(angularSubsetChecker);
   }
 
@@ -1974,8 +1976,7 @@ class SingleScopeResolver extends AngularScopeVisitor {
     _resolveInputBoundAttributeValues(attribute);
   }
 
-  void _typecheckMatchingInput(
-      ExpressionBoundAttribute attr, InputElement input) {
+  void _typecheckMatchingInput(ExpressionBoundAttribute attr, Input input) {
     // half-complete-code case: ensure the expression is actually there
     if (attr.expression != null) {
       final attrType = attr.expression.staticType ?? typeProvider.dynamicType;
@@ -2014,15 +2015,15 @@ class TemplateResolver {
   final TypeProvider typeProvider;
   final TypeSystem typeSystem;
   final List<Component> standardHtmlComponents;
-  final Map<String, OutputElement> standardHtmlEvents;
-  final Map<String, InputElement> standardHtmlAttributes;
+  final Map<String, Output> standardHtmlEvents;
+  final Map<String, Input> standardHtmlAttributes;
   final AngularOptions options;
   final AnalysisErrorListener errorListener;
   final StandardAngular standardAngular;
   final StandardHtml standardHtml;
 
   Template template;
-  View view;
+  Component component;
   Source templateSource;
   ErrorReporter errorReporter;
 
@@ -2045,15 +2046,15 @@ class TemplateResolver {
 
   void resolve(Template template) {
     this.template = template;
-    view = template.view;
-    templateSource = view.templateSource;
+    component = template.component;
+    templateSource = component.templateSource;
     errorReporter = new ErrorReporter(errorListener, templateSource);
 
     final root = template.ast;
 
-    final allDirectives = <AbstractDirective>[]
+    final allDirectives = <DirectiveBase>[]
       ..addAll(standardHtmlComponents)
-      ..addAll(view.directives);
+      ..addAll(component.directives);
 
     final directiveResolver = new DirectiveResolver(
         allDirectives,
@@ -2117,8 +2118,8 @@ class TemplateResolver {
         // Resolve the scopes
         ..accept(new SingleScopeResolver(
             standardHtmlAttributes,
-            view.pipes,
-            view,
+            component.pipes,
+            component,
             template,
             templateSource,
             typeProvider,
@@ -2141,7 +2142,7 @@ class TemplateResolver {
 
 /// Records references to Dart [Element]s into the given [template].
 class _DartReferencesRecorder extends RecursiveAstVisitor {
-  final Map<Element, AngularElement> dartToAngularMap;
+  final Map<Element, Navigable> dartToAngularMap;
   final Template template;
 
   _DartReferencesRecorder(this.template, this.dartToAngularMap);

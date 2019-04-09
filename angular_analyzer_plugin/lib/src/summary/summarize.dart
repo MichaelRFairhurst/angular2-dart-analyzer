@@ -109,10 +109,12 @@ List<SummarizedDirectiveBuilder> summarizeDirectives(
     SourceRange constDirectivesSourceRange;
     String exportAs;
     int exportAsOffset;
+
     if (directive is Directive) {
       exportAs = directive?.exportAs;
       exportAsOffset = directive?.exportAsRange?.offset;
     }
+
     if (directive is Component) {
       templateUrl = directive.templateUrl;
       templateUrlOffset = directive.templateUrlRange?.offset;
@@ -120,21 +122,13 @@ List<SummarizedDirectiveBuilder> summarizeDirectives(
       templateText = directive.templateText;
       templateTextOffset = directive.templateTextRange?.offset;
 
-      final subdirectives = directive.directives;
-      dirUseSums = subdirectives is ListLiteral
-          ? subdirectives.items
-              .map((reference) => new SummarizedDirectiveUseBuilder()
-                ..name = reference.name
-                ..prefix = reference.prefix
-                ..offset = reference.range.offset
-                ..length = reference.range.length)
-              .toList()
-          : null;
-
-      // TODO(mfairhurst): replace "const directives" concept with
-      // [ReferenceOrList] concept. See [toReferenceList] for details.
-      constDirectivesSourceRange =
-          subdirectives is Reference ? subdirectives.range : null;
+      dirUseSums = toReferenceList(directive.directives)
+          .map((reference) => new SummarizedDirectiveUseBuilder()
+            ..name = reference.name
+            ..prefix = reference.prefix
+            ..offset = reference.range.offset
+            ..length = reference.range.length)
+          .toList();
 
       pipeUseSums = toReferenceList(directive.pipes)
           .map((pipe) => new SummarizedPipesUseBuilder()

@@ -2,14 +2,12 @@ import 'package:analyzer/dart/element/element.dart';
 import 'package:analyzer/src/generated/source.dart' show Source;
 import 'package:angular_analyzer_plugin/src/model.dart' hide Directive;
 import 'package:angular_analyzer_plugin/src/model.dart' as resolved;
+import 'package:angular_analyzer_plugin/src/model/navigable.dart';
 import 'package:angular_analyzer_plugin/src/selector.dart';
-import 'package:angular_analyzer_plugin/src/selector/element_name_selector.dart';
 
 class Directive implements resolved.Directive {
   @override
   final Selector selector;
-  @override
-  final String name;
 
   resolved.Directive Function() linkFn;
 
@@ -18,48 +16,22 @@ class Directive implements resolved.Directive {
 
   resolved.Directive _linkedDirective;
 
-  Directive(this.selector, this.name, Source source, this.linkFn);
+  Directive(this.selector, this.linkFn);
 
   @override
-  List<AngularElement> get attributes => load().attributes;
+  List<NavigableString> get attributes => load().attributes;
 
   @override
-  List<ContentChildField> get contentChildFields => load().contentChildFields;
+  List<ContentChild> get contentChildFields => load().contentChildFields;
 
   @override
-  set contentChildFields(List<ContentChildField> _contentChildFields) {
-    throw UnsupportedError(
-        'lazy directives should not change [contentChildFields]');
-  }
+  List<ContentChild> get contentChildrenFields => load().contentChildrenFields;
 
   @override
-  List<ContentChild> get contentChildren => load().contentChildren;
+  NavigableString get exportAs => load().exportAs;
 
   @override
-  List<ContentChildField> get contentChildrenFields =>
-      load().contentChildrenFields;
-
-  @override
-  set contentChildrenFields(List<ContentChildField> _contentChildrenFields) {
-    throw UnsupportedError(
-        'lazy directives should not change [contentChildrenFields]');
-  }
-
-  @override
-  List<ContentChild> get contentChilds => load().contentChilds;
-
-  @override
-  List<ElementNameSelector> get elementTags {
-    final elementTags = <ElementNameSelector>[];
-    selector.recordElementNameSelectors(elementTags);
-    return elementTags;
-  }
-
-  @override
-  AngularElement get exportAs => load().exportAs;
-
-  @override
-  List<InputElement> get inputs => load().inputs;
+  List<Input> get inputs => load().inputs;
 
   @override
   bool get isHtml => load().isHtml;
@@ -70,20 +42,16 @@ class Directive implements resolved.Directive {
   bool get looksLikeTemplate => load().looksLikeTemplate;
 
   @override
-  set looksLikeTemplate(bool _looksLikeTemplate) {
-    throw UnsupportedError(
-        'lazy directives should not change [looksLikeTemplate]');
-  }
-
-  @override
-  List<OutputElement> get outputs => load().outputs;
+  List<Output> get outputs => load().outputs;
 
   @override
   Source get source => classElement.source;
 
   @override
   bool operator ==(Object other) =>
-      other is Component && other.source == source && other.name == name;
+      other is Directive &&
+      other.source == source &&
+      other.classElement == classElement;
 
   resolved.Directive load() => _linkedDirective ??= linkFn();
 }

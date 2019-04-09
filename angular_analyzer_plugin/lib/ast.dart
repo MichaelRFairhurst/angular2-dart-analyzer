@@ -104,7 +104,7 @@ abstract class BoundAttributeInfo extends AttributeInfo {
 ///
 /// Naming here is important: "bound content child" != "content child binding."
 class ContentChildBinding {
-  final AbstractDirective directive;
+  final DirectiveBase directive;
   final ContentChild boundContentChild;
   final Set<ElementInfo> boundElements = new HashSet<ElementInfo>();
   // TODO: track bound attributes in #foo?
@@ -112,16 +112,16 @@ class ContentChildBinding {
   ContentChildBinding(this.directive, this.boundContentChild);
 }
 
-/// A location where an [AbstractDirective] is bound to a template.
+/// A location where an [DirectiveBase] is bound to a template.
 ///
 /// These occur on an [ElementInfo] or a [TemplateAttribute]. For each bound
 /// directive, there is a directive binding. Has [InputBinding]s and
 /// [OutputBinding]s which themselves indicate an [AttributeInfo] bound to an
-/// [InputElement] or [OutputElement] in the context of this [DirectiveBinding].
+/// [Input] or [Input] in the context of this [DirectiveBinding].
 ///
 /// Naming here is important: "bound directive" != "directive binding."
 class DirectiveBinding {
-  final AbstractDirective boundDirective;
+  final DirectiveBase boundDirective;
   final inputBindings = <InputBinding>[];
   final outputBindings = <OutputBinding>[];
   final contentChildBindings = <ContentChild, ContentChildBinding>{};
@@ -178,7 +178,7 @@ class ElementInfo extends NodeInfo implements HasDirectives {
   @override
   final boundStandardInputs = <InputBinding>[];
   @override
-  final availableDirectives = <AbstractDirective, List<SelectorName>>{};
+  final availableDirectives = <DirectiveBase, List<SelectorName>>{};
 
   int childNodesMaxEnd;
 
@@ -210,7 +210,7 @@ class ElementInfo extends NodeInfo implements HasDirectives {
     return list..addAll(childNodes);
   }
 
-  List<AbstractDirective> get directives =>
+  List<DirectiveBase> get directives =>
       boundDirectives.map((bd) => bd.boundDirective).toList();
   bool get isOrHasTemplateAttribute => isTemplate || templateAttribute != null;
 
@@ -289,13 +289,13 @@ enum ExpressionBoundType { input, twoWay, attr, attrIf, clazz, style }
 /// Contains an array of [DirectiveBinding]s because those contain more info
 /// than just the bound directive itself.
 abstract class HasDirectives extends AngularAstNode {
-  Map<AbstractDirective, List<SelectorName>> get availableDirectives;
+  Map<DirectiveBase, List<SelectorName>> get availableDirectives;
   List<DirectiveBinding> get boundDirectives;
   List<InputBinding> get boundStandardInputs;
   List<OutputBinding> get boundStandardOutputs;
 }
 
-/// A binding between an [AttributeInfo] and an [InputElement].
+/// A binding between an [AttributeInfo] and an [Input].
 ///
 /// This is used in the context of a [DirectiveBinding] because each instance of
 /// a bound directive has different input bindings. Note that inputs can be
@@ -304,19 +304,25 @@ abstract class HasDirectives extends AngularAstNode {
 ///
 /// Naming here is important: "bound input" != "input binding."
 class InputBinding {
-  final InputElement boundInput;
+  final Input boundInput;
   final AttributeInfo attribute;
 
   InputBinding(this.boundInput, this.attribute);
 }
 
-/// A variable defined by a [AbstractDirective].
-class LocalVariable extends AngularElementImpl {
+/// A variable defined by a [DirectiveBase].
+class LocalVariable extends DartElement {
+  final String name;
+  final SourceRange localRange;
   final LocalVariableElement dartVariable;
 
-  LocalVariable(String name, int nameOffset, int nameLength, Source source,
-      this.dartVariable)
-      : super(name, nameOffset, nameLength, source);
+  LocalVariable(this.name, this.dartVariable, {this.localRange})
+      : super(dartVariable) {
+    assert(source != null);
+  }
+
+  @override
+  SourceRange get navigationRange => localRange ?? super.navigationRange;
 }
 
 class Mustache extends AngularAstNode {
@@ -351,7 +357,7 @@ abstract class NodeInfo extends AngularAstNode {
   bool get isSynthetic;
 }
 
-/// A binding between an [BoundAttributeInfo] and an [OutputElement].
+/// A binding between an [BoundAttributeInfo] and an [Input].
 ///
 /// This is used in the context of a [DirectiveBinding] because each instance of
 /// a bound directive has different output bindings.
@@ -362,7 +368,7 @@ abstract class NodeInfo extends AngularAstNode {
 ///
 /// Naming here is important: "bound output" != "output binding."
 class OutputBinding {
-  final OutputElement boundOutput;
+  final Output boundOutput;
   final BoundAttributeInfo attribute;
 
   OutputBinding(this.boundOutput, this.attribute);
@@ -408,7 +414,7 @@ class TemplateAttribute extends BoundAttributeInfo implements HasDirectives {
   @override
   final boundStandardInputs = <InputBinding>[];
   @override
-  final availableDirectives = <AbstractDirective, List<SelectorName>>{};
+  final availableDirectives = <DirectiveBase, List<SelectorName>>{};
 
   String prefix;
 
@@ -422,7 +428,7 @@ class TemplateAttribute extends BoundAttributeInfo implements HasDirectives {
   List<AngularAstNode> get children =>
       new List<AngularAstNode>.from(virtualAttributes);
 
-  List<AbstractDirective> get directives =>
+  List<DirectiveBase> get directives =>
       boundDirectives.map((bd) => bd.boundDirective).toList();
 
   @override

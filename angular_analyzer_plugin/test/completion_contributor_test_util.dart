@@ -64,8 +64,8 @@ abstract class AbstractCompletionContributorTest
   Future resolveSingleTemplate(Source dartSource) async {
     final result = await angularDriver.requestDartResult(dartSource.fullName);
     for (var d in result.directives) {
-      if (d is Component && d.view.templateUriSource != null) {
-        final htmlPath = d.view.templateUriSource.fullName;
+      if (d is Component && d.templateUrlSource != null) {
+        final htmlPath = d.templateUrlSource.fullName;
         await angularDriver.requestHtmlResult(htmlPath);
       }
     }

@@ -10,7 +10,8 @@ class DartElement implements Navigable {
   @override
   final SourceRange navigationRange;
 
-  DartElement(this.element, this.navigationRange);
+  DartElement(this.element)
+      : navigationRange = SourceRange(element.nameOffset, element.nameLength);
 
   @override
   Source get source => element.source;

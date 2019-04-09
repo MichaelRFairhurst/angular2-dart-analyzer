@@ -1,13 +1,12 @@
 import 'package:analyzer/dart/element/element.dart';
 import 'package:analyzer/dart/element/type.dart';
+import 'package:analyzer/source/source_range.dart';
+import 'package:analyzer/src/generated/source.dart';
 import 'package:angular_analyzer_plugin/src/model.dart' as resolved;
 
 class Pipe implements resolved.Pipe {
   @override
   final String pipeName;
-
-  @override
-  final int pipeNameOffset;
 
   resolved.Pipe Function() linkFn;
 
@@ -16,12 +15,15 @@ class Pipe implements resolved.Pipe {
 
   resolved.Pipe _linkedPipe;
 
-  Pipe(this.pipeName, this.pipeNameOffset, this.linkFn);
+  @override
+  SourceRange pipeNameRange;
 
-  bool get isLinked => _linkedPipe != null;
+  Pipe(this.pipeName, this.pipeNameRange, this.linkFn);
 
   @override
-  bool get isPure => load().isPure;
+  String get className => classElement.name;
+
+  bool get isLinked => _linkedPipe != null;
 
   @override
   List<DartType> get optionalArgumentTypes => load().optionalArgumentTypes;
@@ -36,19 +38,10 @@ class Pipe implements resolved.Pipe {
   DartType get requiredArgumentType => load().requiredArgumentType;
 
   @override
-  set requiredArgumentType(DartType _requiredArgumentType) {
-    throw UnsupportedError(
-        'lazy directives should not change [requiredArgumentType]');
-  }
+  Source get source => classElement.source;
 
   @override
   DartType get transformReturnType => load().transformReturnType;
-
-  @override
-  set transformReturnType(DartType _transformReturnType) {
-    throw UnsupportedError(
-        'lazy directives should not change [transformReturnType]');
-  }
 
   @override
   bool operator ==(Object other) =>
