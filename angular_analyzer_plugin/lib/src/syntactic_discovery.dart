@@ -7,6 +7,7 @@ import 'package:analyzer/src/dart/ast/utilities.dart' as utils;
 import 'package:analyzer/src/generated/engine.dart';
 import 'package:analyzer/src/generated/source.dart';
 import 'package:angular_analyzer_plugin/errors.dart';
+import 'package:angular_analyzer_plugin/src/angular_ast_extraction.dart';
 import 'package:angular_analyzer_plugin/src/converter.dart';
 import 'package:angular_analyzer_plugin/src/ignoring_error_listener.dart';
 import 'package:angular_analyzer_plugin/src/model/syntactic/annotated_class.dart';
@@ -26,7 +27,6 @@ import 'package:angular_analyzer_plugin/src/resolver.dart'
 import 'package:angular_analyzer_plugin/src/selector.dart';
 import 'package:angular_analyzer_plugin/src/selector/and_selector.dart';
 import 'package:angular_analyzer_plugin/src/tuple.dart';
-import 'package:angular_analyzer_plugin/src/view_extraction.dart';
 
 /// Code to extract an angular definition from a raw (unresolved) AST.
 class SyntacticDiscovery extends _AnnotationProcessorMixin {

@@ -9,6 +9,7 @@ import 'package:angular_analyzer_plugin/src/model.dart';
 import 'package:angular_analyzer_plugin/src/selector.dart';
 import 'package:angular_analyzer_plugin/src/tuple.dart';
 import 'package:angular_ast/angular_ast.dart';
+import 'package:angular_ast/angular_ast.dart' as ng_ast;
 import 'package:test/test.dart';
 import 'package:test_reflective_loader/test_reflective_loader.dart';
 
@@ -1308,7 +1309,7 @@ class TestPanel {
     _addHtmlSource(code);
     await _resolveSingleTemplate(dartSource);
     assertErrorInCodeAtPosition(
-        AngularWarningCode.UNOPENED_MUSTACHE, code, '}}');
+        ng_ast.NgParserWarningCode.UNOPENED_MUSTACHE, code, '}}');
   }
 
   // ignore: non_constant_identifier_names

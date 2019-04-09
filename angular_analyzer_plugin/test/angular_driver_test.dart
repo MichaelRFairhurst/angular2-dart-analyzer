@@ -6,6 +6,7 @@ import 'package:analyzer/src/error/codes.dart';
 import 'package:analyzer/src/generated/source.dart';
 import 'package:angular_analyzer_plugin/ast.dart';
 import 'package:angular_analyzer_plugin/errors.dart';
+import 'package:angular_analyzer_plugin/src/angular_ast_extraction.dart';
 import 'package:angular_analyzer_plugin/src/from_file_prefixed_error.dart';
 import 'package:angular_analyzer_plugin/src/model.dart';
 import 'package:angular_analyzer_plugin/src/model/lazy/component.dart' as lazy;
@@ -15,7 +16,6 @@ import 'package:angular_analyzer_plugin/src/options.dart';
 import 'package:angular_analyzer_plugin/src/selector/and_selector.dart';
 import 'package:angular_analyzer_plugin/src/selector/element_name_selector.dart';
 import 'package:angular_analyzer_plugin/src/selector/or_selector.dart';
-import 'package:angular_analyzer_plugin/src/view_extraction.dart';
 import 'package:angular_ast/angular_ast.dart';
 import 'package:test/test.dart';
 import 'package:test_reflective_loader/test_reflective_loader.dart';
@@ -4862,7 +4862,7 @@ class TextPanel {
     final source = newSource('/test.dart', code);
     await getDirectives(source);
     errorListener.assertErrorsWithCodes([
-      AngularWarningCode.UNTERMINATED_MUSTACHE,
+      NgParserWarningCode.UNTERMINATED_MUSTACHE,
       StaticWarningCode.UNDEFINED_IDENTIFIER
     ]);
   }
@@ -4880,11 +4880,11 @@ class TextPanel {
     final source = newSource('/test.dart', code);
     await getDirectives(source);
     errorListener.assertErrorsWithCodes([
-      AngularWarningCode.UNTERMINATED_MUSTACHE,
-      AngularWarningCode.UNTERMINATED_MUSTACHE,
+      NgParserWarningCode.UNTERMINATED_MUSTACHE,
+      NgParserWarningCode.UNTERMINATED_MUSTACHE,
       StaticWarningCode.UNDEFINED_IDENTIFIER,
-      AngularWarningCode.UNOPENED_MUSTACHE,
-      AngularWarningCode.UNOPENED_MUSTACHE,
+      NgParserWarningCode.UNOPENED_MUSTACHE,
+      NgParserWarningCode.UNOPENED_MUSTACHE,
     ]);
   }
 
@@ -4901,7 +4901,8 @@ class TextPanel {
     final source = newSource('/test.dart', code);
     await getDirectives(source);
     // has errors
-    errorListener.assertErrorsWithCodes([AngularWarningCode.UNOPENED_MUSTACHE]);
+    errorListener
+        .assertErrorsWithCodes([NgParserWarningCode.UNOPENED_MUSTACHE]);
   }
 
   // ignore: non_constant_identifier_names
@@ -4918,7 +4919,7 @@ class TextPanel {
     await getDirectives(source);
     // has errors
     errorListener
-        .assertErrorsWithCodes([AngularWarningCode.UNTERMINATED_MUSTACHE]);
+        .assertErrorsWithCodes([NgParserWarningCode.UNTERMINATED_MUSTACHE]);
   }
 
   // ignore: non_constant_identifier_names
