@@ -1,5 +1,3 @@
-import 'dart:collection';
-
 import 'package:analyzer/src/generated/source.dart' show Source, SourceRange;
 import 'package:angular_analyzer_plugin/ast.dart';
 import 'package:angular_analyzer_plugin/src/model/navigable.dart';
@@ -31,7 +29,7 @@ class Template {
   final ElementInfo ast;
 
   /// The errors that are ignored in this template
-  final ignoredErrors = new HashSet<String>();
+  final ignoredErrors = <String>{};
 
   Template(this.component, this.ast);
 

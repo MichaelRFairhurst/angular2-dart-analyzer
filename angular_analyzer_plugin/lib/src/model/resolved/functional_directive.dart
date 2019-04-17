@@ -36,8 +36,8 @@ class FunctionalDirective implements DirectiveBase {
   FunctionalDirective(this.functionElement, this.selector,
       {@required this.looksLikeTemplate});
 
-  @override
   // We don't support `@Attribute`s on functional directives.
+  @override
   List<NavigableString> get attributes => const [];
 
   // Functional directives cannot have content children.
